@@ -1,0 +1,1278 @@
+foreach (SS2.Items.CompositeInjector.EquipmentIconButEpic injectorSlot in ss2EquipmentIconHolder.icons)
+                        {
+                            if (!injectorSlot.displayRoot.activeSelf)
+                            {
+                                continue;
+                            }
+
+                            activeInjectorSlotCount++;
+                            Transform injectorSlotDisplayRoot = injectorSlot.displayRoot.transform;
+                            RectTransform injectorSlotDisplayRootRect = injectorSlotDisplayRoot.GetComponent<RectTransform>();
+                            RectTransform injectorSlotRect = injectorSlot.GetComponent<RectTransform>();
+)
+                            injectorSlot.transform.position = firstEquipmentSlotPosition;
+                            Log.Debug($"firstEquipmentSlotPosition is {firstEquipmentSlotPosition}");
+                            // the position for the normal equipment slot slightly changes while loading/spawning in
+                            // so i'm manually setting the position to where the first slot should be to make things easier for me
+                            Vector3 firstInjectorSlotPosition = new(4.5078f, -5.213f, 12.809f);
+                            ss2EquipmentIconHolder.icons[0].transform.position = firstInjectorSlotPosition;
+                            Vector3 moveAwayFromInjectorSlot = firstEquipmentSlotPosition;
+                            //moveAwayFromInjectorSlot.x += 150f;
+                            moveAwayFromInjectorSlot.x += 100f * activeInjectorSlotCount;
+                            injectorSlot.transform.localPosition += moveAwayFromInjectorSlot;
+                            Vector3 andMoveSlightlyUp = new(0, 7f, 0);
+                            injectorSlot.transform.localPosition += andMoveSlightlyUp;
+
+                            ScaleInjectorSlotPanelRectSize(injectorSlot, 1.1f);
+                        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*internal static void StyleAndPositionNewCompositeInjectorSlot(CharacterBody characterBody)
+{
+if (!ModIsRunning)
+{
+    return;
+}
+Log.Debug("onBodyInventoryChangedGlobal\nStyleAndPositionNewCompositeInjectorSlot");
+
+CompositeInjectorSupport.IconHolder ss2EquipmentIconHolder = MyHud.gameObject.GetComponent<CompositeInjectorSupport.IconHolder>();
+// injector slots are used in order, so if the first one isn't active then none of them are
+if (!ss2EquipmentIconHolder.icons[0].displayRoot.activeSelf)
+{
+    Log.Debug("No injector slots active, not doing blagbhalhb");
+    return;
+}
+
+foreach (CompositeInjectorSupport.EquipmentIconButEpic injectorSlot in ss2EquipmentIconHolder.icons)
+{
+    if (!injectorSlot.displayRoot.activeSelf)
+    {
+        // they're in order so if one isn't active then the rest won't be and thus no point in continuing
+        return;
+    }
+
+}
+
+
+
+
+
+
+
+
+int injectorItemCount = characterBody.inventory.GetItemCount(SS2Content.Items.CompositeInjectorSupport);
+if (injectorItemCount > CompositeInjectorSupport.HudStructure.activeEditedInjectorSlotCount)
+{
+    CompositeInjectorSupport.HudStructure.activeEditedInjectorSlotCount = injectorItemCount;
+    CompositeInjectorSupport.IconHolder ss2EquipmentIconHolder = MyHud.gameObject.GetComponent<CompositeInjectorSupport.IconHolder>();
+    if (!ss2EquipmentIconHolder.icons[0].displayRoot.activeSelf)
+    {
+        // manually setting the position to where the first slot should be because lazy
+        Vector3 moveAwayFromEquipmentSlot = new(4.5078f, -5.213f, 12.809f);
+        ss2EquipmentIconHolder.icons[0].transform.position = moveAwayFromEquipmentSlot;
+
+        CompositeInjectorSupport.HudStructure.ScaleInjectorSlotPanelRects(ss2EquipmentIconHolder.icons[0]);
+        CompositeInjectorSupport.HudColor.ColorInjectorSlot(ss2EquipmentIconHolder.icons[0]);
+        return;
+    }
+    foreach (CompositeInjectorSupport.EquipmentIconButEpic injectorSlot in ss2EquipmentIconHolder.icons)
+    {
+        // this doesn't style more than one new slot at once but surely that'll never happen without giving yourself a bunch with the console/aerolt
+
+        // the injector slot that pops up on the hud hasn't been set as active yet
+        // but it'll always be the first one not active after the active ones
+        if (injectorSlot.displayRoot.activeSelf)
+        {
+            continue;
+        }
+
+        // copying the positioning code from ChangeRestOfHud leaves the new slot in a different spot for some reason
+        // so we're basing the position off of the first injector slot instead
+        injectorSlot.transform.position = ss2EquipmentIconHolder.icons[0].transform.position;
+        Vector3 moveAwayFromFirstInjectorSlot = Vector3.zero;
+        // 0.8815f is 100f in localPosition movement from ChangeRestOfHud
+        // idk why -1 from the slot count is needed it just is
+        moveAwayFromFirstInjectorSlot.x += 0.8815f * (CompositeInjectorSupport.HudStructure.activeEditedInjectorSlotCount - 1);
+        injectorSlot.transform.position += moveAwayFromFirstInjectorSlot;
+
+        CompositeInjectorSupport.HudColor.ColorInjectorSlot(injectorSlot);
+        CompositeInjectorSupport.HudColor.ColorInjectorSlot(injectorSlot);
+    }
+}
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using SS2.Items;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine.UI;
+using UnityEngine;
+
+namespace CleanestHud
+{
+    internal class temp
+    {
+        internal static IEnumerator ChangeRestOfHud(HUD self)
+        {
+            if (!Run.instance)
+            {
+                yield break;
+            }
+
+            var canvasGroup = self.GetComponent<CanvasGroup>() ?? self.gameObject.AddComponent<CanvasGroup>();
+            canvasGroup.alpha = 0f;
+            // was 0.2f
+            yield return new WaitForSeconds(0.35f);
+
+
+            if (self.targetBodyObject)
+            {
+                var playerBody = self.targetBodyObject.GetComponent<CharacterBody>();
+                if (playerBody)
+                {
+                    // removing (Clone) from the player's newBody name
+                    string bodyName = playerBody.name.Remove(playerBody.name.Length - 7);
+                    if (Plugin.BodyNameBlacklist_List.Contains(bodyName))
+                    {
+                        // TODO Make body blacklist actually prevent ALL hud changes
+                        Log.Info($"Body \"{bodyName}\" found in blacklist config, preventing HUD changes!");
+                        canvasGroup.alpha = 1f;
+                        // ????
+                        Plugin.runHooks = false;
+                        yield break;
+                    }
+                }
+            }
+
+            var mainUIArea = self.mainUIPanel.transform;
+            var upperRightCluster = self.gameModeUiRoot.transform;
+            var runInfoHudPanel = upperRightCluster.GetChild(0);
+
+            #region Timer panel
+            var timerPanel = runInfoHudPanel.Find("TimerPanel");
+            if (timerPanel)
+            {
+                var timerPanelImage = timerPanel.GetComponent<Image>();
+                timerPanelImage.enabled = false;
+                var wormGear = timerPanel.Find("Wormgear").gameObject;
+                wormGear.SetActive(false);
+                var timerText = timerPanel.Find("TimerText");
+                var timerTextMesh = timerText.GetComponent<HGTextMeshProUGUI>();
+                timerTextMesh.color = Color.white;
+            }
+            #endregion
+
+            #region Simulacrum wave panel
+            var wavePanel = runInfoHudPanel.Find("WavePanel");
+            if (wavePanel)
+            {
+                var wavePanelImage = wavePanel.GetComponent<Image>();
+                wavePanelImage.enabled = false;
+                var waveText = wavePanel.Find("WaveText");
+                var waveTextMesh = waveText.GetComponent<HGTextMeshProUGUI>();
+                waveTextMesh.color = Color.white;
+            }
+            #endregion
+
+            #region Difficulty & objectives panels
+            var setDifficultyPanel = runInfoHudPanel.Find("SetDifficultyPanel");
+            var setDifficultyPanelImage = setDifficultyPanel.GetComponent<Image>();
+            setDifficultyPanelImage.enabled = false;
+
+            var difficultyIcon = setDifficultyPanel.Find("DifficultyIcon");
+            var difficultyIconRect = difficultyIcon.GetComponent<RectTransform>();
+            difficultyIconRect.localPosition = new Vector3(20f, 0f, -0.5f);
+
+            var difficultyBar = runInfoHudPanel.Find("DifficultyBar");
+            var difficultyBarImage = difficultyBar.GetComponent<Image>();
+            difficultyBarImage.enabled = false;
+
+            var scrollView = difficultyBar.Find("Scroll View");
+            var scrollViewImage = scrollView.GetComponent<Image>();
+            scrollViewImage.enabled = false;
+
+            var viewport = scrollView.Find("Viewport");
+            var content = viewport.Find("Content");
+
+            var backdrop = scrollView.Find("Backdrop");
+
+            var markerBackdrop = difficultyBar.Find("Marker, Backdrop");
+            var markerBackdropImage = markerBackdrop.GetComponent<Image>();
+            markerBackdropImage.enabled = false;
+
+            var outline = runInfoHudPanel.Find("OutlineImage").gameObject;
+            outline.SetActive(false);
+
+            var rightInfoBar = runInfoHudPanel.Find("RightInfoBar");
+            var objectivePanel = rightInfoBar.Find("ObjectivePanel");
+            var objectivePanelImage = objectivePanel.GetComponent<Image>();
+            objectivePanelImage.enabled = false;
+
+            var objectiveLabel2 = objectivePanel.Find("Label").gameObject;
+            objectiveLabel2.SetActive(false);
+            #endregion
+
+            #region idk
+            var springCanvas = mainUIArea.Find("SpringCanvas");
+            var bottomLeftCluster = springCanvas.Find("BottomLeftCluster");
+            var bottomCenterCluster = springCanvas.Find("BottomCenterCluster");
+
+            var barRoots = bottomLeftCluster.Find("BarRoots");
+            barRoots.parent = bottomCenterCluster;
+            Destroy(barRoots.GetComponent<VerticalLayoutGroup>());
+            var barRootsRect = barRoots.GetComponent<RectTransform>();
+            barRootsRect.rotation = Quaternion.identity;
+            barRootsRect.pivot = new Vector2(0.5f, 0.25f);
+            barRootsRect.anchoredPosition = Vector2.zero;
+            barRootsRect.sizeDelta = new Vector2(-400f, 100f);
+            #endregion
+
+            #region XP & levels
+            var levelDisplayCluster = barRoots.Find("LevelDisplayCluster");
+            var levelDisplayClusterRect = levelDisplayCluster.GetComponent<RectTransform>();
+            levelDisplayClusterRect.localPosition = new Vector3(-300f, 45f, 0f);
+            var buffDisplayRoot = levelDisplayCluster.Find("BuffDisplayRoot");
+            Destroy(buffDisplayRoot.GetComponent<HorizontalLayoutGroup>());
+            buffDisplayRoot.parent = barRoots;
+
+            var levelDisplayRoot = levelDisplayCluster.Find("LevelDisplayRoot");
+            var levelDisplayRootRect = levelDisplayRoot.GetComponent<RectTransform>();
+            var levelDisplayTextPositionable = levelDisplayRoot.gameObject.AddComponent<TextPositioner>();
+            levelDisplayTextPositionable.idealPosition = new Vector3(308f, -27f, 0f);
+            // levelDisplayTextPositionable.rectTrans = levelDisplayRootRect;
+            levelDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
+
+            var expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
+            var expBarRootImage = expBarRoot.GetComponent<Image>();
+            expBarRootImage.sprite = whiteSprite;
+            expBarRootImage.enabled = false;
+
+            var expBarRootRect = expBarRoot.GetComponent<RectTransform>();
+            expBarRootRect.localPosition = new Vector3(510.3f, -12.6f, 0f);
+            expBarRoot.localScale = new Vector3(1.244f, 0.8f, 1f);
+            #endregion
+
+            #region HP bar
+            try
+            {
+                var healthbarRoot = barRoots.Find("HealthbarRoot");
+                var healthbarRootRect = healthbarRoot.GetComponent<RectTransform>();
+                healthbarRootRect.localPosition = new Vector3(-210f, 45f, 0f);
+                var healthbarRootImage = healthbarRoot.GetComponent<Image>();
+                healthbarRootImage.sprite = whiteSprite;
+
+                var shrunkenRoot = healthbarRoot.Find("ShrunkenRoot");
+                var child1 = shrunkenRoot.GetChild(0);
+                child1.gameObject.SetActive(false);
+                var child2 = shrunkenRoot.GetChild(1);
+                child2.gameObject.SetActive(false);
+                var shrunkenExpBarRoot = expBarRoot.Find("ShrunkenRoot");
+                var shrunkenExpBarRootRect = shrunkenExpBarRoot.GetComponent<RectTransform>();
+                shrunkenExpBarRootRect.localScale = new Vector3(1f, 1.6666666666f, 1f);
+                shrunkenExpBarRootRect.localPosition = new Vector3(-338.6f, 15.25f);
+            }
+            catch { };
+            #endregion
+
+            #region Spectator text
+            var bottomRightCluster = springCanvas.Find("BottomRightCluster");
+            var bottomRightGraphicRaycaster = bottomRightCluster.GetComponent<GraphicRaycaster>();
+
+            var spectatorLabel = bottomCenterCluster.Find("SpectatorLabel");
+            var spectatorLabelRect = spectatorLabel.GetComponent<RectTransform>();
+
+            spectatorLabelRect.anchoredPosition = new Vector2(0f, 150f);
+
+            var bottomCenterGraphicRaycaster = bottomCenterCluster.gameObject.AddComponent<GraphicRaycaster>();
+            bottomCenterGraphicRaycaster.blockingObjects = bottomRightGraphicRaycaster.blockingObjects;
+            bottomCenterGraphicRaycaster.ignoreReversedGraphics = bottomRightGraphicRaycaster.ignoreReversedGraphics;
+            bottomCenterGraphicRaycaster.useGUILayout = bottomRightGraphicRaycaster.useGUILayout;
+            #endregion
+
+            #region Skills slots
+            var transparentColor = new Color(0, 0, 0, 0);
+
+            var skillIcon1 = self.skillIcons[0];
+            skillIcon1.cooldownRemapPanel = null;
+            var skillIcon1Image = skillIcon1.GetComponent<Image>();
+            skillIcon1Image.color = transparentColor;
+            var cooldownPanel1 = skillIcon1.transform.Find("CooldownPanel").gameObject;
+            cooldownPanel1.SetActive(false);
+            var cooldownText1 = skillIcon1.transform.Find("CooldownText");
+            var cooldownTextRect1 = cooldownText1.GetComponent<RectTransform>();
+            cooldownTextRect1.localPosition = new Vector3(-18f, 19.5f, 0f);
+
+            var cooldownTextMesh1 = cooldownText1.GetComponent<HGTextMeshProUGUI>();
+            cooldownTextMesh1.color = Color.white;
+            var isReadyPanel1 = skillIcon1.isReadyPanelObject;
+            var iconPanel1 = skillIcon1.iconImage;
+            var iconPanelRect1 = iconPanel1.GetComponent<RectTransform>();
+            iconPanelRect1.localScale = Vector3.one * 1.1f;
+            var skillBackgroundPanel1 = skillIcon1.transform.Find("SkillBackgroundPanel").gameObject;
+            skillBackgroundPanel1.SetActive(Plugin.ConfigOptions.ShowSkillKeybinds.Value);
+            var skillStockRoot1 = skillIcon1.transform.GetChild(4);
+            var skillStockRootText1 = skillStockRoot1.Find("StockText");
+            var skillStockRootTextMesh1 = skillStockRootText1.GetComponent<HGTextMeshProUGUI>();
+            skillStockRootTextMesh1.color = Color.white;
+
+
+
+            var skillIcon2 = self.skillIcons[1];
+            skillIcon2.cooldownRemapPanel = null;
+            var skillIcon2Image = skillIcon2.GetComponent<Image>();
+            var cooldownPanel2 = skillIcon2.transform.Find("CooldownPanel").gameObject;
+            cooldownPanel2.SetActive(false);
+            var cooldownText2 = skillIcon2.transform.Find("CooldownText");
+            var cooldownTextRect2 = cooldownText2.GetComponent<RectTransform>();
+            cooldownTextRect2.localPosition = new Vector3(-18f, 19.5f, 0f);
+
+            var cooldownTextMesh2 = cooldownText2.GetComponent<HGTextMeshProUGUI>();
+            cooldownTextMesh2.color = Color.white;
+            skillIcon2Image.color = transparentColor;
+            var isReadyPanel2 = skillIcon2.isReadyPanelObject;
+            var iconPanel2 = skillIcon2.iconImage;
+            var iconPanelRect2 = iconPanel2.GetComponent<RectTransform>();
+            iconPanelRect2.localScale = Vector3.one * 1.1f;
+            var skillBackgroundPanel2 = skillIcon2.transform.Find("SkillBackgroundPanel").gameObject;
+            skillBackgroundPanel2.SetActive(Plugin.ConfigOptions.ShowSkillKeybinds.Value);
+            var skillStockRoot2 = skillIcon2.transform.GetChild(4);
+            var skillStockRootText2 = skillStockRoot2.Find("StockText");
+            var skillStockRootTextMesh2 = skillStockRootText2.GetComponent<HGTextMeshProUGUI>();
+            skillStockRootTextMesh2.color = Color.white;
+
+
+
+            var skillIcon3 = self.skillIcons[2];
+            skillIcon3.cooldownRemapPanel = null;
+            var skillIcon3Image = skillIcon3.GetComponent<Image>();
+            skillIcon3Image.color = transparentColor;
+            var cooldownPanel3 = skillIcon3.transform.Find("CooldownPanel").gameObject;
+            cooldownPanel3.SetActive(false);
+            var cooldownText3 = skillIcon3.transform.Find("CooldownText");
+            var cooldownTextRect3 = cooldownText3.GetComponent<RectTransform>();
+            cooldownTextRect3.localPosition = new Vector3(-18f, 19.5f, 0f);
+
+            var cooldownTextMesh3 = cooldownText3.GetComponent<HGTextMeshProUGUI>();
+            cooldownTextMesh3.color = Color.white;
+            var isReadyPanel3 = skillIcon3.isReadyPanelObject;
+            var iconPanel3 = skillIcon3.iconImage;
+            var iconPanelRect3 = iconPanel3.GetComponent<RectTransform>();
+            iconPanelRect3.localScale = Vector3.one * 1.1f;
+            var skillBackgroundPanel3 = skillIcon3.transform.Find("SkillBackgroundPanel").gameObject;
+            skillBackgroundPanel3.SetActive(Plugin.ConfigOptions.ShowSkillKeybinds.Value);
+            var skillStockRoot3 = skillIcon3.transform.GetChild(4);
+            var skillStockRootText3 = skillStockRoot3.Find("StockText");
+            var skillStockRootTextMesh3 = skillStockRootText3.GetComponent<HGTextMeshProUGUI>();
+            skillStockRootTextMesh3.color = Color.white;
+
+
+
+            var skillIcon4 = self.skillIcons[3];
+            skillIcon4.cooldownRemapPanel = null;
+            var skillIcon4Image = skillIcon4.GetComponent<Image>();
+            skillIcon4Image.color = transparentColor;
+            var cooldownPanel4 = skillIcon4.transform.Find("CooldownPanel").gameObject;
+            cooldownPanel4.SetActive(false);
+            var cooldownText4 = skillIcon4.transform.Find("CooldownText");
+            var cooldownTextRect4 = cooldownText4.GetComponent<RectTransform>();
+            cooldownTextRect4.localPosition = new Vector3(-18f, 19.5f, 0f);
+
+            var cooldownTextMesh4 = cooldownText4.GetComponent<HGTextMeshProUGUI>();
+            cooldownTextMesh4.color = Color.white;
+            var isReadyPanel4 = skillIcon4.isReadyPanelObject;
+            var iconPanel4 = skillIcon4.iconImage;
+            var iconPanelRect4 = iconPanel4.GetComponent<RectTransform>();
+            iconPanelRect4.localScale = Vector4.one * 1.1f;
+            var skillBackgroundPanel4 = skillIcon4.transform.Find("SkillBackgroundPanel").gameObject;
+            skillBackgroundPanel4.SetActive(Plugin.ConfigOptions.ShowSkillKeybinds.Value);
+            var skillStockRoot4 = skillIcon4.transform.GetChild(4);
+            var skillStockRootText4 = skillStockRoot4.Find("StockText");
+            var skillStockRootTextMesh4 = skillStockRootText4.GetComponent<HGTextMeshProUGUI>();
+            skillStockRootTextMesh4.color = Color.white;
+            #endregion
+
+            #region Equipment slots
+            var equipment1 = self.equipmentIcons[0];
+            var equipment1Rect = equipment1.GetComponent<RectTransform>();
+            var equipment1WithComponent = equipment1.gameObject.AddComponent<EquipmentSlotPositionerAndScaler>();
+            equipment1WithComponent.equipment = equipment1Rect;
+            var equipment1DisplayRoot = equipment1.displayRoot.transform;
+            var equipment1DisplayRootRect = equipment1DisplayRoot.GetComponent<RectTransform>();
+
+            equipment1DisplayRootRect.localPosition = new Vector3(-18f, 22f, 0f);
+            equipment1DisplayRootRect.localScale = new Vector3(1f, 1.01f, 1f);
+            var equipment1BGPanel = equipment1DisplayRoot.Find("BGPanel");
+            var equipment1BGPanelRect = equipment1BGPanel.GetComponent<RectTransform>();
+            equipment1BGPanelRect.localScale = Vector3.one * 1.1f;
+            var equipment1IconPanel = equipment1DisplayRoot.Find("IconPanel");
+            var equipment1IconPanelRect = equipment1IconPanel.GetComponent<RectTransform>();
+            equipment1IconPanelRect.localScale = Vector3.one * 1.1f;
+            var equipment1TextBackgroundPanel = equipment1DisplayRoot.Find("EquipmentTextBackgroundPanel").gameObject;
+            // the equipment keybind text isn't aligned the same as the skill keybind text because ????? so it needs to be re-aligned manually
+            var equipment1TextBackgroundPanelRect = equipment1TextBackgroundPanel.GetComponent<RectTransform>();
+            equipment1TextBackgroundPanelRect.localPosition = new Vector3(0, -31, 0);
+            equipment1TextBackgroundPanel.SetActive(Plugin.ConfigOptions.ShowSkillKeybinds.Value);
+            var equipment1CooldownText = equipment1DisplayRoot.Find("CooldownText");
+            var equipment1CooldownTextRect = equipment1CooldownText.GetComponent<RectTransform>();
+            equipment1CooldownTextRect.localPosition = new Vector3(0f, 1f, 0f);
+
+            var equipment2 = self.equipmentIcons[1];
+            var equipment2Rect = equipment2.GetComponent<RectTransform>();
+            var equipment2WithComponent = equipment2.gameObject.AddComponent<EquipmentSlotPositionerAndScaler>();
+            equipment2WithComponent.equipment = equipment2Rect;
+            var equipment2DisplayRoot = equipment2.displayRoot.transform;
+            var equipment2DisplayRootRect = equipment2DisplayRoot.GetComponent<RectTransform>();
+
+            equipment2DisplayRootRect.localPosition = new Vector3(30f, 22f, 0f);
+            equipment2DisplayRootRect.localScale = new Vector3(0.85f, 0.85f, 0.85f);
+            var equipment2BGPanel = equipment2DisplayRoot.Find("BGPanel");
+            var equipment2BGPanelRect = equipment2BGPanel.GetComponent<RectTransform>();
+            equipment2BGPanelRect.localScale = Vector3.one * 1.1f;
+            var equipment2IconPanel = equipment2DisplayRoot.Find("IconPanel");
+            var equipment2IconPanelRect = equipment2IconPanel.GetComponent<RectTransform>();
+            equipment2IconPanelRect.localScale = Vector3.one * 1.1f;
+
+            var equipment2TextBackgroundPanel = equipment2DisplayRoot.Find("EquipmentTextBackgroundPanel").gameObject;
+            var equipment2TextBackgroundPanelRect = equipment2TextBackgroundPanel.GetComponent<RectTransform>();
+            equipment2TextBackgroundPanelRect.localPosition = new Vector3(0, -31, 0);
+            equipment2TextBackgroundPanel.SetActive(Plugin.ConfigOptions.ShowSkillKeybinds.Value);
+            var equipment2CooldownText = equipment2DisplayRoot.Find("CooldownText");
+            var equipment2CooldownTextRect = equipment2CooldownText.GetComponent<RectTransform>();
+            equipment2CooldownTextRect.localPosition = new Vector3(0f, 1f, 0f);
+
+            if (ModSupport.Starstorm2.ModIsRunning)
+            {
+                // ss2 doesn't copy our styled alt equipment slot for some reason
+                // i think it's because ss2 copies the equipment slot immediately while we wait a tiny bit before doing our changes
+                // all this means we need to modify ALL composite injector equipment slots since idk what to do to make it use our changes
+                CompositeInjector.IconHolder ss2EquipmentIconHolder;
+                bool compositeInjectorExists = self.gameObject.TryGetComponent<CompositeInjector.IconHolder>(out ss2EquipmentIconHolder);
+                if (compositeInjectorExists)
+                {
+                    int activeInjectorSlotCount = 0;
+                    foreach (CompositeInjector.EquipmentIconButEpic injectorSlot in ss2EquipmentIconHolder.icons)
+                    {
+                        if (!injectorSlot.displayRoot.activeSelf)
+                        {
+                            continue;
+                        }
+                        activeInjectorSlotCount++;
+
+                        var injectorSlotRect = injectorSlot.GetComponent<RectTransform>();
+                        var injectorSlotDisplayRoot = injectorSlot.displayRoot.transform;
+                        var injectorSlotDisplayRootRect = injectorSlotDisplayRoot.GetComponent<RectTransform>();
+
+                        injectorSlot.transform.position = equipment1.transform.position;
+                        Vector3 moveAwayFromEquipmentSlot = new(150f, 0, 0);
+                        moveAwayFromEquipmentSlot.x += 100f * activeInjectorSlotCount;
+                        injectorSlot.transform.localPosition += moveAwayFromEquipmentSlot;
+                        Vector3 andMoveSlightlyUp = new(0, 7f, 0);
+                        injectorSlot.transform.localPosition += andMoveSlightlyUp;
+
+                        ScaleInjectorSlotPanelRects(injectorSlot);
+                    }
+                    Plugin.activeStyledInjectorSlotCount = activeInjectorSlotCount;
+                }
+            }
+
+            #endregion
+
+            #region Skills & Equipment & Seeker HUD positioning
+            var skillsScaler = bottomRightCluster.Find("Scaler");
+            skillsScaler.parent = bottomCenterCluster;
+
+            var scalerRect = skillsScaler.GetComponent<RectTransform>();
+            scalerRect.rotation = Quaternion.identity;
+            scalerRect.pivot = new Vector2(0.5f, 0f);
+            scalerRect.sizeDelta = new Vector2(-639f, -234f);
+            float skillsHudYPos = Plugin.ConfigOptions.ShowSkillKeybinds.Value ? 125f : 98f;
+            scalerRect.anchoredPosition = new Vector2(62f, skillsHudYPos);
+
+            RepositionSeekerLotusUi();
+            #endregion
+
+            #region Sprint and inventory button reminders
+            var sprintCluster = skillsScaler.Find("SprintCluster").gameObject;
+            sprintCluster.SetActive(false);
+            var inventoryCluster = skillsScaler.Find("InventoryCluster").gameObject;
+            inventoryCluster.SetActive(false);
+            #endregion
+
+            #region Charge bar (commented out?)
+            /*
+            var weaponSlot = skillsScaler.Find("WeaponSlot");
+            if (weaponSlot)
+            {
+                var displayRoot = weaponSlot.Find("DisplayRoot");
+                var displayRootRect = displayRoot.GetComponent<RectTransform>();
+                displayRootRect.localPosition = new Vector3(-5.5f, 16.85f, 0f);
+                displayRootRect.localScale = new Vector3(0.77f, 0.775f, 0.77f);
+                var equipmentTextBackgroundPanel = displayRoot.Find("EquipmentTextBackgroundPanel").gameObject;
+                equipmentTextBackgroundPanel.SetActive(false);
+                var isReadyPanel = displayRoot.Find("IsReadyPanel");
+                var isReadyPanelImage = isReadyPanel.GetComponent<Image>();
+                isReadyPanelImage.color = _survivorColor;
+                var bgPanel = displayRoot.Find("BGPanel");
+                var bgPanelImage = bgPanel.GetComponent<Image>();
+                bgPanelImage.color = _survivorColor * DefaultHudColorIntensity;
+                var bgPanelRect = bgPanel.GetComponent<RectTransform>();
+                bgPanelRect.localScale = Vector3.one * 1.1f;
+                var iconPanel = displayRoot.Find("IconPanel");
+                var iconPanelRect = iconPanel.GetComponent<RectTransform>();
+                iconPanelRect.localScale = Vector3.one * 1.1f;
+                scalerRect.localPosition = new Vector3(94f, -98f, 11.75943f);
+
+                var weaponChargeBar = displayRoot.Find("WeaponChargeBar(Clone)");
+                var weaponChargeBarRect = weaponChargeBar.GetComponent<RectTransform>();
+                weaponChargeBarRect.localPosition = new Vector3(0f, 35f, 0f);
+                weaponChargeBarRect.localEulerAngles = Vector3.zero;
+                weaponChargeBarRect.localScale = new Vector3(0.5f, 0.09f, 1f);
+                var redCharge = weaponChargeBar.Find("RedCharge");
+                var redChargeImage = redCharge.GetComponent<Image>();
+                redChargeImage.color = _survivorColor * 0.5f;
+                var charge = weaponChargeBar.Find("Charge");
+                var chargeImage = charge.GetComponent<Image>();
+                chargeImage.color = new Color(_survivorColor.r, _survivorColor.g, _survivorColor.b, 0.72156862745f);
+            }
+            */
+            #endregion
+
+            #region Top-left money and lunar coins
+            var moneyRoot = self.moneyText.transform;
+            var valueText = moneyRoot.Find("ValueText");
+            var valueTextMesh = valueText.GetComponent<HGTextMeshProUGUI>();
+            valueTextMesh.color = Color.white;
+            var dollarSign = moneyRoot.Find("DollarSign");
+            var dollarSignMesh = dollarSign.GetComponent<HGTextMeshProUGUI>();
+            dollarSignMesh.color = Color.white;
+
+            var upperLeftCluster = moneyRoot.parent;
+            var upperLeftClusterImage = upperLeftCluster.GetComponent<Image>();
+            upperLeftClusterImage.enabled = false;
+            var upperLeftClusterVerticalLayoutGroup = upperLeftCluster.GetComponent<VerticalLayoutGroup>();
+            upperLeftClusterVerticalLayoutGroup.spacing = 0;
+
+            var lunarCoinRoot = upperLeftCluster.Find("LunarCoinRoot");
+            var lunarCoinValueText = lunarCoinRoot.Find("ValueText");
+            var lunarCoinValueTextMesh = lunarCoinValueText.GetComponent<HGTextMeshProUGUI>();
+            lunarCoinValueTextMesh.color = Color.white;
+            var lunarCoinSign = lunarCoinRoot.Find("LunarCoinSign");
+            var lunarCoinSignMesh = lunarCoinSign.GetComponent<HGTextMeshProUGUI>();
+            lunarCoinSignMesh.color = Color.white;
+            #endregion
+
+            #region Item inventory
+            var itemInventoryDisplay = self.itemInventoryDisplay;
+            var itemInventoryDisplayRoot = itemInventoryDisplay.transform.parent;
+            var itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
+            itemInventoryDisplayRootRect.localPosition = new Vector3(-26f, -90f, 0f);
+            itemInventoryDisplayRootRect.anchoredPosition = new Vector2(550f, -90f);
+            itemInventoryDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
+            itemInventoryDisplayRootRect.sizeDelta = new Vector2(1000f, 140f);
+            // var kys6 = itemInventoryDisplayRoot.gameObject.AddComponent<KillYors>();
+            // kys6.inventory = itemInventoryDisplayRootRect;
+            var itemInventoryDisplayImage = itemInventoryDisplay.GetComponent<Image>();
+            itemInventoryDisplayImage.enabled = false;
+            // goal is to have 18 icons per row instead of 20
+            #endregion
+
+            #region Boss hp bar & text
+            var topCenterCluster = springCanvas.Find("TopCenterCluster");
+            Destroy(topCenterCluster.GetComponent<VerticalLayoutGroup>());
+
+            var bossHealthBarRoot = topCenterCluster.Find("BossHealthBarRoot");
+            var bossHealthBarRootRect = bossHealthBarRoot.GetComponent<RectTransform>();
+            // z was -3.81469706f ???
+            // y was -160f
+            bossHealthBarRootRect.localPosition = new Vector3(0f, -160, -3.8f);
+            Destroy(bossHealthBarRoot.GetComponent<VerticalLayoutGroup>());
+
+            var bossContainer = bossHealthBarRoot.Find("Container");
+            Destroy(bossContainer.GetComponent<VerticalLayoutGroup>());
+            var bossHealthBarContainer = bossContainer.Find("BossHealthBarContainer");
+            var bossHealthBarContainerImage = bossHealthBarContainer.GetComponent<Image>();
+            bossHealthBarContainerImage.enabled = false;
+            var bossHealthBarContainerRect = bossHealthBarContainer.GetComponent<RectTransform>();
+            bossHealthBarContainerRect.localPosition = new Vector3(0, 25, 0);
+
+            var bossNameLabel = bossContainer.Find("BossNameLabel");
+            var bossNameLabelRect = bossNameLabel.GetComponent<RectTransform>();
+            bossNameLabelRect.localPosition = new Vector3(0f, 32.5f, 0f);
+            var bossSubtitleLabel = bossContainer.Find("BossSubtitleLabel");
+            var bossSubtitleLabelRect = bossSubtitleLabel.GetComponent<RectTransform>();
+            var bossSubtitleLabelPositionable = bossSubtitleLabel.gameObject.AddComponent<TextPositioner>();
+            bossSubtitleLabelPositionable.idealPosition = new Vector3(0f, -40f, 0f);
+            // bossSubtitleLabelPositionable.rectTrans = bossSubtitleLabelRect;
+
+            var bossSubtitleLabelMesh = bossSubtitleLabel.GetComponent<HGTextMeshProUGUI>();
+            bossSubtitleLabelMesh.color = Color.white;
+
+            var bossBackgroundPanel = bossHealthBarContainer.Find("BackgroundPanel");
+            var bossBackgroundPanelRect = bossBackgroundPanel.GetComponent<RectTransform>();
+            bossBackgroundPanelRect.localPosition = new Vector3(0f, -42.5f, 0f);
+            bossBackgroundPanelRect.localScale = new Vector3(1f, 1.5f, 1f);
+            var bossBackgroundPanelImage = bossBackgroundPanel.GetComponent<Image>();
+            bossBackgroundPanelImage.enabled = true;
+            var delayFillPanel = bossBackgroundPanel.Find("DelayFillPanel");
+            var delayFillPanelImage = delayFillPanel.GetComponent<Image>();
+            delayFillPanelImage.color = new Color32(138, 0, 0, 255); // red color for boss hp bar
+
+            var shieldPanel = bossBackgroundPanel.Find("ShieldPanel");
+            var healthText = bossBackgroundPanel.Find("HealthText");
+            var healthTextRect = healthText.GetComponent<RectTransform>();
+            healthTextRect.localPosition = new Vector3(0f, 11.5f, -5.85840205f);
+            healthTextRect.localEulerAngles = Vector3.zero;
+            healthTextRect.localScale = new Vector3(1.25f, 0.8325f, 1.25f);
+            var shieldPanelSiblingIndex = shieldPanel.GetSiblingIndex();
+            var healthTextSiblingIndex = healthText.GetSiblingIndex();
+            healthText.SetSiblingIndex(shieldPanelSiblingIndex);
+            shieldPanel.SetSiblingIndex(healthTextSiblingIndex);
+            #endregion
+
+            #region Scoreboard?
+            var rightCluster = springCanvas.Find("RightCluster");
+            var contextNotification = rightCluster.Find("ContextNotification");
+            var contextDisplay = contextNotification.Find("ContextDisplay");
+            var contextDisplayImage = contextDisplay.GetComponent<RawImage>();
+            contextDisplayImage.enabled = false;
+
+            var mainContainer = self.mainContainer.transform;
+            var mapNameCluster = mainContainer.Find("MapNameCluster");
+            var subtext = mapNameCluster.Find("Subtext");
+            var subtextMesh = subtext.GetComponent<HGTextMeshProUGUI>();
+            subtextMesh.color = Color.white;
+
+            var notificationArea = mainContainer.Find("NotificationArea");
+            var notificationAreaRect = notificationArea.GetComponent<RectTransform>();
+            notificationAreaRect.localEulerAngles = new Vector3(0f, 6f, 0f);
+            var notificationAreaPositionable = notificationArea.gameObject.AddComponent<NotificationPositioner>();
+            notificationAreaPositionable.notification = notificationAreaRect;
+
+            var scoreboardPanel = springCanvas.Find("ScoreboardPanel");
+            var scoreboardPanelRect = scoreboardPanel.GetComponent<RectTransform>();
+            scoreboardPanelRect.localPosition = new Vector3(0, -90, 0);
+            var container = scoreboardPanel.Find("Container");
+            var stripContainer = container.Find("StripContainer");
+            stripContainer.gameObject.AddComponent<ScoreboardStripChanger>();
+            var stripContainerImage = stripContainer.GetComponent<Image>();
+            stripContainerImage.enabled = false;
+            var stripContainerRect = stripContainer.GetComponent<RectTransform>();
+            stripContainerRect.sizeDelta = new Vector2(0f, 80f);
+
+            // the inspect panel isn't affected by the canvasgroup for the ENTIRE hud
+            // at least until you disable it's own canvasgroup
+            // but then that disables the fade in animation it has
+            // im just gonna call that a feature for now
+            // TODO maybe setup actual solution & make configurable?
+            var inspectPanelArea = container.Find("InspectPanel").Find("InspectPanelArea");
+            var inspectPanelAreaCanvasGroup = inspectPanelArea.GetComponent<CanvasGroup>();
+            inspectPanelAreaCanvasGroup.enabled = false;
+
+            var inspectionPanel = inspectPanelArea.Find("InspectionPanel");
+            var inspectHudIconImage = inspectionPanel.Find("HorizontalBox").Find("InspectIconContainer").Find("InspectVisualBackground").GetComponent<Image>();
+            inspectHudIconImage.enabled = false;
+
+            var verticalLayoutGroup = stripContainer.GetComponent<VerticalLayoutGroup>();
+            verticalLayoutGroup.childForceExpandHeight = true;
+            verticalLayoutGroup.childForceExpandWidth = true;
+            verticalLayoutGroup.childControlHeight = true;
+            verticalLayoutGroup.childControlWidth = true;
+            verticalLayoutGroup.childScaleHeight = true;
+            verticalLayoutGroup.childScaleWidth = true;
+            #endregion
+
+            #region Buff/debuff list
+            var buffDisplayRootRect = buffDisplayRoot.GetComponent<RectTransform>();
+            buffDisplayRootRect.localPosition = new Vector3(-25f, -45f, 0f);
+
+            /*
+            var kys = buffDisplayRoot.gameObject.AddComponent<EquipmentSlotPositionerAndScaler>();
+            kys.buffDisplayRoot = buffDisplayRootRect;
+            */
+            #endregion
+
+            #region Artifact panel
+            var artifactPanel = rightInfoBar.Find("ArtifactPanel");
+            if (artifactPanel)
+            {
+                var artifactPanelImage = artifactPanel.GetComponent<Image>();
+                artifactPanelImage.enabled = false;
+            }
+            #endregion
+
+            // original UpdateHudColor call line
+            if (self.targetBodyObject)
+            {
+                var playerBody = self.targetBodyObject.GetComponent<CharacterBody>();
+                if (playerBody)
+                {
+                    SurvivorColor = Plugin.GetBodyColor(playerBody);
+                }
+            }
+            else
+            {
+                SurvivorColor = Color.black;
+            }
+
+            // fade in hud (on spawn?)
+            for (var t = 0f; t <= 2f; t += Time.deltaTime)
+            {
+                var percentCompleted = t / 2f;
+                canvasGroup.alpha = Mathf.Lerp(0f, Plugin.ConfigOptions.HudTransparency.Value, percentCompleted);
+            }
+            canvasGroup.alpha = Plugin.ConfigOptions.HudTransparency.Value;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+private static void EditScoreBoard(Transform springCanvas)
+{
+    var scoreboardPanel = springCanvas.Find("ScoreboardPanel");
+    var scoreboardPanelRect = scoreboardPanel.GetComponent<RectTransform>();
+    scoreboardPanelRect.localPosition = new Vector3(0, -90, 0);
+
+    var container = scoreboardPanel.Find("Container");
+    var stripContainer = container.Find("StripContainer");
+    stripContainer.gameObject.AddComponent<ScoreboardStripChanger>();
+                
+    var stripContainerRect = stripContainer.GetComponent<RectTransform>();
+    stripContainerRect.sizeDelta = new Vector2(0f, 80f);
+
+    var verticalLayoutGroup = stripContainer.GetComponent<VerticalLayoutGroup>();
+    verticalLayoutGroup.childForceExpandHeight = true;
+    verticalLayoutGroup.childForceExpandWidth = true;
+    verticalLayoutGroup.childControlHeight = true;
+    verticalLayoutGroup.childControlWidth = true;
+    verticalLayoutGroup.childScaleHeight = true;
+    verticalLayoutGroup.childScaleWidth = true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public class ScoreboardStripChanger : MonoBehaviour
+{
+    public VerticalLayoutGroup verticalLayoutGroup;
+    public Transform scoreboardStrip;
+    public Transform longBackground;
+    public RectTransform classBackground;
+    public RectTransform nameLabel;
+    public RectTransform moneyText;
+    public RectTransform itemsBackground;
+    public RectTransform equipmentBackground;
+    public Vector2 idealClassBackgroundPivot;
+    public Vector3 idealClassBackgroundPosition;
+    public Vector3 idealClassBackgroundScale;
+
+    public Vector2 idealNameLabelPivot;
+    public Vector3 idealNameLabelPosition;
+
+    public Vector2 idealMoneyTextPivot;
+    public Vector3 idealMoneyTextPosition;
+
+    public Vector2 idealItemsBackgroundPivot;
+    public Vector3 idealItemsBackgroundPosition;
+
+    public Vector2 idealEquipmentBackgroundPivot;
+    public Vector3 idealEquipmentBackgroundPosition;
+    public Vector3 idealEquipmentBackgroundScale;
+
+    public void Start()
+    {
+        verticalLayoutGroup = GetComponent<VerticalLayoutGroup>();
+
+        idealClassBackgroundPivot = new Vector2(0.5f, 0.5f);
+        idealClassBackgroundPosition = new Vector3(-476f, -0.2f, 0f);
+        idealClassBackgroundScale = Vector3.one * 1.13f;
+
+        idealNameLabelPivot = new Vector2(0.5f, 0.5f);
+        idealNameLabelPosition = new Vector3(-320f, 0f, 0f);
+
+        idealMoneyTextPivot = new Vector2(0.5f, 0.5f);
+        idealMoneyTextPosition = new Vector3(-280f, 0f, 0f);
+
+        idealItemsBackgroundPivot = new Vector2(0.5f, 0.5f);
+        // was 100f
+        idealItemsBackgroundPosition = new Vector3(120f, 7f, 0f);
+
+        idealEquipmentBackgroundPivot = new Vector2(0.5f, 0.5f);
+        idealEquipmentBackgroundPosition = new Vector3(475f, 1f, 0f);
+        idealEquipmentBackgroundScale = Vector3.one * 1.1f;
+    }
+
+    public void Update()
+    {
+        verticalLayoutGroup.enabled = false;
+
+        scoreboardStrip = transform.GetChild(0);
+        longBackground = scoreboardStrip.Find("LongBackground");
+        classBackground = longBackground.Find("ClassBackground").GetComponent<RectTransform>();
+        nameLabel = longBackground.Find("NameLabel").GetComponent<RectTransform>();
+        moneyText = longBackground.Find("MoneyText").GetComponent<RectTransform>();
+        itemsBackground = longBackground.Find("ItemsBackgroundRect").GetComponent<RectTransform>();
+        equipmentBackground = longBackground.Find("EquipmentBackground").GetComponent<RectTransform>();
+
+        classBackground.pivot = idealClassBackgroundPivot;
+        // classBackground.localPosition = new Vector3(-473f, 0f, 0f);
+        classBackground.localPosition = idealClassBackgroundPosition;
+        classBackground.localScale = idealClassBackgroundScale;
+
+        nameLabel.pivot = idealNameLabelPivot;
+        nameLabel.localPosition = idealNameLabelPosition;
+
+        moneyText.pivot = idealMoneyTextPivot;
+        moneyText.localPosition = idealMoneyTextPosition;
+
+        itemsBackground.pivot = idealItemsBackgroundPivot;
+        itemsBackground.localPosition = idealItemsBackgroundPosition;
+
+        equipmentBackground.pivot = idealEquipmentBackgroundPivot;
+        equipmentBackground.localPosition = idealEquipmentBackgroundPosition;
+        equipmentBackground.localScale = idealEquipmentBackgroundScale;
+
+        verticalLayoutGroup.enabled = true;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*private static void EditScoreboardStripAsset()
+{
+    Transform longBackground = HudAssets.ScoreboardStrip.transform.Find("LongBackground");
+
+    Image longBackgroundImage = longBackground.GetComponent<Image>();
+    longBackgroundImage.sprite = HudAssets.WhiteSprite;
+    //Destroy(longBackground.GetComponent<HorizontalLayoutGroup>());
+
+    //Transform classBackground = longBackground.Find("ClassBackground");
+    //classBackground.GetComponent<LayoutElement>().ignoreLayout = true;
+
+    Transform moneyText = longBackground.Find("MoneyText");
+    //moneyText.GetComponent<LayoutElement>().ignoreLayout = true;
+    HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
+    moneyTextMesh.color = Color.white;
+    RectTransform moneyTextRect = moneyText.GetComponent<RectTransform>();
+    moneyTextRect.pivot = new Vector2(0.5f, 0.5f);
+    moneyTextRect.localPosition = new Vector3(-280f, 0f, 0f);
+
+    Transform nameLabel = longBackground.Find("NameLabel");
+    //nameLabel.GetComponent<LayoutElement>().ignoreLayout = true;
+    RectTransform nameLabelRect = nameLabel.GetComponent<RectTransform>();
+    nameLabelRect.pivot = new Vector2(0.5f, 0.5f);
+    nameLabelRect.localPosition = new Vector3(-330f, 0f, 0f);
+
+    Transform itemsBackground = longBackground.Find("ItemsBackground");
+    //itemsBackground.GetComponent<LayoutElement>().ignoreLayout = true;
+    RectTransform itemsBackgroundRect = itemsBackground.GetComponent<RectTransform>();
+    itemsBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+    itemsBackgroundRect.localPosition = new Vector3(100f, 5f, 0f);
+
+    Transform equipmentBackground = longBackground.Find("EquipmentBackground");
+    //equipmentBackground.GetComponent<LayoutElement>().ignoreLayout = true;
+    RectTransform equipmentBackgroundRect = equipmentBackground.GetComponent<RectTransform>();
+    equipmentBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+    equipmentBackgroundRect.localPosition = new Vector3(475f, 1f, 0f);
+    equipmentBackgroundRect.localScale = Vector3.one * 1.1f;
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*for (int i = 0; i < stripContainer.childCount; i++)
+{
+    Transform scoreboardStrip = stripContainer.GetChild(i);
+    ScoreboardStrip scoreboardStripComponent = scoreboardStrip.gameObject.GetComponent<ScoreboardStrip>();
+    if (scoreboardStripComponent.userBody == null)
+    {
+        continue;
+    }
+
+    //VerticalLayoutGroup scoreboardStripVerticalLayoutGroup = scoreboardStrip.GetComponent<VerticalLayoutGroup>();
+    //Log.Debug($"scoreboardStripVerticalLayoutGroup is {scoreboardStripVerticalLayoutGroup}");
+    //scoreboardStripVerticalLayoutGroup.enabled = false;
+
+    Transform longBackground = scoreboardStrip.Find("LongBackground");
+    Image longBackgroundImage = longBackground.GetComponent<Image>();
+    longBackgroundImage.sprite = HudAssets.WhiteSprite;
+
+    Transform classBackground = longBackground.Find("ClassBackground");
+    RectTransform classBackgroundRect = classBackground.GetComponent<RectTransform>();
+    classBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+    // localPosition is boosted by +3.1711 ingame??????
+    // going for -476
+    // -479.1711
+    classBackgroundRect.localPosition = new Vector3(-476f, -0.2f, 0f);
+    classBackgroundRect.localScale = Vector3.one * 1.13f;
+
+    Transform nameLabel = longBackground.Find("NameLabel");
+    RectTransform nameLabelRect = nameLabel.GetComponent<RectTransform>();
+    nameLabelRect.pivot = new Vector2(0.5f, 0.5f);
+    nameLabelRect.localPosition = new Vector3(-320f, 0f, 0f);
+
+    Transform moneyText = longBackground.Find("MoneyText");
+    HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
+    moneyTextMesh.color = Color.white;
+    RectTransform moneyTextRect = moneyText.GetComponent<RectTransform>();
+    moneyTextRect.pivot = new Vector2(0.5f, 0.5f);
+    moneyTextRect.localPosition = new Vector3(-320f, 0f, 0f);
+
+    Transform itemsBackground = longBackground.Find("ItemsBackground");
+    RectTransform itemsBackgroundRect = itemsBackground.GetComponent<RectTransform>();
+    itemsBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+    // x was 100f
+    itemsBackgroundRect.localPosition = new Vector3(120f, 57f, 0f);
+
+    Transform equipmentBackground = longBackground.Find("EquipmentBackground");
+    RectTransform equipmentBackgroundRect = equipmentBackground.GetComponent<RectTransform>();
+    equipmentBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+    equipmentBackgroundRect.localPosition = new Vector3(475f, 1f, 0f);
+    equipmentBackgroundRect.localScale = Vector3.one * 1.1f;
+
+    //scoreboardStripVerticalLayoutGroup.enabled = true;
+}*/
+
+
+
+
+//VerticalLayoutGroup scoreboardStripVerticalLayoutGroup = scoreboardStrip.GetComponent<VerticalLayoutGroup>();
+//Log.Debug($"scoreboardStripVerticalLayoutGroup is {scoreboardStripVerticalLayoutGroup}");
+//scoreboardStripVerticalLayoutGroup.enabled = false;\
+
+Transform itemsBackground = longBackground.Find("ItemsBackground");
+RectTransform itemsBackgroundRect = itemsBackground.GetComponent<RectTransform>();
+itemsBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+// x was 100f
+itemsBackgroundRect.localPosition = new Vector3(120f, 57f, 0f);
+
+
+
+
+
+
+
+
+
+
+Transform classBackground = longBackground.Find("ClassBackground");
+RectTransform classBackgroundRect = classBackground.GetComponent<RectTransform>();
+classBackgroundRect.pivot = new Vector2(0.5f, 0.5f);
+// localPosition is boosted by +3.1711 ingame??????
+// going for -476
+classBackgroundRect.localPosition = new Vector3(-480f, -0.2f, 0f);
+classBackgroundRect.localScale = Vector3.one * 1.13f;
+
+RectTransform moneyTextRect = moneyText.GetComponent<RectTransform>();
+moneyTextRect.pivot = new Vector2(0.5f, 0.5f);
+moneyTextRect.localPosition = new Vector3(-320f, 0f, 0f);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+internal static void IL_ItemIcon_SetItemIndex(ILContext il)
+{
+    Log.Debug("IL_ItemIcon_SetItemIndex");
+    ILCursor c = new(il);
+    if (c.TryGotoNext(MoveType.After,
+            x => x.MatchLdloc(1),
+            x => x.MatchLdnull(),
+            x => x.MatchStfld<DamageInfo>("inflictor")
+        ))
+    {
+        // replacing null with attacker to be set as inflictor
+        c.Index -= 2;
+        c.Remove();
+        c.Emit(OpCodes.Ldarg_0);
+        c.Emit<RoR2.Orbs.GenericDamageOrb>(OpCodes.Ldfld, "attacker");
+    }
+    else
+    {
+        Log.Error("COULD NOT IL HOOK GENERICDAMAGEORB_ONARRIVAL!");
+        Log.Error($"cursor is {c}");
+        Log.Error($"il is {il}");
+    }
+}
+
+internal static void ItemIcon_Awake(On.RoR2.UI.ItemIcon.orig_Awake orig, ItemIcon self)
+{
+    orig(self);
+    Log.Debug("this is probably bad");
+    var navFocusHighlight = self.transform.GetChild(1);
+    Log.Warning($"navFocusHighlight is {navFocusHighlight}");
+    var navFocusHighlightRawImage = navFocusHighlight.gameObject.GetComponent<RawImage>();
+    if (!navFocusHighlightRawImage)
+    {
+        return;
+    }
+    Log.Warning($"navFocusHighlightRawImage is {navFocusHighlightRawImage}");
+    navFocusHighlightRawImage.color = HudChanges.HudColor.SurvivorColor;
+
+    /*Log.Warning($"self is {self}");
+    Log.Warning($"self.gameObject is {self.gameObject}");
+    Log.Warning($"self.glowImage == null is {self.glowImage == null}");*/
+}
+
+internal static void ItemIcon_ItemClicked(On.RoR2.UI.ItemIcon.orig_ItemClicked orig, ItemIcon self)
+{
+    orig(self);
+    Log.Warning($"self is {self}");
+    Log.Warning($"self.glowImage == null is {self.glowImage == null}");
+}
+
+internal static void ScoreboardStrip_OnNavItemFocused(On.RoR2.UI.ScoreboardStrip.orig_OnNavItemFocused orig, ScoreboardStrip self, Image image)
+{
+    //orig(self, image);
+    image.color =  HudChanges.HudColor.SurvivorColor;
+    return;
+}
+
+//On.RoR2.UI.ScoreboardStrip.OnNavItemFocused += ScoreboardStrip_OnNavItemFocused;
+//On.RoR2.UI.ItemIcon.Awake += ItemIcon_Awake;
+//On.RoR2.UI.ItemIcon.ItemClicked += ItemIcon_ItemClicked;
+//IL.RoR2.UI.ItemIcon.SetItemIndex += IL_ItemIcon_SetItemIndex;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*string debugString = "";
+switch (i)
+{
+    case 0:
+        debugString = "Easy";
+        break;
+    case 1:
+        debugString = "Normal";
+        break;
+    case 2:
+        debugString = "Hard";
+        break;
+    case 3:
+        debugString = "Very Hard";
+        break;
+    case 4:
+        debugString = "Insane";
+        break;
+    case 5:
+        debugString = "Impossible";
+        break;
+    case 6:
+        debugString = "I SEE YOU";
+        break;
+    case 7:
+        debugString = "I'M COMING FOR YOU";
+        break;
+    case 8:
+        debugString = "HAHAHAHA";
+        break;
+}
+difficultyBarController.segmentDefs[i] = new DifficultyBarController.SegmentDef() { color = difficultyBarSegmentColors[i], debugString = debugString, token = $"DIFFICULTY_BAR_{i + 1}" };*/
+
+
+
+
+
+
+
+
+
+
+for (int i = 0; i < difficultyBarController.images.Length; i++)
+{
+    Components.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].gameObject.GetComponent<Components.DifficultyScalingBarColorChanger>() ?? difficultyBarController.images[i].gameObject.AddComponent<Components.DifficultyScalingBarColorChanger>();
+    coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
+}
+
+
+
+
+
+
+
+
+
+
+
+public class DifficultyScalingBarColorChanger : MonoBehaviour
+{
+    public Color newColor;
+    public Image segment;
+
+    public void Start()
+    {
+        segment = GetComponent<Image>();
+    }
+
+    public void Update()
+    {
+        segment.color = newColor;
+    }
+}

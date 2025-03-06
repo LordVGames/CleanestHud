@@ -1,0 +1,422 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using BepInEx;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
+using RoR2;
+using RoR2.UI;
+using System.Linq;
+
+
+namespace CleanestHud
+{
+    internal static class Main
+    {
+        internal static HUD MyHud = null;
+        internal static bool IsHudFinishedLoading = false;
+        internal static bool IsHudUserBlacklisted = false;
+        internal static bool IsHudEditable
+        {
+            get
+            {
+                return IsHudFinishedLoading && !IsHudUserBlacklisted;
+            }
+        }
+        internal static CharacterBody HudTargetBody
+        {
+            get
+            {
+                if (!MyHud)
+                {
+                    Log.Error("HUD did not exist when trying to get HudTargetBody!");
+                }
+                if (!MyHud.targetBodyObject)
+                {
+                    Log.Error("HUD did not have a valid targetBodyObject!");
+                }
+                return MyHud.targetBodyObject.GetComponent<CharacterBody>();
+            }
+        }
+
+
+        internal static bool IsGameModeSimulacrum
+        {
+            get
+            {
+                return Run.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("InfiniteTowerRun");
+            }
+        }
+        internal static bool AreSimulacrumWavesRunning
+        {
+            get
+            {
+                InfiniteTowerRun infiniteTowerRun = Run.instance as InfiniteTowerRun;
+                if (infiniteTowerRun.waveController != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+        internal static List<Color> LastKnownScoreboardBodyColors = [];
+
+        internal static class OnHooks
+        {
+            #region Important hooks
+            internal static void HUD_Awake(On.RoR2.UI.HUD.orig_Awake orig, HUD hud)
+            {
+                orig(hud);
+                Log.Debug("HUD_Awake");
+                MyHud = hud;
+
+                HudResources.ImportantHudTransforms.FindHudTransforms();
+
+                // for SOME reason the hp bar's sub bars don't exist on AWAKE????
+                // so we need to wait and keep checking until they do exist, THEN and ONLY THEN can we safely do all our hud changes
+                Transform hpBarShrunkenRoot = MyHud.mainUIPanel.transform.Find("SpringCanvas").Find("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").Find("ShrunkenRoot");
+                MyHud.StartCoroutine(WaitForHpBarToFinishLoading(hpBarShrunkenRoot));
+            }
+            private static IEnumerator WaitForHpBarToFinishLoading(Transform hpBarShrunkenRoot)
+            {
+                while (hpBarShrunkenRoot.childCount == 0)
+                {
+                    Log.Debug("HUD HP bar does not have any children to modify yet, waiting");
+                    yield return null;
+                }
+
+                BeginLiveHudChanges();
+            }
+            private static void BeginLiveHudChanges()
+            {
+                // storing HudTargetBody to prevent doing extra GetComponent calls from getting HudTargetBody
+                CharacterBody targetBody = HudTargetBody;
+
+                IsHudFinishedLoading = true;
+                // substring is to remove "(Clone)" from the end of the name
+                if (ConfigOptions.BodyNameBlacklist_Array.Contains(targetBody.name.Substring(0, targetBody.name.Length - 7)))
+                {
+                    IsHudUserBlacklisted = true;
+                    return;
+                }
+
+                HudChanges.HudStructure.EditHudStructure();
+                HudChanges.HudDetails.EditHudDetails();
+                // manually call OnCameraChange since it isn't called when first spawning in
+                OnCameraChange(targetBody);
+            }
+            internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
+            {
+                orig(self);
+                IsHudFinishedLoading = false;
+                IsHudUserBlacklisted = false;
+            }
+            // Handles hud color when initially spawning in & when changing players while spectating. Also handles survivor-specific HUD elements.
+            internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
+            {
+                orig(self, cameraRigController, args);
+                if (!cameraRigController.targetBody)
+                {
+                    return;
+                }
+                if (!IsHudEditable)
+                {
+                    Log.Debug("Camera changed while HUD was not editable, returning");
+                    return;
+                }
+                OnCameraChange(cameraRigController.targetBody);
+            }
+            internal static void OnCameraChange(CharacterBody targetCharacterBody)
+            {
+                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                Log.Debug($"cameraRigController.targetBody.baseNameToken is {targetCharacterBody.baseNameToken}");
+                switch (targetCharacterBody.baseNameToken)
+                {
+                    case "VOIDSURVIVOR_BODY_NAME":
+                        // void fiend's meter sometimes doesn't get edited on revive???????
+                        MyHud.StartCoroutine(HudChanges.SurvivorSpecific.DelayEditVoidFiendCorruptionUI());
+                        break;
+                    case "SEEKER_BODY_NAME":
+                        // seeker-specific hud elements don't appear immediately because ?????????????
+                        // so the repositioning needs to be delayed
+                        MyHud.StartCoroutine(HudChanges.SurvivorSpecific.DelayRepositionSeekerLotusUI());
+                        break;
+                }
+            }
+            #endregion
+
+
+
+            // Removes the slight transparent background image from each ally on the list on the left
+            internal static void AllyCardController_Awake(On.RoR2.UI.AllyCardController.orig_Awake orig, AllyCardController self)
+            {
+                orig(self);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                // icons go out of the background so they need to be changed a lil bit
+                Transform portrait = self.transform.GetChild(0);
+                MyHud.StartCoroutine(HudChanges.HudDetails.DelayEditAllyCardPortrait(portrait));
+
+                if (!ConfigOptions.EnableAllyCardBackgrounds.Value)
+                {
+                    Image background = self.GetComponent<Image>();
+                    background.enabled = false;
+                }
+            }
+
+            internal static void AllyCardController_UpdateInfo(On.RoR2.UI.AllyCardController.orig_UpdateInfo orig, AllyCardController self)
+            {
+                orig(self);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                if (ConfigOptions.EnableAllyCardBackgrounds.Value)
+                {
+                    HudChanges.HudColor.ColorAllyCardControllerBackground(self);
+                }
+            }
+
+            // Even though it's OnEnable, it's called every time a wave starts, not just the first wave of a map
+            internal static void InfiniteTowerWaveProgressBar_OnEnable(On.RoR2.UI.InfiniteTowerWaveProgressBar.orig_OnEnable orig, InfiniteTowerWaveProgressBar simulacrumTowerWaveProgressBar)
+            {
+                orig(simulacrumTowerWaveProgressBar);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                // i would make a HudDetails method for this but it's literally one line
+                simulacrumTowerWaveProgressBar.barImage.sprite = HudResources.HudAssets.WhiteSprite;
+                HudChanges.HudColor.ColorSimulacrumWaveProgressBar(simulacrumTowerWaveProgressBar.barImage.transform.parent);
+                HudChanges.HudDetails.SetSimulacrumWaveBarAnimatorStatus();
+            }
+
+            internal static void NotificationUIController_SetUpNotification(On.RoR2.UI.NotificationUIController.orig_SetUpNotification orig, NotificationUIController self, CharacterMasterNotificationQueue.NotificationInfo notificationInfo)
+            {
+                orig(self, notificationInfo);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveNotificationBackground());
+            }
+
+            internal static void ScoreboardController_Rebuild(On.RoR2.UI.ScoreboardController.orig_Rebuild orig, ScoreboardController scoreboardController)
+            {
+                orig(scoreboardController);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                MyHud.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
+            }
+            private static IEnumerator DelayScoreboardController_Rebuild(ScoreboardController scoreboardController)
+            {
+                // wait a frame first to make scoreboard strips added by other mods work
+                yield return null;
+                EditScoreboardControllerElements(scoreboardController);
+            }
+            private static void EditScoreboardControllerElements(ScoreboardController scoreboardController)
+            {
+                HudChanges.HudStructure.EditScoreboardPanel();
+                foreach (ScoreboardStrip scoreboardStrip in scoreboardController.stripAllocator.elements)
+                {
+                    HudChanges.HudColor.ColorScoreboardStrip(scoreboardStrip);
+                    if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value) 
+                    {
+                        HudChanges.HudColor.HandleItemIconColoring(scoreboardController);
+                    }
+                }
+            }
+
+            internal static void ScoreboardController_SelectFirstScoreboardStrip(On.RoR2.UI.ScoreboardController.orig_SelectFirstScoreboardStrip orig, ScoreboardController self)
+            {
+                if (IsHudUserBlacklisted)
+                {
+                    orig(self);
+                    return;
+                }
+                if (ConfigOptions.EnableAutoScoreboardHighlight.Value)
+                {
+                    orig(self);
+                }
+                return;
+            }
+
+            internal static void DifficultyBarController_OnCurrentSegmentIndexChanged(On.RoR2.UI.DifficultyBarController.orig_OnCurrentSegmentIndexChanged orig, RoR2.UI.DifficultyBarController self, int newSegmentIndex)
+            {
+                orig(self, newSegmentIndex);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                if (newSegmentIndex > 6 && !ConfigOptions.EnableGradualDifficultyBarColor.Value)
+                {
+                    HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegment();
+                }
+            }
+
+            internal static void VoidSurvivorController_OnOverlayInstanceAdded(On.RoR2.VoidSurvivorController.orig_OnOverlayInstanceAdded orig, VoidSurvivorController self, RoR2.HudOverlay.OverlayController controller, GameObject instance)
+            {
+                // the animator does not exist until after orig so it HAS to be after it
+                orig(self, controller, instance);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                self.overlayInstanceAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
+            }
+
+            internal static void MeditationUI_SetupInputUIIcons(On.EntityStates.Seeker.MeditationUI.orig_SetupInputUIIcons orig, EntityStates.Seeker.MeditationUI self)
+            {
+                orig(self);
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                HudChanges.SurvivorSpecific.RepositionSeekerMeditationUI();
+            }
+        }
+
+        internal static class ILHooks
+        {
+            // this was originally an On hook but there was always a half second where the buffs weren't realigned
+            // doing this with an IL hook fixes that
+            internal static void BuffDisplay_UpdateLayout(ILContext il)
+            {
+                ILCursor c = new(il);
+                if (!c.TryGotoNext(MoveType.AfterLabel,
+                    x => x.MatchCallvirt<BuffIcon>("get_rectTransform"),
+                    x => x.MatchLdloc(0),
+                    x => x.MatchCallvirt<RectTransform>("set_anchoredPosition")
+                ))
+                {
+                    Log.Error("COULD NOT IL HOOK BuffDisplay_UpdateLayout");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Action<BuffDisplay>>((buffDisplay) =>
+                {
+                    // all healthbars have a buffDisplay, but the one for the player's hud has a special name
+                    if (buffDisplay.name != "BuffDisplayRoot")
+                    {
+                        return;
+                    }
+                    if (IsHudUserBlacklisted)
+                    {
+                        return;
+                    }
+                    if (buffDisplay.buffIconDisplayData.Count < 1)
+                    {
+                        return;
+                    }
+
+                    buffDisplay.rectTranform.localPosition = new Vector3(-25f * buffDisplay.buffIconDisplayData.Count, -45f, 0f);
+                    // the first buff always has +6 rotation on Y because ?????????? so it needs to be reset to 0
+                    if (buffDisplay.buffIconDisplayData[0].buffIconComponent != null)
+                    {
+                        buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform.rotation = Quaternion.identity;
+                    }
+                });
+            }
+
+            internal static void ScoreboardStrip_UpdateItemCountText(ILContext il)
+            {
+                ILCursor c = new(il);
+                if (!c.TryGotoNext(MoveType.After,
+                        x => x.MatchCall<Int32>("ToString"),
+                        x => x.MatchCallvirt<TMPro.TMP_Text>("set_text")
+                    ))
+                {
+                    Log.Error("COULD NOT IL HOOK ScoreboardStrip_UpdateItemCountText");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Action<ScoreboardStrip>>((scoreboardStrip) =>
+                {
+                    if (IsHudUserBlacklisted)
+                    {
+                        return;
+                    }
+
+                    if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value)
+                    {
+                        // this works properly for player strips but modded devotion lemurian strips always call this for some reason
+                        // oh well!
+                        MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardStrip));
+                    }
+                });
+            }
+        }
+
+        internal static class Events
+        {
+            internal static void InfiniteTowerRun_onWaveInitialized(InfiniteTowerWaveController obj)
+            {
+                if (IsHudUserBlacklisted)
+                {
+                    return;
+                }
+
+                MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveSimulacrumWavePopUpPanelDetails());
+                MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveTimeUntilNextWaveBackground());
+            }
+        }
+
+        internal static class Helpers
+        {
+            public static Color GetAdjustedColor(Color rgbColor, float saturationMultiplier = 1, float brightnessMultiplier = 1, float colorIntensityMultiplier = 1, float transparencyMultiplier = 1)
+            {
+                Color.RGBToHSV(rgbColor, out float hsvHue, out float hsvSaturation, out float hsvBrightness);
+                Color adjustedColor = Color.HSVToRGB(hsvHue, hsvSaturation * saturationMultiplier, hsvBrightness * brightnessMultiplier, true);
+                adjustedColor.r = rgbColor.r * colorIntensityMultiplier;
+                adjustedColor.g = rgbColor.g * colorIntensityMultiplier;
+                adjustedColor.b = rgbColor.b * colorIntensityMultiplier;
+                adjustedColor.a = rgbColor.a * transparencyMultiplier;
+                return adjustedColor;
+            }
+
+            internal static void LogMissingHudVariable(string methodName, string variableName, string containingClassName = null)
+            {
+                string errorMessage = $"Could not do {methodName}";
+                if (containingClassName != null)
+                {
+                    errorMessage += $" in {containingClassName}";
+                }
+                errorMessage += $"! The {variableName} was null or did it not exist!";
+                Log.Error(errorMessage);
+            }
+
+            internal static bool AreColorsEqualIgnoringAlpha(Color color1, Color color2)
+            {
+                return (color1.r == color2.r
+                        && color1.g == color2.g
+                        && color1.b == color2.b);
+            }
+
+            internal static bool IsCharacterBodyBlacklisted(CharacterBody characterBody)
+            {
+                Log.Debug($"characterBody.name is {characterBody.name}");
+                return ConfigOptions.BodyNameBlacklist_Array.Contains(characterBody.name);
+            }
+        }
+    }
+}
