@@ -35,7 +35,7 @@ namespace CleanestHud
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             internal static void AddOptions()
             {
-                ModSettingsManager.SetModIcon(Assets.ModIconAssetBundle.LoadAsset<Sprite>("CleanestHudIcon.png"));
+                ModSettingsManager.SetModIcon(ModAssets.AssetBundle.LoadAsset<Sprite>("CleanestHudIcon.png"));
                 ModSettingsManager.SetModDescription("Adds an artifact that disables proc chains and prevents most items from starting a proc chain.");
 
                 ModSettingsManager.AddOption(

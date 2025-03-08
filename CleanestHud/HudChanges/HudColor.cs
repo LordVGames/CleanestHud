@@ -244,62 +244,37 @@ namespace CleanestHud.HudChanges
 
 
 
-        internal static void HandleItemIconColoring(ScoreboardController scoreboardController)
-        {
-            // if LastKnownScoreboardBodyColors is outdated we rebuild it instead of just adding to the list
-            // this is because AFAIK wolfo's lemurian inventory preview can show up inbetween player strips
-            if (LastKnownScoreboardBodyColors.Count != scoreboardController.stripAllocator.elements.Count)
-            {
-                ReBuildLastKnownScoreboardBodyColors(scoreboardController);
-            }
-            HandleAnyChangedScoreboardStripBodyColors(scoreboardController);
-        }
-        private static void ReBuildLastKnownScoreboardBodyColors(ScoreboardController scoreboardController)
-        {
-            LastKnownScoreboardBodyColors.Clear();
-            foreach (ScoreboardStrip scoreboardStrip in scoreboardController.stripAllocator.elements)
-            {
-                LastKnownScoreboardBodyColors.Add(scoreboardStrip.userBody.bodyColor);
-            }
-        }
-        private static void HandleAnyChangedScoreboardStripBodyColors(ScoreboardController scoreboardController)
-        {
-            for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
-            {
-                // if a scoreboard strip user's color is different from what we know, update that and recolor all their icon highlights color 
-                if (scoreboardController.stripAllocator.elements[i].userBody.bodyColor != LastKnownScoreboardBodyColors[i])
-                {
-                    LastKnownScoreboardBodyColors[i] = scoreboardController.stripAllocator.elements[i].userBody.bodyColor;
-                    MyHud.StartCoroutine(DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i]));
-                }
-            }
-        }
-        internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip, bool resetColors = false)
+        internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip)
         {
             // scoreboard strips don't have their icons immediately, so we wait a frame
             yield return null;
-            // all of this also has to stay here because of using yield return null in the foreach loop
-            Transform longBackground = scoreboardStrip.transform.GetChild(0);
+            ColorItemIconHighlights(scoreboardStrip);
+        }
+        private static void ColorItemIconHighlights(ScoreboardStrip scoreboardStrip)
+        {
             Color colorToUse;
-            if (resetColors)
-            {
-                colorToUse = Color.white;
-            }
-            else
+            if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value)
             {
                 colorToUse = scoreboardStrip.userBody.bodyColor;
             }
+            else
+            {
+                // not exactly the original color after being applied but it's close enough
+                colorToUse = new Color(1, 0.8353f, 0.1934f);
+            }
+
             foreach (ItemIcon itemIcon in scoreboardStrip.itemInventoryDisplay.itemIcons)
             {
-                RawImage itemHighlightRawImage = itemIcon.transform.GetChild(1).GetComponent<RawImage>();
-                itemHighlightRawImage.color = colorToUse;
-                yield return null;
+                itemIcon.glowImage.color = colorToUse;
             }
-            Transform equipmentBackground = longBackground.GetChild(7);
-            RawImage equipmentHighlightRawImage = equipmentBackground.GetChild(1).GetComponent<RawImage>();
-            equipmentHighlightRawImage.color = colorToUse;
+            ColorEquipmentSlotHighlight(scoreboardStrip);
         }
-
+        private static void ColorEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip)
+        {
+            Transform navFocusHighlight = scoreboardStrip.equipmentIcon.transform.GetChild(1);
+            RawImage navFocusHighlightRawImage = navFocusHighlight.GetComponent<RawImage>();
+            navFocusHighlightRawImage.color = scoreboardStrip.userBody.bodyColor;
+        }
 
 
         internal static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip)

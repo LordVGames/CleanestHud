@@ -183,6 +183,17 @@ namespace CleanestHud
                 }
             }
 
+            internal static void HealthBar_InitializeHealthBar(On.RoR2.UI.HealthBar.orig_InitializeHealthBar orig, HealthBar self)
+            {
+                // sots added a new way of showing the hp bar's text which is sadly lower quality than the original
+                // luckily we can just disable the new way and it will fall back to the old higher quality way
+                self.spriteAsNumberManager = null;
+                // but it doesn't appear by default so we need to toggle the old one off and the new one on
+                self.transform.GetChild(1).gameObject.SetActive(false);
+                self.transform.GetChild(2).gameObject.SetActive(true);
+                orig(self);
+            }
+
             // Even though it's OnEnable, it's called every time a wave starts, not just the first wave of a map
             internal static void InfiniteTowerWaveProgressBar_OnEnable(On.RoR2.UI.InfiniteTowerWaveProgressBar.orig_OnEnable orig, InfiniteTowerWaveProgressBar simulacrumTowerWaveProgressBar)
             {
@@ -211,12 +222,14 @@ namespace CleanestHud
 
             internal static void ScoreboardController_Rebuild(On.RoR2.UI.ScoreboardController.orig_Rebuild orig, ScoreboardController scoreboardController)
             {
-                orig(scoreboardController);
                 if (IsHudUserBlacklisted)
                 {
+                    orig(scoreboardController);
                     return;
                 }
 
+                HudChanges.HudStructure.AssetEdits.EditScoreboardStripAsset();
+                orig(scoreboardController);
                 MyHud.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
             }
             private static IEnumerator DelayScoreboardController_Rebuild(ScoreboardController scoreboardController)
@@ -231,9 +244,16 @@ namespace CleanestHud
                 foreach (ScoreboardStrip scoreboardStrip in scoreboardController.stripAllocator.elements)
                 {
                     HudChanges.HudColor.ColorScoreboardStrip(scoreboardStrip);
-                    if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value) 
+                    // not efficient but whatever i'll fix it later
+                    HudChanges.HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
+                    if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value
+                        && !Helpers.AreColorsEqualIgnoringAlpha(
+                            scoreboardStrip.userBody.bodyColor,
+                            scoreboardStrip.itemInventoryDisplay.itemIcons[0].glowImage.color
+                        )
+                    )
                     {
-                        HudChanges.HudColor.HandleItemIconColoring(scoreboardController);
+                        MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardStrip));
                     }
                 }
             }
@@ -335,7 +355,96 @@ namespace CleanestHud
                 });
             }
 
-            internal static void ScoreboardStrip_UpdateItemCountText(ILContext il)
+            internal static void ItemIcon_SetItemIndex(ILContext il)
+            {
+                ILCursor c = new(il);
+
+
+
+                // actually set glowImage to something (because gearbox never did!!!!!!!!!!!!)
+                if (!c.TryGotoNext(MoveType.Before,
+                        x => x.MatchLdarg(0),
+                        x => x.MatchLdfld<ItemIcon>("glowImage"),
+                        x => x.MatchCall<UnityEngine.Object>("op_Implicit")
+                    ))
+                {
+                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex FIRST PART");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+                try
+                {
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.EmitDelegate<Action<ItemIcon>>((itemIcon) =>
+                    {
+                        if (itemIcon.image.name != "ItemIconScoreboard_InGame(Clone)")
+                        {
+                            return;
+                        }
+
+                        // doing this doesn't actually cause that much lag and only happens for whatever icons are added/updated
+                        // it also makes future mass glowimage coloring super good on performance
+                        HudChanges.HudDetails.SetupItemIconGlowImageForColoring(itemIcon);
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex FIRST PART DUE TO {e}");
+                }
+
+
+
+                // turns out there's normally unused code to set said glowimage's color to the item's rarity color with 0.75 alpha
+                // that's cool but we don't want that so we're gonna br over it
+                #region Removing vanilla glowimage coloring
+                if (!c.TryGotoNext(MoveType.After,
+                        x => x.MatchLdcR4(0.75f),
+                        x => x.MatchNewobj<Color>(),
+                        x => x.MatchCallvirt<Graphic>("set_color")
+                    ))
+                {
+                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex SECOND PART");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+                ILLabel afterVanillaHighlightColoring = c.DefineLabel();
+                try
+                {
+                    c.MarkLabel(afterVanillaHighlightColoring);
+                    c.Index = 0;
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex SECOND PART DUE TO {e}");
+                }
+
+
+
+                if (!c.TryGotoNext(MoveType.AfterLabel,
+                        x => x.MatchLdarg(0),
+                        x => x.MatchLdfld<ItemIcon>("glowImage"),
+                        x => x.MatchCall<UnityEngine.Object>("op_Implicit")
+                    ))
+                {
+                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex THIRD PART");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+                try
+                {
+                    c.Emit(OpCodes.Br, afterVanillaHighlightColoring);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex THIRD PART DUE TO {e}");
+                }
+                #endregion
+            }
+
+            /*internal static void ScoreboardStrip_UpdateItemCountText(ILContext il)
             {
                 ILCursor c = new(il);
                 if (!c.TryGotoNext(MoveType.After,
@@ -364,7 +473,7 @@ namespace CleanestHud
                         MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardStrip));
                     }
                 });
-            }
+            }*/
         }
 
         internal static class Events
@@ -412,10 +521,9 @@ namespace CleanestHud
                         && color1.b == color2.b);
             }
 
-            internal static bool IsCharacterBodyBlacklisted(CharacterBody characterBody)
+            internal static Color ChangeColorWhileKeepingAlpha(Color originalColor, Color newColor)
             {
-                Log.Debug($"characterBody.name is {characterBody.name}");
-                return ConfigOptions.BodyNameBlacklist_Array.Contains(characterBody.name);
+                return new Color(newColor.r, newColor.b, newColor.g, originalColor.a);
             }
         }
     }

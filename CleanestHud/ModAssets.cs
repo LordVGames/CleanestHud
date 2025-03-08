@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace CleanestHud
 {
-    public static class Assets
+    public static class ModAssets
     {
-        public static AssetBundle ModIconAssetBundle;
-        public const string BundleName = "cleanesthudicon";
+        public static AssetBundle AssetBundle;
+        public const string BundleName = "cleanesthud";
 
         public static string AssetBundlePath
         {
@@ -18,7 +18,7 @@ namespace CleanestHud
 
         public static void Init()
         {
-            ModIconAssetBundle = AssetBundle.LoadFromFile(AssetBundlePath);
+            AssetBundle = AssetBundle.LoadFromFile(AssetBundlePath);
         }
     }
 }

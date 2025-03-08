@@ -13,7 +13,6 @@ namespace CleanestHud
         {
             internal static Sprite WhiteSprite;
             internal static Material FontMaterial;
-            internal static Sprite DefaultDifficultyBarBackdropSprite;
 
             internal static GameObject SimulacrumWaveUI;
             internal static GameObject EnemyInfoPanel;
@@ -25,6 +24,7 @@ namespace CleanestHud
             internal static GameObject MoonDetonationPanel;
             internal static GameObject StatStripTemplate;
             internal static GameObject ChatBox;
+            internal static GameObject ItemIconPrefab;
 
             // this is set later
             internal static Sprite LastDifficultySegmentSprite;
@@ -45,6 +45,7 @@ namespace CleanestHud
                 ItemIconScoreboard = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/ItemIconScoreboard.prefab").WaitForCompletion();
                 MoonDetonationPanel = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/HudCountdownPanel.prefab").WaitForCompletion();
                 StatStripTemplate = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/StatStripTemplate.prefab").WaitForCompletion();
+                ItemIconPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/ItemIconScoreboard_InGame.prefab").WaitForCompletion();
             }
         }
 

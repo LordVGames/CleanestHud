@@ -122,7 +122,7 @@ namespace CleanestHud
             ScoreboardController scoreboardController = HudResources.ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel").GetComponent<ScoreboardController>();
             for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
             {
-                Main.MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i], !EnableScoreboardItemHighlightColoring.Value));
+                Main.MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i]));
             }
         }
 
@@ -249,8 +249,8 @@ namespace CleanestHud
             EnableScoreboardItemHighlightColoring = config.Bind<bool>(
                 "HUD Settings",
                 "Enable changing inventory item icon highlight colors",
-                false,
-                "Should the highlight for icons in the TAB inventories menu be colored? WARNING: Will likely cause a lag spike when opening the TAB menu at high item counts!"
+                true,
+                "Should the highlights for item icons in the TAB inventories menu be colored based on the surivor's color?"
             );
             EnableAutoScoreboardHighlight = config.Bind<bool>(
                 "HUD Settings",

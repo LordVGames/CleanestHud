@@ -330,8 +330,8 @@ ASALocalRun/
 .mfractor/
 
 # Manually added for the unity project
-/UnityModAssets/cleanesthudmodicon/AssetBundles
-/UnityModAssets/cleanesthudmodicon/Library
-/UnityModAssets/cleanesthudmodicon/Logs
-/UnityModAssets/cleanesthudmodicon/Temp
-/UnityModAssets/cleanesthudmodicon/UserSettings
+/UnityModAssets/cleanesthud/AssetBundles
+/UnityModAssets/cleanesthud/Library
+/UnityModAssets/cleanesthud/Logs
+/UnityModAssets/cleanesthud/Temp
+/UnityModAssets/cleanesthud/UserSettings

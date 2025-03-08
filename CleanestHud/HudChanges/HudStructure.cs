@@ -16,7 +16,7 @@ namespace CleanestHud.HudChanges
             {
                 EditScoreboardStripAsset();
             }
-            private static void EditScoreboardStripAsset()
+            internal static void EditScoreboardStripAsset()
             {
                 Transform scoreboardStrip = HudAssets.ScoreboardStrip.transform;
 
@@ -27,12 +27,16 @@ namespace CleanestHud.HudChanges
                 Transform nameLabel = longBackground.Find("NameLabel");
                 RectTransform nameLabelRect = nameLabel.GetComponent<RectTransform>();
                 nameLabelRect.pivot = new Vector2(0.5f, 0.5f);
-                nameLabelRect.localPosition = new Vector3(-320f, 0f, 0f);
+                // x position is boosted by -38.2102 ingame
+                nameLabelRect.localPosition = new Vector3(-218.7898f, 0f, 0f);
 
                 Transform totalTextContainer = longBackground.Find("TotalTextContainer");
                 Transform moneyText = totalTextContainer.Find("MoneyText");
                 HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
                 moneyTextMesh.color = Color.white;
+
+                RectTransform scoreboardPanelRect = scoreboardPanel.GetComponent<RectTransform>();
+                scoreboardPanelRect.localPosition = new Vector3(0, -90, 0);
             }
         }
 
@@ -162,7 +166,7 @@ namespace CleanestHud.HudChanges
 
             RectTransform levelDisplayRootRect = levelDisplayRoot.GetComponent<RectTransform>();
             levelDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
-            levelDisplayRootRect.localPosition = new Vector3(308, -23.5f, 0);
+            levelDisplayRootRect.localPosition = new Vector3(311, -23.5f, 0);
 
             Image expBarRootImage = expBarRoot.GetComponent<Image>();
             expBarRootImage.sprite = HudAssets.WhiteSprite;
@@ -271,11 +275,11 @@ namespace CleanestHud.HudChanges
                 switch (i)
                 {
                     case 0:
-                        equipmentDisplayRootRectLocalPosition = new Vector3(-20f, 17f, 0f);
+                        equipmentDisplayRootRectLocalPosition = new Vector3(-22f, 16.75f, 0f);
                         equipmentSlotScaleFactor = 0.92f;
                         break;
                     case 1:
-                        equipmentDisplayRootRectLocalPosition = new Vector3(-10f, -5f, 0f);
+                        equipmentDisplayRootRectLocalPosition = new Vector3(-20f, -5f, 0f);
                         // smaller by default, we don't have to scale any more/less unless we want it to be even smaller
                         equipmentSlotScaleFactor = 1f;
                         break;
@@ -340,34 +344,45 @@ namespace CleanestHud.HudChanges
         private static void EditCurrenciesSection()
         {
             Transform upperLeftCluster = Main.MyHud.moneyText.transform.parent;
+
             Image upperLeftClusterImage = upperLeftCluster.GetComponent<Image>();
             upperLeftClusterImage.enabled = false;
+
             VerticalLayoutGroup upperLeftClusterVerticalLayoutGroup = upperLeftCluster.GetComponent<VerticalLayoutGroup>();
             upperLeftClusterVerticalLayoutGroup.spacing = 0;
+
 
 
             // Main.MyHud.moneyText.transform is also moneyRoot
             Transform valueText = Main.MyHud.moneyText.transform.Find("ValueText");
             HGTextMeshProUGUI valueTextMesh = valueText.GetComponent<HGTextMeshProUGUI>();
             valueTextMesh.color = Color.white;
+
             Transform dollarSign = Main.MyHud.moneyText.transform.Find("DollarSign");
             HGTextMeshProUGUI dollarSignMesh = dollarSign.GetComponent<HGTextMeshProUGUI>();
             dollarSignMesh.color = Color.white;
 
 
+
             Transform lunarCoinRoot = upperLeftCluster.Find("LunarCoinRoot");
+
             Transform lunarCoinValueText = lunarCoinRoot.Find("ValueText");
             HGTextMeshProUGUI lunarCoinValueTextMesh = lunarCoinValueText.GetComponent<HGTextMeshProUGUI>();
             lunarCoinValueTextMesh.color = Color.white;
+
             Transform lunarCoinSign = lunarCoinRoot.Find("LunarCoinSign");
             HGTextMeshProUGUI lunarCoinSignMesh = lunarCoinSign.GetComponent<HGTextMeshProUGUI>();
             lunarCoinSignMesh.color = Color.white;
 
+
+
             // void coins aren't used in vanilla, but wolfo's simulacrum mod makes use of them
             Transform voidCoinRoot = upperLeftCluster.Find("VoidCoinRoot");
+
             Transform voidCoinValueText = voidCoinRoot.Find("ValueText");
             HGTextMeshProUGUI voidCoinValueTextMesh = voidCoinValueText.GetComponent<HGTextMeshProUGUI>();
             voidCoinValueTextMesh.color = Color.white;
+
             Transform voidCoinSign = voidCoinRoot.Find("VoidCoinSign");
             HGTextMeshProUGUI voidCoinSignMesh = voidCoinSign.GetComponent<HGTextMeshProUGUI>();
             voidCoinSignMesh.color = Color.white;
@@ -499,14 +514,14 @@ namespace CleanestHud.HudChanges
             stripContainerVerticalLayoutGroup.childScaleHeight = true;
             stripContainerVerticalLayoutGroup.childScaleWidth = true;
 
-            for (int i = 0; i < stripContainer.childCount; i++)
+            /*for (int i = 0; i < stripContainer.childCount; i++)
             {
                 Transform scoreboardStripTransform = stripContainer.GetChild(i);
                 if (scoreboardStripTransform.gameObject.GetComponent<Components.ScoreboardStripEditor>() == null)
                 {
                     AttachEditorToScoreboardStrip(scoreboardStripTransform);
                 }
-            }
+            }*/
         }
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {

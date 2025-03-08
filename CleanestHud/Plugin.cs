@@ -14,19 +14,19 @@ namespace CleanestHud
         public static PluginInfo PluginInfo { get; private set; }
         public const string PluginAuthor = "LordVGames";
         public const string PluginName = "CleanestHud";
-        public const string PluginVersion = "0.9.0";
+        public const string PluginVersion = "0.10.0";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public void Awake()
         {
             PluginInfo = Info;
             Log.Init(Logger);
-            Assets.Init();
+            ModAssets.Init();
             ConfigOptions.BindConfigOptions(Config);
             // prefab changes need to happen very early because when the hud is fully initialized the prefab may have already been spawned and then it can't be edited that way
             HudResources.HudAssets.LoadHudAssets();
-            HudChanges.HudStructure.AssetEdits.EditHudElementPrefabs();
-            HudChanges.HudDetails.AssetEdits.RemoveHudElementPrefabDetails();
+            //HudChanges.HudStructure.AssetEdits.EditHudElementPrefabs();
+            HudChanges.HudDetails.AssetEdits.EditHudElementPrefabDetails();
 
 
 
@@ -36,6 +36,7 @@ namespace CleanestHud
 
             On.RoR2.UI.AllyCardController.Awake += Main.OnHooks.AllyCardController_Awake;
             On.RoR2.UI.AllyCardController.UpdateInfo += Main.OnHooks.AllyCardController_UpdateInfo;
+            On.RoR2.UI.HealthBar.InitializeHealthBar += Main.OnHooks.HealthBar_InitializeHealthBar;
             On.RoR2.UI.InfiniteTowerWaveProgressBar.OnEnable += Main.OnHooks.InfiniteTowerWaveProgressBar_OnEnable;
             On.RoR2.UI.NotificationUIController.SetUpNotification += Main.OnHooks.NotificationUIController_SetUpNotification;
             On.RoR2.UI.ScoreboardController.Rebuild += Main.OnHooks.ScoreboardController_Rebuild;
@@ -45,7 +46,8 @@ namespace CleanestHud
             On.EntityStates.Seeker.MeditationUI.SetupInputUIIcons += Main.OnHooks.MeditationUI_SetupInputUIIcons;
 
             IL.RoR2.UI.BuffDisplay.UpdateLayout += Main.ILHooks.BuffDisplay_UpdateLayout;
-            IL.RoR2.UI.ScoreboardStrip.UpdateItemCountText += Main.ILHooks.ScoreboardStrip_UpdateItemCountText;
+            IL.RoR2.UI.ItemIcon.SetItemIndex += Main.ILHooks.ItemIcon_SetItemIndex;
+            //IL.RoR2.UI.ScoreboardStrip.UpdateItemCountText += Main.ILHooks.ScoreboardStrip_UpdateItemCountText;
 
             InfiniteTowerRun.onWaveInitialized += Main.Events.InfiniteTowerRun_onWaveInitialized;
 
