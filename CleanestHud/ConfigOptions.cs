@@ -238,7 +238,6 @@ namespace CleanestHud
                 "Enable gradual color change for the difficulty bar",
                 false,
                 "Should the coloring for the difficulty bar gradually get darker as the difficulty increases?"
-                + "Currently, if disabled, the consistent coloring only works until the \"HAHAHAHA\" part of the difficulty is reached."
             );
             AllowSimulacrumWaveBarAnimating = config.Bind<bool>(
                 "HUD Settings",
@@ -250,7 +249,7 @@ namespace CleanestHud
                 "HUD Settings",
                 "Enable changing inventory item icon highlight colors",
                 true,
-                "Should the highlights for item icons in the TAB inventories menu be colored based on the surivor's color?"
+                "Should the highlights for item icons in the TAB inventories menu be colored based on the survivor that has those items?"
             );
             EnableAutoScoreboardHighlight = config.Bind<bool>(
                 "HUD Settings",

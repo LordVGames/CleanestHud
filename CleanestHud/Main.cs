@@ -240,13 +240,14 @@ namespace CleanestHud
             }
             private static void EditScoreboardControllerElements(ScoreboardController scoreboardController)
             {
-                HudChanges.HudStructure.EditScoreboardPanel();
+                HudChanges.HudStructure.EditScoreboardPanelAndStrips();
                 foreach (ScoreboardStrip scoreboardStrip in scoreboardController.stripAllocator.elements)
                 {
                     HudChanges.HudColor.ColorScoreboardStrip(scoreboardStrip);
                     // not efficient but whatever i'll fix it later
                     HudChanges.HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
                     if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value
+                        && scoreboardStrip.itemInventoryDisplay.itemIcons.Count > 0
                         && !Helpers.AreColorsEqualIgnoringAlpha(
                             scoreboardStrip.userBody.bodyColor,
                             scoreboardStrip.itemInventoryDisplay.itemIcons[0].glowImage.color

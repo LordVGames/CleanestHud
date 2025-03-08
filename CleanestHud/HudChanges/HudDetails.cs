@@ -263,7 +263,7 @@ namespace CleanestHud.HudChanges
             DisableInteractionContextBackground();
             EditBossBarDetails();
             DisableScoreboardStripContainerOutline();
-            DisableInspectionPanelItemIconOutline();
+            DisableInspectionPanelItemIconDetails();
             RemoveArtifactPanelBackground();
             ChangeSuppressedItemsBackground();
             SetInspectPanelMaxAlpha();
@@ -429,14 +429,20 @@ namespace CleanestHud.HudChanges
             Image stripContainerImage = stripContainer.GetComponent<Image>();
             stripContainerImage.enabled = false;
         }
-        private static void DisableInspectionPanelItemIconOutline()
+        private static void DisableInspectionPanelItemIconDetails()
         {
             Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
             Transform inspectPanelArea = container.Find("InspectPanel").Find("InspectPanelArea");
             Transform inspectionPanel = inspectPanelArea.Find("InspectionPanel");
+            Transform horizontalBox = inspectionPanel.GetChild(0);
 
-            Image inspectHudIconImage = inspectionPanel.Find("HorizontalBox").Find("InspectIconContainer").Find("InspectVisualBackground").GetComponent<Image>();
+            Transform inspectIconContainer = horizontalBox.GetChild(0);
+            Image inspectIconContainerImage = inspectIconContainer.GetComponent<Image>();
+            inspectIconContainerImage.enabled = false;
+
+            Transform inspectVisualBackground = inspectIconContainer.GetChild(0);
+            Image inspectHudIconImage = inspectVisualBackground.GetComponent<Image>();
             inspectHudIconImage.enabled = false;
         }
         private static void RemoveArtifactPanelBackground()

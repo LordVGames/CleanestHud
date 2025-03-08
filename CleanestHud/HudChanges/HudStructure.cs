@@ -34,9 +34,6 @@ namespace CleanestHud.HudChanges
                 Transform moneyText = totalTextContainer.Find("MoneyText");
                 HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
                 moneyTextMesh.color = Color.white;
-
-                RectTransform scoreboardPanelRect = scoreboardPanel.GetComponent<RectTransform>();
-                scoreboardPanelRect.localPosition = new Vector3(0, -90, 0);
             }
         }
 
@@ -494,7 +491,7 @@ namespace CleanestHud.HudChanges
 
 
 
-        internal static void EditScoreboardPanel()
+        internal static void EditScoreboardPanelAndStrips()
         {
             Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
@@ -514,29 +511,39 @@ namespace CleanestHud.HudChanges
             stripContainerVerticalLayoutGroup.childScaleHeight = true;
             stripContainerVerticalLayoutGroup.childScaleWidth = true;
 
-            /*for (int i = 0; i < stripContainer.childCount; i++)
+            for (int i = 0; i < stripContainer.childCount; i++)
             {
                 Transform scoreboardStripTransform = stripContainer.GetChild(i);
+                ScoreboardStrip scoreboardStrip = scoreboardStripTransform.GetComponent<ScoreboardStrip>();
+                // more space between icons, similar spacing to inventory at the top of the screen
+                scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth = 58;
+                scoreboardStrip.itemInventoryDisplay.maxHeight = 54;
+
+
                 if (scoreboardStripTransform.gameObject.GetComponent<Components.ScoreboardStripEditor>() == null)
                 {
                     AttachEditorToScoreboardStrip(scoreboardStripTransform);
                 }
-            }*/
+            }
         }
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {
             Components.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<Components.ScoreboardStripEditor>();
 
-            scoreboardStripEditor.ClassBackgroundRectLocalPosition = new Vector3(-477f, -0.2f, 0f);
+            scoreboardStripEditor.ClassBackgroundRectLocalPosition = new Vector3(-475f, -0.2f, 0f);
             scoreboardStripEditor.ClassBackgroundRectLocalScale = Vector3.one * 1.075f;
             scoreboardStripEditor.ClassBackgroundRectPivot = new Vector2(0.5f, 0.5f);
 
-            scoreboardStripEditor.ItemsBackgroundRectLocalPosition = new Vector3(120f, 9.5f, 0f);
+            scoreboardStripEditor.ItemsBackgroundRectLocalPosition = new Vector3(120f, 9f, 0f);
             scoreboardStripEditor.ItemsBackgroundRectPivot = new Vector2(0.5f, 0.5f);
+            scoreboardStripEditor.ItemsBackgroundAnchoredPosition = new Vector2(628, -26);
+            scoreboardStripEditor.ItemsBackgroundSizeDelta = new Vector2(580, 52);
 
             scoreboardStripEditor.EquipmentBackgroundRectLocalPosition = new Vector3(475f, 1f, 0f);
             scoreboardStripEditor.EquipmentBackgroundRectLocalScale = Vector3.one * 1.1f;
             scoreboardStripEditor.EquipmentBackgroundRectPivot = new Vector2(0.5f, 0.5f);
+
+            scoreboardStripEditor.NameLabelRectLocalPosition = new Vector3(-310, 0, 0);
         }
     }
 }

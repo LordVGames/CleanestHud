@@ -42,8 +42,6 @@ namespace CleanestHud.HudChanges
 
         public class ScoreboardStripEditor : MonoBehaviour
         {
-            Transform longBackground;
-
             RectTransform classBackgroundRect;
             public Vector3 ClassBackgroundRectLocalPosition;
             public Vector3 ClassBackgroundRectLocalScale;
@@ -52,18 +50,25 @@ namespace CleanestHud.HudChanges
             RectTransform itemsBackgroundRect;
             public Vector3 ItemsBackgroundRectLocalPosition;
             public Vector2 ItemsBackgroundRectPivot;
+            public Vector2 ItemsBackgroundAnchoredPosition;
+            public Vector2 ItemsBackgroundSizeDelta;
+
 
             RectTransform equipmentBackgroundRect;
             public Vector3 EquipmentBackgroundRectLocalPosition;
             public Vector3 EquipmentBackgroundRectLocalScale;
             public Vector2 EquipmentBackgroundRectPivot;
 
+            RectTransform nameLabelRect;
+            public Vector3 NameLabelRectLocalPosition;
+
             public void Start()
             {
-                longBackground = this.transform.GetChild(0);
-                classBackgroundRect = longBackground.Find("ClassBackground").GetComponent<RectTransform>();
-                equipmentBackgroundRect = longBackground.Find("EquipmentBackground").GetComponent<RectTransform>();
-                itemsBackgroundRect = longBackground.Find("ItemsBackground").GetComponent<RectTransform>();
+                Transform longBackground = this.transform.GetChild(0);
+                classBackgroundRect = longBackground.GetChild(1).GetComponent<RectTransform>();
+                equipmentBackgroundRect = longBackground.GetChild(7).GetComponent<RectTransform>();
+                itemsBackgroundRect = longBackground.GetChild(6).GetComponent<RectTransform>();
+                nameLabelRect = longBackground.GetChild(2).GetComponent<RectTransform>();
             }
 
             public void Update()
@@ -72,6 +77,8 @@ namespace CleanestHud.HudChanges
                 {
                     itemsBackgroundRect.localPosition = ItemsBackgroundRectLocalPosition;
                     itemsBackgroundRect.pivot = ItemsBackgroundRectPivot;
+                    itemsBackgroundRect.anchoredPosition = ItemsBackgroundAnchoredPosition;
+                    itemsBackgroundRect.sizeDelta = ItemsBackgroundSizeDelta;
                 }
 
                 if (equipmentBackgroundRect.localPosition != EquipmentBackgroundRectLocalPosition)
@@ -86,6 +93,11 @@ namespace CleanestHud.HudChanges
                     classBackgroundRect.localPosition = ClassBackgroundRectLocalPosition;
                     classBackgroundRect.localScale = ClassBackgroundRectLocalScale;
                     classBackgroundRect.pivot = ClassBackgroundRectPivot;
+                }
+
+                if (nameLabelRect.localPosition != NameLabelRectLocalPosition)
+                {
+                    nameLabelRect.localPosition = NameLabelRectLocalPosition;
                 }
             }
         }

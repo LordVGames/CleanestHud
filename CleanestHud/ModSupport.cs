@@ -119,6 +119,11 @@ namespace CleanestHud
                         ConfigOptions.BodyNameBlacklist_Config
                     )
                 );
+                ModSettingsManager.AddOption(
+                    new CheckBoxOption(
+                        ConfigOptions.EnableDebugLogging
+                    )
+                );
             }
         }
 
