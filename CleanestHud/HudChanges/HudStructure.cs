@@ -232,8 +232,17 @@ namespace CleanestHud.HudChanges
         }
         private static void EditSkillSlots()
         {
+            // not doing normal for loop so i don't have "Main.MyHud.skillIcons[i]" everywhere
+            // plus i only need to do index specific stuff once
+            Vector3 newSkillPosition = Vector3.zero;
+            int i = 0;
             foreach (SkillIcon skillIcon in Main.MyHud.skillIcons)
             {
+                newSkillPosition = skillIcon.transform.localPosition;
+                newSkillPosition.x = -250 + (100 * i);
+                skillIcon.transform.localPosition = newSkillPosition;
+                i++;
+
                 Transform cooldownText = skillIcon.transform.Find("CooldownText");
 
                 skillIcon.cooldownRemapPanel = null;

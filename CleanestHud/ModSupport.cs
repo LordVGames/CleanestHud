@@ -141,7 +141,6 @@ namespace CleanestHud
                     return (bool)_modexists;
                 }
             }
-            internal static int KnownInjectorSlotCount = -1;
 
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             internal static void CharacterBody_onBodyInventoryChangedGlobal(CharacterBody characterBody)
@@ -153,9 +152,9 @@ namespace CleanestHud
                 }
 
                 int currentInjectorItemCount = characterBody.inventory.GetItemCount(SS2Content.Items.CompositeInjector);
-                if (currentInjectorItemCount != KnownInjectorSlotCount)
+                if (currentInjectorItemCount != CompositeInjectorSupport.KnownInjectorSlotCount)
                 {
-                    KnownInjectorSlotCount = currentInjectorItemCount;
+                    CompositeInjectorSupport.KnownInjectorSlotCount = currentInjectorItemCount;
                     Main.MyHud.StartCoroutine(CompositeInjectorSupport.DelayEditInjectorSlots());
                     Main.MyHud.StartCoroutine(CompositeInjectorSupport.DelayColorInjectorSlots());
                 }
@@ -163,6 +162,8 @@ namespace CleanestHud
 
             internal static class CompositeInjectorSupport
             {
+                internal static int KnownInjectorSlotCount = -1;
+
                 internal static IEnumerator DelayEditInjectorSlots()
                 {
                     yield return null;
@@ -195,7 +196,7 @@ namespace CleanestHud
                         // base position is moved enough away from mul-t's other equipment slot
                         // the position is also manually set because the postition & localposition change at some point while loading for no reason
                         // even if i store the position after i've modified it it still gets randomly changed
-                        ss2EquipmentIconHolder.icons[i].transform.position = new Vector3(4.75f, -5.2f, 12.8f);
+                        ss2EquipmentIconHolder.icons[i].transform.position = new Vector3(4.5f, -5.2f, 12.8f);
                         Vector3 localPositionChange = Vector3.zero;
                         // divide by 10 as an int for the row number and modulus 10 for the right x position regardless of row
                         localPositionChange.y -= 107 * (int)(i / 10);

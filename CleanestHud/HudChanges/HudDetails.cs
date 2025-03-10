@@ -671,6 +671,7 @@ namespace CleanestHud.HudChanges
         {
             // this is stupid
             DifficultyBarBackgroundColorChanger colorChanger = backdropImage.transform.gameObject.GetComponent<DifficultyBarBackgroundColorChanger>() ?? backdropImage.transform.gameObject.AddComponent<DifficultyBarBackgroundColorChanger>();
+            colorChanger.enabled = true;
             colorChanger.newColor = newColor;
             yield return new WaitForSeconds(1f);
             colorChanger.enabled = false;
