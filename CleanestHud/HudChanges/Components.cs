@@ -15,10 +15,13 @@ namespace CleanestHud.HudChanges
                 backgroundImage = GetComponent<Image>();
             }
 
-            public void LateUpdate()
+            public void Update()
             {
+                Log.Debug($"backgroundImage.color.a is {backgroundImage.color.a}");
+                Log.Debug($"newColor.a is {newColor.a}");
                 if (backgroundImage.color.a < newColor.a)
                 {
+                    Log.Debug("resetting color");
                     backgroundImage.color = newColor;
                 }
             }

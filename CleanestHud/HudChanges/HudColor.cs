@@ -176,24 +176,24 @@ namespace CleanestHud.HudChanges
             Transform content = viewport.Find("Content");
 
             Color[] difficultyBarSegmentColors = [];
-            if (ConfigOptions.EnableGradualDifficultyBarColor.Value)
+            if (ConfigOptions.EnableConsistentDifficultyBarColor.Value)
             {
-                // in order of game's difficulty levels
-                difficultyBarSegmentColors = [
-                    SurvivorColor,
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (8f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (7f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (6f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (5f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (4f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (3f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (2f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: (1f / 9f))
-                ];
+                difficultyBarSegmentColors = Enumerable.Repeat(SurvivorColor, 9).ToArray();
             }
             else
             {
-                difficultyBarSegmentColors = Enumerable.Repeat(SurvivorColor, 9).ToArray();
+                // darker colors as difficulty increases
+                difficultyBarSegmentColors = [
+                    SurvivorColor,
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (8f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (7f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (6f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (5f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (4f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (3f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (2f / 9f)),
+                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (1f / 9f))
+                ];
             }
 
             DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();

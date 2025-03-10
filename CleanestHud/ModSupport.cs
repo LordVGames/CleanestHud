@@ -86,7 +86,7 @@ namespace CleanestHud
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableGradualDifficultyBarColor
+                        ConfigOptions.EnableConsistentDifficultyBarColor
                     )
                 );
                 ModSettingsManager.AddOption(

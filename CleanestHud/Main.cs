@@ -273,7 +273,7 @@ namespace CleanestHud
                 return;
             }
 
-            internal static void DifficultyBarController_OnCurrentSegmentIndexChanged(On.RoR2.UI.DifficultyBarController.orig_OnCurrentSegmentIndexChanged orig, RoR2.UI.DifficultyBarController self, int newSegmentIndex)
+            internal static void DifficultyBarController_OnCurrentSegmentIndexChanged(On.RoR2.UI.DifficultyBarController.orig_OnCurrentSegmentIndexChanged orig, DifficultyBarController self, int newSegmentIndex)
             {
                 orig(self, newSegmentIndex);
                 if (IsHudUserBlacklisted)
@@ -281,7 +281,11 @@ namespace CleanestHud
                     return;
                 }
 
-                if (newSegmentIndex > 6 && !ConfigOptions.EnableGradualDifficultyBarColor.Value)
+                Log.Debug("DifficultyBarController_OnCurrentSegmentIndexChanged");
+                Log.Debug($"newSegmentIndex is {newSegmentIndex}");
+                Log.Debug($"ConfigOptions.EnableConsistentDifficultyBarColor.Value is {ConfigOptions.EnableConsistentDifficultyBarColor.Value}");
+
+                if (newSegmentIndex > 6 && ConfigOptions.EnableConsistentDifficultyBarColor.Value)
                 {
                     HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegment();
                 }

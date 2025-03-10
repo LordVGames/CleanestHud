@@ -626,13 +626,13 @@ namespace CleanestHud.HudChanges
             Transform backdrop = scrollView.GetChild(0);
 
             SetLastDifficultySegmentSprite(content);
-            if (ConfigOptions.EnableGradualDifficultyBarColor.Value)
+            if (ConfigOptions.EnableConsistentDifficultyBarColor.Value)
             {
-                UndoFakeInfiniteDifficultySegment(backdrop);
+                SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
             }
             else
             {
-                SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
+                UndoFakeInfiniteDifficultySegment(backdrop);
             }
         }
         private static void SetLastDifficultySegmentSprite(Transform content)
@@ -646,13 +646,13 @@ namespace CleanestHud.HudChanges
             {
                 HudAssets.LastDifficultySegmentSprite = lastDifficultySegmentImage.sprite;
             }
-            if (ConfigOptions.EnableGradualDifficultyBarColor.Value)
+            if (ConfigOptions.EnableConsistentDifficultyBarColor.Value)
             {
-                lastDifficultySegmentImage.sprite = HudAssets.LastDifficultySegmentSprite;
+                lastDifficultySegmentImage.sprite = firstDifficultySegmentImage.sprite;
             }
             else
             {
-                lastDifficultySegmentImage.sprite = firstDifficultySegmentImage.sprite;
+                lastDifficultySegmentImage.sprite = HudAssets.LastDifficultySegmentSprite;
             }
         }
         private static void SetupFakeInfiniteDifficultySegment(Transform backdrop, Transform segmentTemplate)
@@ -672,7 +672,7 @@ namespace CleanestHud.HudChanges
             // this is stupid
             DifficultyBarBackgroundColorChanger colorChanger = backdropImage.transform.gameObject.GetComponent<DifficultyBarBackgroundColorChanger>() ?? backdropImage.transform.gameObject.AddComponent<DifficultyBarBackgroundColorChanger>();
             colorChanger.newColor = newColor;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1f);
             colorChanger.enabled = false;
         }
 

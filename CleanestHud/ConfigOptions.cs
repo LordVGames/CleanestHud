@@ -130,8 +130,8 @@ namespace CleanestHud
         public static ConfigEntry<bool> EnableAutoScoreboardHighlight;
 
 
-        public static ConfigEntry<bool> EnableGradualDifficultyBarColor;
-        private static void EnableGradualDifficultyBarColor_SettingChanged(object sender, System.EventArgs e)
+        public static ConfigEntry<bool> EnableConsistentDifficultyBarColor;
+        private static void EnableConsistentDifficultyBarColor_SettingChanged(object sender, System.EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -233,11 +233,11 @@ namespace CleanestHud
                 true,
                 "Should the allies on the left side of the HUD have their backgrounds? If enabled, the backgrounds will be properly colored."
             );
-            EnableGradualDifficultyBarColor = config.Bind<bool>(
+            EnableConsistentDifficultyBarColor = config.Bind<bool>(
                 "HUD Settings",
-                "Enable gradual color change for the difficulty bar",
-                false,
-                "Should the coloring for the difficulty bar gradually get darker as the difficulty increases?"
+                "Enable consistent difficulty bar segment colors",
+                true,
+                "Should the coloring for the difficulty bar stay the same instead of getting darker as the difficulty increases?"
             );
             AllowSimulacrumWaveBarAnimating = config.Bind<bool>(
                 "HUD Settings",
@@ -300,7 +300,7 @@ namespace CleanestHud
                 InspectPanelFadeInDuration.SettingChanged += InspectPanelFadeInDuration_SettingChanged;
                 EnableAllyCardBackgrounds.SettingChanged += EnableAllyCardBackgrounds_SettingChanged;
                 EnableScoreboardItemHighlightColoring.SettingChanged += EnableScoreboardItemHighlightColoring_SettingChanged;
-                EnableGradualDifficultyBarColor.SettingChanged += EnableGradualDifficultyBarColor_SettingChanged;
+                EnableConsistentDifficultyBarColor.SettingChanged += EnableConsistentDifficultyBarColor_SettingChanged;
                 AllowSimulacrumWaveBarAnimating.SettingChanged += AllowSimulacrumWaveBarAnimating_SettingChanged;
                 AllowVoidFiendMeterAnimating.SettingChanged += AllowVoidFiendMeterAnimating_SettingChanged;
                 SeekerMeditateHudPosition.SettingChanged += SeekerMeditateHudPosition_SettingChanged;
