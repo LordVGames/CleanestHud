@@ -19,7 +19,7 @@ namespace CleanestHud.HudChanges
         /// </summary>
         /// 
         /// <remarks>
-        /// Updated every time the camera's target changes. When setting this it does a GetComponent call since it gets <see cref="CurrentHudColor"/>.
+        /// Updated every time the camera's target changes.
         /// </remarks>
         public static Color SurvivorColor
         {
@@ -28,16 +28,10 @@ namespace CleanestHud.HudChanges
             {
                 Log.Debug("SurvivorColor has changed!");
                 Log.Debug($"New color will be {value}");
-                Color currentColor = CurrentHudColor;
-                Log.Debug($"currentColor is {currentColor}");
-                if (value == currentColor)
+                Log.Debug($"_survivorColor is {_survivorColor}");
+                if (value == _survivorColor)
                 {
                     Log.Debug("Value is the same as current color. Returning.");
-                    return;
-                }
-                else if (currentColor == Color.clear)
-                {
-                    Log.Debug("Current color is clear. Returning.");
                     return;
                 }
                 _survivorColor = value;
@@ -45,21 +39,8 @@ namespace CleanestHud.HudChanges
             }
         }
         private static Color _survivorColor;
-        public static Color CurrentHudColor
-        {
-            get
-            {
-                if (!IsHudFinishedLoading)
-                {
-                    Log.Error("Tried to get the HUD color, but the HUD has not finished loading!");
-                    return Color.clear;
-                }
-                // this uses the pure survivor color and it's the quickest to get to in the hud's layout
-                GameObject isReadyPanel1 = MyHud.skillIcons[0].isReadyPanelObject;
-                Image isReadyPanelImage1 = isReadyPanel1.GetComponent<Image>();
-                return isReadyPanelImage1.color;
-            }
-        }
+
+        internal static List<Color> LastKnownScoreboardStripColors = [];
 
         public const float DefaultHudColorIntensity = 0.643f;
         public const float DefaultSurvivorColorMultiplier = 0.85f;
@@ -67,10 +48,15 @@ namespace CleanestHud.HudChanges
         public static void UpdateHudColor()
         {
             Log.Debug("UpdateHudColor");
+            if (!IsHudEditable)
+            {
+                return;
+            }
             if (!Helpers.TestLevelDisplayClusterAvailability())
             {
                 return;
             }
+            Log.Debug($"SurvivorColor is {SurvivorColor}");
 
             Transform simulacrumWaveUI = ImportantHudTransforms.RunInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
             if (IsGameModeSimulacrum && simulacrumWaveUI)
@@ -81,7 +67,6 @@ namespace CleanestHud.HudChanges
             {
                 ColorDifficultyBar();
             }
-            Log.Debug($"SurvivorColor is {SurvivorColor}");
             ColorXpBar(ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster").Find("ExpBarRoot"));
             ColorSkillAndEquipmentSlots();
             ColorCurrenciesPanel();
@@ -244,13 +229,26 @@ namespace CleanestHud.HudChanges
 
 
 
+        internal static void MakeItemIconGlowImageColorable(ItemIcon itemIcon)
+        {
+            itemIcon.glowImage = itemIcon.transform.GetChild(1).GetComponent<RawImage>();
+            HGButton button = itemIcon.gameObject.GetComponent<HGButton>();
+            // setting the button colors to white makes it not influence glowimage color with yellow (the default)
+            // we can always just manually color it back to yellow later anyways
+            button.m_Colors.highlightedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.highlightedColor, Color.white);
+            button.m_Colors.normalColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.normalColor, Color.white);
+            button.m_Colors.pressedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.pressedColor, Color.white);
+            button.m_Colors.selectedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.selectedColor, Color.white);
+            // better higlight visibility for some character colors
+            button.m_Colors.m_ColorMultiplier = 1.5f;
+        }
         internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip)
         {
             // scoreboard strips don't have their icons immediately, so we wait a frame
             yield return null;
-            ColorItemIconHighlights(scoreboardStrip);
+            ColorItemIconGlowImages(scoreboardStrip);
         }
-        private static void ColorItemIconHighlights(ScoreboardStrip scoreboardStrip)
+        private static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip)
         {
             Color colorToUse;
             if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value)
@@ -267,13 +265,20 @@ namespace CleanestHud.HudChanges
             {
                 itemIcon.glowImage.color = colorToUse;
             }
-            ColorEquipmentSlotHighlight(scoreboardStrip);
         }
-        private static void ColorEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip)
+        internal static void ColorEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip)
         {
             Transform navFocusHighlight = scoreboardStrip.equipmentIcon.transform.GetChild(1);
             RawImage navFocusHighlightRawImage = navFocusHighlight.GetComponent<RawImage>();
             navFocusHighlightRawImage.color = scoreboardStrip.userBody.bodyColor;
+        }
+        internal static void ColorSingleItemIconHighlight(ItemIcon itemIcon)
+        {
+            // itemicon transform > itemsbackground > longbackground > scoreboardstrip > scoreboardstrip component
+            // yes it looks stupid but i need to make this as efficient as possible to help performance at high item counts
+            // a getcomponent hurts but i don't think i can do it otherwise
+            // at least this only happens a single icon when it's created/updated
+            itemIcon.glowImage.color = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>().userBody.bodyColor;
         }
 
 
@@ -298,6 +303,15 @@ namespace CleanestHud.HudChanges
             Color highlightColor = Main.Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
             RawImage scoreboardStripHighlightRawImage = scoreboardStripTransform.gameObject.GetComponent<RawImage>();
             scoreboardStripHighlightRawImage.color = highlightColor;
+        }
+
+        internal static void ColorAllOfScoreboardStrip(ScoreboardStrip scoreboardStrip)
+        {
+            // TODO make better use of EditScoreboardStrip
+            HudStructure.EditScoreboardStrip(scoreboardStrip);
+            ColorScoreboardStrip(scoreboardStrip);
+            HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
+            ColorEquipmentSlotHighlight(scoreboardStrip);
         }
 
 

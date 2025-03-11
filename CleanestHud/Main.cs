@@ -112,6 +112,9 @@ namespace CleanestHud
                 orig(self);
                 IsHudFinishedLoading = false;
                 IsHudUserBlacklisted = false;
+                HudChanges.HudColor.SurvivorColor = Color.clear;
+                // clearing on destroy to force recoloring everyone's strips later
+                HudChanges.HudColor.LastKnownScoreboardStripColors.Clear();
             }
             // Handles hud color when initially spawning in & when changing players while spectating. Also handles survivor-specific HUD elements.
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
@@ -236,25 +239,32 @@ namespace CleanestHud
             {
                 // wait a frame first to make scoreboard strips added by other mods work
                 yield return null;
-                EditScoreboardControllerElements(scoreboardController);
+                EditScoreboardStripsIfApplicable(scoreboardController);
             }
-            private static void EditScoreboardControllerElements(ScoreboardController scoreboardController)
+            private static void EditScoreboardStripsIfApplicable(ScoreboardController scoreboardController)
             {
-                HudChanges.HudStructure.EditScoreboardPanelAndStrips();
-                foreach (ScoreboardStrip scoreboardStrip in scoreboardController.stripAllocator.elements)
+                if (scoreboardController.stripAllocator.elements.Count != HudChanges.HudColor.LastKnownScoreboardStripColors.Count)
                 {
-                    HudChanges.HudColor.ColorScoreboardStrip(scoreboardStrip);
-                    // not efficient but whatever i'll fix it later
-                    HudChanges.HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
-                    if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value
-                        && scoreboardStrip.itemInventoryDisplay.itemIcons.Count > 0
-                        && !Helpers.AreColorsEqualIgnoringAlpha(
-                            scoreboardStrip.userBody.bodyColor,
-                            scoreboardStrip.itemInventoryDisplay.itemIcons[0].glowImage.color
-                        )
-                    )
+                    HudChanges.HudColor.LastKnownScoreboardStripColors.Clear();
+                    foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
                     {
-                        MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardStrip));
+                        HudChanges.HudColor.LastKnownScoreboardStripColors.Add(scoreboardStrip.userBody.bodyColor);
+                        HudChanges.HudColor.ColorAllOfScoreboardStrip(scoreboardStrip);
+                        return;
+                    }
+                }
+
+                for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
+                {
+                    if (scoreboardController.stripAllocator.elements[i].userBody.bodyColor != HudChanges.HudColor.LastKnownScoreboardStripColors[i])
+                    {
+                        HudChanges.HudColor.ColorAllOfScoreboardStrip(scoreboardController.stripAllocator.elements[i]);
+                    }
+
+                    HudChanges.Components.ScoreboardStripEditor scoreboardStripEditor;
+                    if (scoreboardController.stripAllocator.elements[i].TryGetComponent<HudChanges.Components.ScoreboardStripEditor>(out scoreboardStripEditor))
+                    {
+                        scoreboardStripEditor.CalculateAndSetWidthBasedPositions();
                     }
                 }
             }
@@ -353,12 +363,20 @@ namespace CleanestHud
 
                     buffDisplay.rectTranform.localPosition = new Vector3(-25f * buffDisplay.buffIconDisplayData.Count, -45f, 0f);
                     // the first buff always has +6 rotation on Y because ?????????? so it needs to be reset to 0
+                    // also i swear this was working without needing to delay it but now i have to?????
                     if (buffDisplay.buffIconDisplayData[0].buffIconComponent != null)
                     {
-                        buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform.rotation = Quaternion.identity;
+                        MyHud.StartCoroutine(DelayFixFirstBuffRotation(buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform));
                     }
                 });
             }
+            private static IEnumerator DelayFixFirstBuffRotation(RectTransform rectTransform)
+            {
+                yield return null;
+                rectTransform.rotation = Quaternion.identity;
+            }
+
+
 
             internal static void ItemIcon_SetItemIndex(ILContext il)
             {
@@ -373,7 +391,7 @@ namespace CleanestHud
                         x => x.MatchCall<UnityEngine.Object>("op_Implicit")
                     ))
                 {
-                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex FIRST PART");
+                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex PART 1");
                     Log.Warning($"cursor is {c}");
                     Log.Warning($"il is {il}");
                     return;
@@ -387,21 +405,23 @@ namespace CleanestHud
                         {
                             return;
                         }
+                        Log.Debug("ItemIcon_SetItemIndex");
 
                         // doing this doesn't actually cause that much lag and only happens for whatever icons are added/updated
                         // it also makes future mass glowimage coloring super good on performance
-                        HudChanges.HudDetails.SetupItemIconGlowImageForColoring(itemIcon);
+                        HudChanges.HudColor.MakeItemIconGlowImageColorable(itemIcon);
+                        HudChanges.HudColor.ColorSingleItemIconHighlight(itemIcon);
                     });
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex FIRST PART DUE TO {e}");
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex PART 1 DUE TO {e}");
                 }
 
 
 
                 // turns out there's normally unused code to set said glowimage's color to the item's rarity color with 0.75 alpha
-                // that's cool but we don't want that so we're gonna br over it
+                // that's cool but we're doing our own coloring methods so we're gonna Br over it
                 #region Removing vanilla glowimage coloring
                 if (!c.TryGotoNext(MoveType.After,
                         x => x.MatchLdcR4(0.75f),
@@ -409,7 +429,7 @@ namespace CleanestHud
                         x => x.MatchCallvirt<Graphic>("set_color")
                     ))
                 {
-                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex SECOND PART");
+                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex PART 2");
                     Log.Warning($"cursor is {c}");
                     Log.Warning($"il is {il}");
                     return;
@@ -422,10 +442,8 @@ namespace CleanestHud
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex SECOND PART DUE TO {e}");
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex PART 2 DUE TO {e}");
                 }
-
-
 
                 if (!c.TryGotoNext(MoveType.AfterLabel,
                         x => x.MatchLdarg(0),
@@ -433,7 +451,7 @@ namespace CleanestHud
                         x => x.MatchCall<UnityEngine.Object>("op_Implicit")
                     ))
                 {
-                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex THIRD PART");
+                    Log.Error("COULD NOT IL HOOK ItemIcon_SetItemIndex PART 3");
                     Log.Warning($"cursor is {c}");
                     Log.Warning($"il is {il}");
                     return;
@@ -444,41 +462,10 @@ namespace CleanestHud
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex THIRD PART DUE TO {e}");
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex PART 3 DUE TO {e}");
                 }
                 #endregion
             }
-
-            /*internal static void ScoreboardStrip_UpdateItemCountText(ILContext il)
-            {
-                ILCursor c = new(il);
-                if (!c.TryGotoNext(MoveType.After,
-                        x => x.MatchCall<Int32>("ToString"),
-                        x => x.MatchCallvirt<TMPro.TMP_Text>("set_text")
-                    ))
-                {
-                    Log.Error("COULD NOT IL HOOK ScoreboardStrip_UpdateItemCountText");
-                    Log.Warning($"cursor is {c}");
-                    Log.Warning($"il is {il}");
-                    return;
-                }
-
-                c.Emit(OpCodes.Ldarg_0);
-                c.EmitDelegate<Action<ScoreboardStrip>>((scoreboardStrip) =>
-                {
-                    if (IsHudUserBlacklisted)
-                    {
-                        return;
-                    }
-
-                    if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value)
-                    {
-                        // this works properly for player strips but modded devotion lemurian strips always call this for some reason
-                        // oh well!
-                        MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardStrip));
-                    }
-                });
-            }*/
         }
 
         internal static class Events

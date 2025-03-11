@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Object;
 using static CleanestHud.HudResources;
+using System.Collections;
 
 namespace CleanestHud.HudChanges
 {
@@ -63,6 +64,7 @@ namespace CleanestHud.HudChanges
             EditBossHpBarAndText();
             EditNotificationArea();
             RepositionSprintAndInventoryReminders();
+            EditScoreboardPanel();
 
             CanvasGroup wholeHudCanvasGroup = Main.MyHud.GetComponent<CanvasGroup>() ?? Main.MyHud.gameObject.AddComponent<CanvasGroup>();
             wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
@@ -282,7 +284,7 @@ namespace CleanestHud.HudChanges
                 {
                     case 0:
                         equipmentDisplayRootRectLocalPosition = new Vector3(-22f, 16.75f, 0f);
-                        equipmentSlotScaleFactor = 0.92f;
+                        equipmentSlotScaleFactor = 0.925f;
                         break;
                     case 1:
                         equipmentDisplayRootRectLocalPosition = new Vector3(-20f, -5f, 0f);
@@ -331,7 +333,7 @@ namespace CleanestHud.HudChanges
             RectTransform equipmentIconPanelRect = equipmentIconPanel.GetComponent<RectTransform>();
             Transform equipmentIsReadyPanel = equipmentDisplayRoot.Find("IsReadyPanel");
 
-            equipmentDisplayRootRect.localScale = (new Vector3(1f, 0.99f, 1f) * scaleFactor);
+            equipmentDisplayRootRect.localScale = (new Vector3(1f, 0.98f, 1f) * scaleFactor);
             equipmentBGPanelRect.localScale *= scaleFactor;
             equipmentIconPanelRect.localScale *= scaleFactor;
             equipmentIsReadyPanel.localScale *= scaleFactor;
@@ -345,7 +347,7 @@ namespace CleanestHud.HudChanges
             scalerRect.pivot = new Vector2(0.5f, 0f);
             scalerRect.sizeDelta = new Vector2(-639f, -234f);
             float skillsHudYPos = ConfigOptions.ShowSkillKeybinds.Value ? 125f : 98f;
-            scalerRect.anchoredPosition = new Vector2(62f, skillsHudYPos);
+            scalerRect.anchoredPosition = new Vector2(58f, skillsHudYPos);
         }
         private static void EditCurrenciesSection()
         {
@@ -497,10 +499,7 @@ namespace CleanestHud.HudChanges
                 segmentRect.localScale = new Vector3(1f, 1.1f, 1f);
             }
         }
-
-
-
-        internal static void EditScoreboardPanelAndStrips()
+        private static void EditScoreboardPanel()
         {
             Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
@@ -519,29 +518,29 @@ namespace CleanestHud.HudChanges
             stripContainerVerticalLayoutGroup.childControlWidth = true;
             stripContainerVerticalLayoutGroup.childScaleHeight = true;
             stripContainerVerticalLayoutGroup.childScaleWidth = true;
+        }
 
-            for (int i = 0; i < stripContainer.childCount; i++)
+
+        internal static void EditScoreboardStrip(ScoreboardStrip scoreboardStrip)
+        {
+            // more space between icons, similar spacing to inventory at the top of the screen
+            scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth = 58;
+            scoreboardStrip.itemInventoryDisplay.maxHeight = 54;
+
+
+            if (scoreboardStrip.GetComponent<Components.ScoreboardStripEditor>() == null)
             {
-                Transform scoreboardStripTransform = stripContainer.GetChild(i);
-                ScoreboardStrip scoreboardStrip = scoreboardStripTransform.GetComponent<ScoreboardStrip>();
-                // more space between icons, similar spacing to inventory at the top of the screen
-                scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth = 58;
-                scoreboardStrip.itemInventoryDisplay.maxHeight = 54;
-
-
-                if (scoreboardStripTransform.gameObject.GetComponent<Components.ScoreboardStripEditor>() == null)
-                {
-                    AttachEditorToScoreboardStrip(scoreboardStripTransform);
-                }
+                AttachEditorToScoreboardStrip(scoreboardStrip.transform);
             }
         }
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {
+            Transform longBackground = scoreboardStripTransform.GetChild(0);
             Components.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<Components.ScoreboardStripEditor>();
 
-            scoreboardStripEditor.ClassBackgroundRectLocalPosition = new Vector3(-475f, -0.2f, 0f);
-            scoreboardStripEditor.ClassBackgroundRectLocalScale = Vector3.one * 1.075f;
-            scoreboardStripEditor.ClassBackgroundRectPivot = new Vector2(0.5f, 0.5f);
+            // local position here is setup when the component is started
+            scoreboardStripEditor.ClassBackgroundRect_LocalScale = Vector3.one * 1.075f;
+            scoreboardStripEditor.ClassBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
 
             scoreboardStripEditor.ItemsBackgroundRectLocalPosition = new Vector3(120f, 9f, 0f);
             scoreboardStripEditor.ItemsBackgroundRectPivot = new Vector2(0.5f, 0.5f);
@@ -553,6 +552,25 @@ namespace CleanestHud.HudChanges
             scoreboardStripEditor.EquipmentBackgroundRectPivot = new Vector2(0.5f, 0.5f);
 
             scoreboardStripEditor.NameLabelRectLocalPosition = new Vector3(-310, 0, 0);
+        }
+
+        internal static IEnumerator DelayUpdateScoreboardStripEditorPositions()
+        {
+            yield return null;
+            UpdateScoreboardStripEditorPositions();
+        }
+        private static void UpdateScoreboardStripEditorPositions()
+        {
+            Log.Debug("UpdateScoreboardStripEditorPositions");
+            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
+            Transform stripContainer = container.GetChild(1);
+
+            for (int i = 0; i < stripContainer.childCount; i++)
+            {
+                Components.ScoreboardStripEditor scoreboardStripEditor = stripContainer.GetChild(i).GetComponent<Components.ScoreboardStripEditor>();
+                scoreboardStripEditor.CalculateAndSetWidthBasedPositions();
+            }
         }
     }
 }

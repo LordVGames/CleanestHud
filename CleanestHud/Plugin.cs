@@ -47,7 +47,6 @@ namespace CleanestHud
 
             IL.RoR2.UI.BuffDisplay.UpdateLayout += Main.ILHooks.BuffDisplay_UpdateLayout;
             IL.RoR2.UI.ItemIcon.SetItemIndex += Main.ILHooks.ItemIcon_SetItemIndex;
-            //IL.RoR2.UI.ScoreboardStrip.UpdateItemCountText += Main.ILHooks.ScoreboardStrip_UpdateItemCountText;
 
             InfiniteTowerRun.onWaveInitialized += Main.Events.InfiniteTowerRun_onWaveInitialized;
 

@@ -45,24 +45,24 @@ namespace CleanestHud.HudChanges
 
         public class ScoreboardStripEditor : MonoBehaviour
         {
-            RectTransform classBackgroundRect;
-            public Vector3 ClassBackgroundRectLocalPosition;
-            public Vector3 ClassBackgroundRectLocalScale;
-            public Vector2 ClassBackgroundRectPivot;
+            private RectTransform classBackgroundRect;
+            public Vector3 ClassBackgroundRect_LocalPosition;
+            public Vector3 ClassBackgroundRect_LocalScale;
+            public Vector2 ClassBackgroundRect_Pivot;
 
-            RectTransform itemsBackgroundRect;
+            private RectTransform itemsBackgroundRect;
             public Vector3 ItemsBackgroundRectLocalPosition;
             public Vector2 ItemsBackgroundRectPivot;
             public Vector2 ItemsBackgroundAnchoredPosition;
             public Vector2 ItemsBackgroundSizeDelta;
 
 
-            RectTransform equipmentBackgroundRect;
+            private RectTransform equipmentBackgroundRect;
             public Vector3 EquipmentBackgroundRectLocalPosition;
             public Vector3 EquipmentBackgroundRectLocalScale;
             public Vector2 EquipmentBackgroundRectPivot;
 
-            RectTransform nameLabelRect;
+            private RectTransform nameLabelRect;
             public Vector3 NameLabelRectLocalPosition;
 
             public void Start()
@@ -72,6 +72,21 @@ namespace CleanestHud.HudChanges
                 equipmentBackgroundRect = longBackground.GetChild(7).GetComponent<RectTransform>();
                 itemsBackgroundRect = longBackground.GetChild(6).GetComponent<RectTransform>();
                 nameLabelRect = longBackground.GetChild(2).GetComponent<RectTransform>();
+
+                CalculateAndSetWidthBasedPositions();
+            }
+
+            public void CalculateAndSetWidthBasedPositions()
+            {
+                Log.Debug("CalculateAndSetWidthBasedPositions");
+                Transform longBackground = this.transform.GetChild(0);
+                RectTransform longBackgroundRect = longBackground.GetComponent<RectTransform>();
+
+                // the X position is based on the size of the entire strip's rect width
+                // this way it'll work no matter the screen width
+                // the +2 at the end is to keep the icon from going out of the strip
+                ClassBackgroundRect_LocalPosition = new Vector3((longBackgroundRect.rect.xMin + classBackgroundRect.sizeDelta.x / 2) + 2, classBackgroundRect.localPosition.y, classBackgroundRect.localPosition.z);
+                Log.Debug($"ClassBackgroundRect_LocalPosition is {ClassBackgroundRect_LocalPosition}");
             }
 
             public void Update()
@@ -82,6 +97,10 @@ namespace CleanestHud.HudChanges
                     itemsBackgroundRect.pivot = ItemsBackgroundRectPivot;
                     itemsBackgroundRect.anchoredPosition = ItemsBackgroundAnchoredPosition;
                     itemsBackgroundRect.sizeDelta = ItemsBackgroundSizeDelta;
+                    // it clips into the money/item numbers so it needs to be a lil less wide
+                    Vector3 newScale = itemsBackgroundRect.localScale;
+                    newScale.x = 0.95f;
+                    itemsBackgroundRect.localScale = newScale;
                 }
 
                 if (equipmentBackgroundRect.localPosition != EquipmentBackgroundRectLocalPosition)
@@ -91,11 +110,12 @@ namespace CleanestHud.HudChanges
                     equipmentBackgroundRect.pivot = EquipmentBackgroundRectPivot;
                 }
 
-                if (classBackgroundRect.localPosition != ClassBackgroundRectLocalPosition)
+                if (classBackgroundRect.localPosition != ClassBackgroundRect_LocalPosition)
                 {
-                    classBackgroundRect.localPosition = ClassBackgroundRectLocalPosition;
-                    classBackgroundRect.localScale = ClassBackgroundRectLocalScale;
-                    classBackgroundRect.pivot = ClassBackgroundRectPivot;
+                    // make classbackground go to left edge of scoreboardstrip - regardless of the screen width
+                    classBackgroundRect.localPosition = ClassBackgroundRect_LocalPosition;
+                    classBackgroundRect.localScale = ClassBackgroundRect_LocalScale;
+                    classBackgroundRect.pivot = ClassBackgroundRect_Pivot;
                 }
 
                 if (nameLabelRect.localPosition != NameLabelRectLocalPosition)
