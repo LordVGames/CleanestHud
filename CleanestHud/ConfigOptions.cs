@@ -307,9 +307,9 @@ namespace CleanestHud
                 SeekerLotusHudPosition.SettingChanged += SeekerLotusUiPosition_SettingChanged;
                 ModSupport.RiskOfOptionsMod.AddOptions();
             }
-            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelEnabledConfig != null)
+            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfig != null)
             {
-                ModSupport.LookingGlassMod.StatsPanelEnabledConfig.SettingChanged += ModSupport.LookingGlassMod.StatsPanelEnabledConfig_SettingChanged;
+                ModSupport.LookingGlassMod.StatsPanelConfig.SettingChanged += ModSupport.LookingGlassMod.StatsPanelConfig_SettingChanged;
             }
         }
     }

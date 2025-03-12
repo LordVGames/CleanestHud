@@ -277,7 +277,7 @@ namespace CleanestHud.HudChanges
             // itemicon transform > itemsbackground > longbackground > scoreboardstrip > scoreboardstrip component
             // yes it looks stupid but i need to make this as efficient as possible to help performance at high item counts
             // a getcomponent hurts but i don't think i can do it otherwise
-            // at least this only happens a single icon when it's created/updated
+            // at least this only happens when a single icon is created/updated
             itemIcon.glowImage.color = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>().userBody.bodyColor;
         }
 

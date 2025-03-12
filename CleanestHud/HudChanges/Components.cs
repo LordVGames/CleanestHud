@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
+using static CleanestHud.HudResources;
 
 namespace CleanestHud.HudChanges
 {
@@ -45,74 +47,134 @@ namespace CleanestHud.HudChanges
 
         public class ScoreboardStripEditor : MonoBehaviour
         {
+            // local position values are made public in debug mode so they can be edited ingame
             private RectTransform classBackgroundRect;
+            /// <remarks>
+            /// Don't set manually - the component sets this itself
+            /// </remarks>
             public Vector3 ClassBackgroundRect_LocalPosition;
             public Vector3 ClassBackgroundRect_LocalScale;
             public Vector2 ClassBackgroundRect_Pivot;
 
             private RectTransform itemsBackgroundRect;
-            public Vector3 ItemsBackgroundRectLocalPosition;
-            public Vector2 ItemsBackgroundRectPivot;
-            public Vector2 ItemsBackgroundAnchoredPosition;
-            public Vector2 ItemsBackgroundSizeDelta;
-
+            /// <remarks>
+            /// Don't set manually - the component sets this itself
+            /// </remarks>
+            public Vector3 ItemsBackgroundRect_LocalPosition;
+            private Image itemsBackgroundImage;
 
             private RectTransform equipmentBackgroundRect;
-            public Vector3 EquipmentBackgroundRectLocalPosition;
-            public Vector3 EquipmentBackgroundRectLocalScale;
-            public Vector2 EquipmentBackgroundRectPivot;
+            /// <remarks>
+            /// Don't set manually - the component sets this itself
+            /// </remarks>
+            public Vector3 EquipmentBackgroundRect_LocalPosition;
+            public Vector3 EquipmentBackgroundRect_LocalScale;
+            public Vector2 EquipmentBackgroundRect_Pivot;
 
             private RectTransform nameLabelRect;
+            /// <remarks>
+            /// Don't set manually - the component sets this itself
+            /// </remarks>
             public Vector3 NameLabelRectLocalPosition;
+            private Vector3 normalNameLabelRectLocalPosition;
+
+            private Transform itemHeader;
+            /// <remarks>
+            /// Don't set manually - the component sets this itself
+            /// </remarks>
+            public Vector3 ItemHeader_LocalPosition;
+
+            private Transform playerHeader; 
 
             public void Start()
             {
+                // scoreboardstrip > stripcontainer > container > headergroup
+                Transform headerGroup = this.transform.parent.parent.GetChild(0);
+                playerHeader = headerGroup.GetChild(0);
+                itemHeader = headerGroup.GetChild(1);
+
                 Transform longBackground = this.transform.GetChild(0);
                 classBackgroundRect = longBackground.GetChild(1).GetComponent<RectTransform>();
                 equipmentBackgroundRect = longBackground.GetChild(7).GetComponent<RectTransform>();
-                itemsBackgroundRect = longBackground.GetChild(6).GetComponent<RectTransform>();
-                nameLabelRect = longBackground.GetChild(2).GetComponent<RectTransform>();
+                Transform itemsBackground = longBackground.GetChild(6);
+                itemsBackgroundRect = itemsBackground.GetComponent<RectTransform>();
+                itemsBackgroundImage = itemsBackground.GetComponent<Image>();
 
-                CalculateAndSetWidthBasedPositions();
+                nameLabelRect = longBackground.GetChild(2).GetComponent<RectTransform>();
+                normalNameLabelRectLocalPosition = nameLabelRect.localPosition;
+
+                CalculateAndSetSizeBasedPositions();
             }
 
-            public void CalculateAndSetWidthBasedPositions()
+            public void CalculateAndSetSizeBasedPositions()
             {
-                Log.Debug("CalculateAndSetWidthBasedPositions");
                 Transform longBackground = this.transform.GetChild(0);
                 RectTransform longBackgroundRect = longBackground.GetComponent<RectTransform>();
 
-                // the X position is based on the size of the entire strip's rect width
-                // this way it'll work no matter the screen width
-                // the +2 at the end is to keep the icon from going out of the strip
-                ClassBackgroundRect_LocalPosition = new Vector3((longBackgroundRect.rect.xMin + classBackgroundRect.sizeDelta.x / 2) + 2, classBackgroundRect.localPosition.y, classBackgroundRect.localPosition.z);
-                Log.Debug($"ClassBackgroundRect_LocalPosition is {ClassBackgroundRect_LocalPosition}");
+                // some position coordinates are based on the size of the entire strip's rect width
+                // this way they'll be positioned nicely no matter the screen width
+                // the +/-2 at the end of the next 2 are to keep the icons from going out of the strip
+                ClassBackgroundRect_LocalPosition = new Vector3(
+                    (longBackgroundRect.rect.xMin + classBackgroundRect.sizeDelta.x / 2) + 2,
+                    classBackgroundRect.localPosition.y,
+                    classBackgroundRect.localPosition.z
+                );
+                EquipmentBackgroundRect_LocalPosition = new Vector3(
+                    ((longBackgroundRect.rect.xMin * -1) - equipmentBackgroundRect.sizeDelta.x / 2) - 2,
+                    equipmentBackgroundRect.localPosition.y,
+                    equipmentBackgroundRect.localPosition.z
+                );
+                ItemsBackgroundRect_LocalPosition = new Vector3(
+                    itemsBackgroundRect.localPosition.x,
+                    (int)Math.Ceiling(longBackgroundRect.rect.height * 0.07f),
+                    itemsBackgroundRect.localPosition.z
+                );
+                ItemHeader_LocalPosition = new Vector3(
+                    ItemsBackgroundRect_LocalPosition.x + (itemsBackgroundRect.sizeDelta.x / 2),
+                    itemHeader.localPosition.y,
+                    itemHeader.localPosition.z
+                );
+
+                if (ModSupport.LookingGlassMod.ItemCountersConfig != null && ModSupport.LookingGlassMod.ItemCountersConfig.Value)
+                {
+                    NameLabelRectLocalPosition = normalNameLabelRectLocalPosition;
+                }
+                else
+                {
+                    NameLabelRectLocalPosition = new Vector3(
+                        playerHeader.localPosition.x - nameLabelRect.sizeDelta.x / 2,
+                        normalNameLabelRectLocalPosition.y,
+                        normalNameLabelRectLocalPosition.z
+                    );
+                }
             }
 
             public void Update()
             {
-                if (itemsBackgroundRect.localPosition != ItemsBackgroundRectLocalPosition)
+                // make background image invisible instead of disabling to allow game's automatic ui scaling to happen
+                if (itemsBackgroundImage.color.a != 0)
                 {
-                    itemsBackgroundRect.localPosition = ItemsBackgroundRectLocalPosition;
-                    itemsBackgroundRect.pivot = ItemsBackgroundRectPivot;
-                    itemsBackgroundRect.anchoredPosition = ItemsBackgroundAnchoredPosition;
-                    itemsBackgroundRect.sizeDelta = ItemsBackgroundSizeDelta;
-                    // it clips into the money/item numbers so it needs to be a lil less wide
-                    Vector3 newScale = itemsBackgroundRect.localScale;
-                    newScale.x = 0.95f;
-                    itemsBackgroundRect.localScale = newScale;
+                    itemsBackgroundImage.color = Color.clear;
+                }
+                if (itemsBackgroundRect.localPosition.x != 0)
+                {
+                    itemsBackgroundRect.localPosition = ItemsBackgroundRect_LocalPosition;
                 }
 
-                if (equipmentBackgroundRect.localPosition != EquipmentBackgroundRectLocalPosition)
+                if (itemHeader.localPosition != ItemHeader_LocalPosition)
                 {
-                    equipmentBackgroundRect.localPosition = EquipmentBackgroundRectLocalPosition;
-                    equipmentBackgroundRect.localScale = EquipmentBackgroundRectLocalScale;
-                    equipmentBackgroundRect.pivot = EquipmentBackgroundRectPivot;
+                    itemHeader.localPosition = ItemHeader_LocalPosition;
+                }
+
+                if (equipmentBackgroundRect.localPosition != EquipmentBackgroundRect_LocalPosition)
+                {
+                    equipmentBackgroundRect.localPosition = EquipmentBackgroundRect_LocalPosition;
+                    equipmentBackgroundRect.localScale = EquipmentBackgroundRect_LocalScale;
+                    equipmentBackgroundRect.pivot = EquipmentBackgroundRect_Pivot;
                 }
 
                 if (classBackgroundRect.localPosition != ClassBackgroundRect_LocalPosition)
                 {
-                    // make classbackground go to left edge of scoreboardstrip - regardless of the screen width
                     classBackgroundRect.localPosition = ClassBackgroundRect_LocalPosition;
                     classBackgroundRect.localScale = ClassBackgroundRect_LocalScale;
                     classBackgroundRect.pivot = ClassBackgroundRect_Pivot;

@@ -271,7 +271,7 @@ namespace CleanestHud
                 }
             }
 
-            internal static ConfigEntry<bool> StatsPanelEnabledConfig
+            internal static ConfigEntry<bool> StatsPanelConfig
             {
                 get
                 {
@@ -282,18 +282,31 @@ namespace CleanestHud
                     return null;
                 }
             }
-            internal static void StatsPanelEnabledConfig_SettingChanged(object sender, EventArgs e)
+            internal static void StatsPanelConfig_SettingChanged(object sender, EventArgs e)
             {
-                if (!Main.IsHudFinishedLoading)
+                if (!Main.IsHudEditable)
                 {
                     return;
                 }
 
-                if (StatsPanelEnabledConfig.Value)
+                if (StatsPanelConfig.Value)
                 {
                     Main.MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
                 }
             }
+
+            internal static ConfigEntry<bool> ItemCountersConfig
+            {
+                get
+                {
+                    if (ModIsRunning)
+                    {
+                        return LookingGlass.ItemCounters.ItemCounter.itemCounters;
+                    }
+                    return null;
+                }
+            }
+
             internal static IEnumerator DelayRemoveLookingGlassStatsPanelBackground()
             {
                 yield return null;

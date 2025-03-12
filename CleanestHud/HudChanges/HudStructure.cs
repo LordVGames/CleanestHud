@@ -21,20 +21,19 @@ namespace CleanestHud.HudChanges
             {
                 Transform scoreboardStrip = HudAssets.ScoreboardStrip.transform;
 
-                Transform longBackground = scoreboardStrip.Find("LongBackground");
+                Transform longBackground = scoreboardStrip.GetChild(0);
                 Image longBackgroundImage = longBackground.GetComponent<Image>();
                 longBackgroundImage.sprite = HudAssets.WhiteSprite;
-
-                Transform nameLabel = longBackground.Find("NameLabel");
-                RectTransform nameLabelRect = nameLabel.GetComponent<RectTransform>();
-                nameLabelRect.pivot = new Vector2(0.5f, 0.5f);
-                // x position is boosted by -38.2102 ingame
-                nameLabelRect.localPosition = new Vector3(-218.7898f, 0f, 0f);
 
                 Transform totalTextContainer = longBackground.Find("TotalTextContainer");
                 Transform moneyText = totalTextContainer.Find("MoneyText");
                 HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
                 moneyTextMesh.color = Color.white;
+
+                Transform nameLabel = longBackground.GetChild(2);
+                HGTextMeshProUGUI nameLabelText = nameLabel.GetComponent<HGTextMeshProUGUI>();
+                nameLabelText.alignment = TextAlignmentOptions.Center;
+                // i would reposition parts of the asset here but that never works ingame lmao
             }
         }
 
@@ -538,39 +537,17 @@ namespace CleanestHud.HudChanges
             Transform longBackground = scoreboardStripTransform.GetChild(0);
             Components.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<Components.ScoreboardStripEditor>();
 
-            // local position here is setup when the component is started
+            // ClassBackground's local position is handled by the component
             scoreboardStripEditor.ClassBackgroundRect_LocalScale = Vector3.one * 1.075f;
             scoreboardStripEditor.ClassBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
 
-            scoreboardStripEditor.ItemsBackgroundRectLocalPosition = new Vector3(120f, 9f, 0f);
-            scoreboardStripEditor.ItemsBackgroundRectPivot = new Vector2(0.5f, 0.5f);
-            scoreboardStripEditor.ItemsBackgroundAnchoredPosition = new Vector2(628, -26);
-            scoreboardStripEditor.ItemsBackgroundSizeDelta = new Vector2(580, 52);
+            // the entirety of itemsbackground is handled by the component
 
-            scoreboardStripEditor.EquipmentBackgroundRectLocalPosition = new Vector3(475f, 1f, 0f);
-            scoreboardStripEditor.EquipmentBackgroundRectLocalScale = Vector3.one * 1.1f;
-            scoreboardStripEditor.EquipmentBackgroundRectPivot = new Vector2(0.5f, 0.5f);
+            // EquipmentBackground's local position is also handled by the component
+            scoreboardStripEditor.EquipmentBackgroundRect_LocalScale = Vector3.one * 1.1f;
+            scoreboardStripEditor.EquipmentBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
 
-            scoreboardStripEditor.NameLabelRectLocalPosition = new Vector3(-310, 0, 0);
-        }
-
-        internal static IEnumerator DelayUpdateScoreboardStripEditorPositions()
-        {
-            yield return null;
-            UpdateScoreboardStripEditorPositions();
-        }
-        private static void UpdateScoreboardStripEditorPositions()
-        {
-            Log.Debug("UpdateScoreboardStripEditorPositions");
-            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
-            Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
-            Transform stripContainer = container.GetChild(1);
-
-            for (int i = 0; i < stripContainer.childCount; i++)
-            {
-                Components.ScoreboardStripEditor scoreboardStripEditor = stripContainer.GetChild(i).GetComponent<Components.ScoreboardStripEditor>();
-                scoreboardStripEditor.CalculateAndSetWidthBasedPositions();
-            }
+            // name label positioning is well yknow
         }
     }
 }

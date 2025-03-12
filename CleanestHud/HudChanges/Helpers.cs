@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using UnityEngine;
 
@@ -17,6 +18,18 @@ namespace CleanestHud.HudChanges
                 container = container.GetChild(0);
             }
             return container;
+        }
+        
+        internal static Transform GetScoreboardPanelFromContainer(Transform container)
+        {
+            Transform scoreboardPanel = container.parent;
+            if (scoreboardPanel.name == "CommandQueueScoreboardWrapper")
+            {
+                // commandqueue puts the entire scoreboard container in a new transform
+                // and it needs to be accounted for or else we can NRE
+                scoreboardPanel = scoreboardPanel.parent;
+            }
+            return scoreboardPanel;
         }
 
         internal static bool TestLevelDisplayClusterAvailability()

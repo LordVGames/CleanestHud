@@ -160,15 +160,16 @@ namespace CleanestHud.HudChanges
                 RawImage scoreboardStripRawImageBackground = HudAssets.ScoreboardStrip.gameObject.GetComponent<RawImage>();
                 scoreboardStripRawImageBackground.texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
 
-                Transform longBackground = HudAssets.ScoreboardStrip.transform.Find("LongBackground");
+                Transform longBackground = HudAssets.ScoreboardStrip.transform.GetChild(0);
 
                 Transform classBackground = longBackground.Find("ClassBackground");
                 Image classBackgroundImage = classBackground.GetComponent<Image>();
                 classBackgroundImage.enabled = false;
 
-                Transform itemsBackground = longBackground.Find("ItemsBackground");
-                Image itemsBackgroundImage = itemsBackground.GetComponent<Image>();
-                itemsBackgroundImage.enabled = false;
+                // DO NOT remove the items background image here
+                // if we do it will break the automatic scaling of the hud at ultrawide resolutions
+                // the ScoreboardStripEditor component makes the background image invisible instead
+                // same effect with better functionality
 
                 Transform equipmentBackground = longBackground.Find("EquipmentBackground");
                 Image equipmentBackgroundImage = equipmentBackground.GetComponent<Image>();
@@ -177,6 +178,7 @@ namespace CleanestHud.HudChanges
                 Transform nameLabel = longBackground.Find("NameLabel");
                 Transform nameFocusHighlight = nameLabel.Find("NameFocusHighlight");
                 Image nameFocusHighlightImage = nameFocusHighlight.GetComponent<Image>();
+                // im pretty sure its fine to disable the backgroud image here since it doesn't scale with resolution
                 nameFocusHighlightImage.enabled = false;
             }
             private static void RemoveMoonDetonationPanelDetails()
@@ -271,7 +273,7 @@ namespace CleanestHud.HudChanges
             ColorMapNameTextWhite();
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
-            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelEnabledConfig.Value)
+            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfig.Value)
             {
                 Main.MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
             }

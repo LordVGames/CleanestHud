@@ -264,7 +264,7 @@ namespace CleanestHud
                     HudChanges.Components.ScoreboardStripEditor scoreboardStripEditor;
                     if (scoreboardController.stripAllocator.elements[i].TryGetComponent<HudChanges.Components.ScoreboardStripEditor>(out scoreboardStripEditor))
                     {
-                        scoreboardStripEditor.CalculateAndSetWidthBasedPositions();
+                        scoreboardStripEditor.CalculateAndSetSizeBasedPositions();
                     }
                 }
             }
@@ -405,7 +405,6 @@ namespace CleanestHud
                         {
                             return;
                         }
-                        Log.Debug("ItemIcon_SetItemIndex");
 
                         // doing this doesn't actually cause that much lag and only happens for whatever icons are added/updated
                         // it also makes future mass glowimage coloring super good on performance
