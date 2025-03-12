@@ -9,7 +9,7 @@ using UnityEngine;
 using RoR2;
 using RoR2.UI;
 using static CleanestHud.HudResources;
-using static CleanestHud.HudChanges.Components;
+using static CleanestHud.HudChanges.EditorComponents;
 
 namespace CleanestHud.HudChanges
 {

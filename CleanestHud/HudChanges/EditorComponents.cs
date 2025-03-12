@@ -1,11 +1,10 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using static CleanestHud.HudResources;
 
 namespace CleanestHud.HudChanges
 {
-    internal class Components
+    internal class EditorComponents
     {
         public class DifficultyBarBackgroundColorChanger : MonoBehaviour
         {
@@ -47,6 +46,8 @@ namespace CleanestHud.HudChanges
 
         public class ScoreboardStripEditor : MonoBehaviour
         {
+            private bool hasStarted = false;
+
             // local position values are made public in debug mode so they can be edited ingame
             private RectTransform classBackgroundRect;
             /// <remarks>
@@ -84,7 +85,7 @@ namespace CleanestHud.HudChanges
             /// </remarks>
             public Vector3 ItemHeader_LocalPosition;
 
-            private Transform playerHeader; 
+            private Transform playerHeader;
 
             public void Start()
             {
@@ -103,11 +104,18 @@ namespace CleanestHud.HudChanges
                 nameLabelRect = longBackground.GetChild(2).GetComponent<RectTransform>();
                 normalNameLabelRectLocalPosition = nameLabelRect.localPosition;
 
+                hasStarted = true;
                 CalculateAndSetSizeBasedPositions();
             }
 
             public void CalculateAndSetSizeBasedPositions()
             {
+                // this is stupid
+                if (!hasStarted)
+                {
+                    return;
+                }
+
                 Transform longBackground = this.transform.GetChild(0);
                 RectTransform longBackgroundRect = longBackground.GetComponent<RectTransform>();
 

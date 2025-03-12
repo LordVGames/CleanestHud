@@ -34,6 +34,7 @@ namespace CleanestHud
             On.RoR2.UI.HUD.OnDestroy += Main.OnHooks.HUD_OnDestroy;
             On.RoR2.CameraModes.CameraModeBase.OnTargetChanged += Main.OnHooks.CameraModeBase_OnTargetChanged;
 
+            On.RoR2.ConVar.BaseConVar.AttemptSetString += Main.OnHooks.BaseConVar_AttemptSetString;
             On.RoR2.UI.AllyCardController.Awake += Main.OnHooks.AllyCardController_Awake;
             On.RoR2.UI.AllyCardController.UpdateInfo += Main.OnHooks.AllyCardController_UpdateInfo;
             On.RoR2.UI.HealthBar.InitializeHealthBar += Main.OnHooks.HealthBar_InitializeHealthBar;

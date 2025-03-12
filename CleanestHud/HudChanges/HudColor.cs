@@ -4,11 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using static UnityEngine.Object;
 using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using System.Linq;
+
 namespace CleanestHud.HudChanges
 {
     internal class HudColor
@@ -39,8 +39,6 @@ namespace CleanestHud.HudChanges
             }
         }
         private static Color _survivorColor;
-
-        internal static List<Color> LastKnownScoreboardStripColors = [];
 
         public const float DefaultHudColorIntensity = 0.643f;
         public const float DefaultSurvivorColorMultiplier = 0.85f;
@@ -190,7 +188,7 @@ namespace CleanestHud.HudChanges
             // this actually changes the colors of the difficulty segments
             for (int i = 0; i < difficultyBarController.images.Length; i++)
             {
-                Components.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].gameObject.GetComponent<Components.DifficultyScalingBarColorChanger>() ?? difficultyBarController.images[i].gameObject.AddComponent<Components.DifficultyScalingBarColorChanger>();
+                EditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].gameObject.GetComponent<EditorComponents.DifficultyScalingBarColorChanger>() ?? difficultyBarController.images[i].gameObject.AddComponent<EditorComponents.DifficultyScalingBarColorChanger>();
                 coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
             }
             // coloring the backdrop needs to happen as it fades in or else it gets overridden
@@ -223,7 +221,7 @@ namespace CleanestHud.HudChanges
 
             Transform fillBar = fillBarRoot.GetChild(3);
             Image fillBarImage = fillBar.GetComponent<Image>();
-            Components.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetComponent<Components.SimulacrumBarColorChanger>() ?? fillBarImage.gameObject.AddComponent<Components.SimulacrumBarColorChanger>();
+            EditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetComponent<EditorComponents.SimulacrumBarColorChanger>() ?? fillBarImage.gameObject.AddComponent<EditorComponents.SimulacrumBarColorChanger>();
             barImageColorChanger.newFillBarColor = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
         }
 
@@ -248,7 +246,7 @@ namespace CleanestHud.HudChanges
             yield return null;
             ColorItemIconGlowImages(scoreboardStrip);
         }
-        private static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip)
+        internal static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip)
         {
             Color colorToUse;
             if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value)
@@ -282,39 +280,6 @@ namespace CleanestHud.HudChanges
         }
 
 
-        internal static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip)
-        {
-            Transform scoreboardStripTransform = scoreboardStrip.transform;
-            if (scoreboardStrip.userBody == null)
-            {
-                return;
-            }
-
-            Transform longBackground = scoreboardStripTransform.GetChild(0);
-            Image longBackgroundImage = longBackground.GetComponent<Image>();
-            Color normalPlayerColor = scoreboardStrip.userBody.bodyColor;
-            normalPlayerColor.a = 0.15f;
-            if (longBackgroundImage.color == normalPlayerColor)
-            {
-                return;
-            }
-            longBackgroundImage.color = normalPlayerColor;
-
-            Color highlightColor = Main.Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
-            RawImage scoreboardStripHighlightRawImage = scoreboardStripTransform.gameObject.GetComponent<RawImage>();
-            scoreboardStripHighlightRawImage.color = highlightColor;
-        }
-
-        internal static void ColorAllOfScoreboardStrip(ScoreboardStrip scoreboardStrip)
-        {
-            // TODO make better use of EditScoreboardStrip
-            HudStructure.EditScoreboardStrip(scoreboardStrip);
-            ColorScoreboardStrip(scoreboardStrip);
-            HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
-            ColorEquipmentSlotHighlight(scoreboardStrip);
-        }
-
-
 
         internal static void ColorAllyCardControllerBackground(AllyCardController allyCardController)
         {
@@ -339,6 +304,38 @@ namespace CleanestHud.HudChanges
                 AllyCardController allyCardController = allyCard.GetComponent<AllyCardController>();
                 ColorAllyCardControllerBackground(allyCardController);
             }
+        }
+
+
+
+        internal static void ColorAllOfScoreboardStrip(ScoreboardStrip scoreboardStrip)
+        {
+            ColorScoreboardStrip(scoreboardStrip);
+            ColorItemIconGlowImages(scoreboardStrip);
+            HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
+            ColorEquipmentSlotHighlight(scoreboardStrip);
+        }
+        private static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip)
+        {
+            Transform scoreboardStripTransform = scoreboardStrip.transform;
+            if (scoreboardStrip.userBody == null)
+            {
+                return;
+            }
+
+            Transform longBackground = scoreboardStripTransform.GetChild(0);
+            Image longBackgroundImage = longBackground.GetComponent<Image>();
+            Color normalPlayerColor = scoreboardStrip.userBody.bodyColor;
+            normalPlayerColor.a = 0.15f;
+            if (longBackgroundImage.color == normalPlayerColor)
+            {
+                return;
+            }
+            longBackgroundImage.color = normalPlayerColor;
+
+            Color highlightColor = Main.Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
+            RawImage scoreboardStripHighlightRawImage = scoreboardStripTransform.gameObject.GetComponent<RawImage>();
+            scoreboardStripHighlightRawImage.color = highlightColor;
         }
     }
 }

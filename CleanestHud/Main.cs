@@ -40,6 +40,7 @@ namespace CleanestHud
                 return MyHud.targetBodyObject.GetComponent<CharacterBody>();
             }
         }
+        internal static bool SizeBasedPositionsNeedCalculating;
 
 
         internal static bool IsGameModeSimulacrum
@@ -95,6 +96,7 @@ namespace CleanestHud
                 CharacterBody targetBody = HudTargetBody;
 
                 IsHudFinishedLoading = true;
+                SizeBasedPositionsNeedCalculating = true;
                 // substring is to remove "(Clone)" from the end of the name
                 if (ConfigOptions.BodyNameBlacklist_Array.Contains(targetBody.name.Substring(0, targetBody.name.Length - 7)))
                 {
@@ -113,8 +115,6 @@ namespace CleanestHud
                 IsHudFinishedLoading = false;
                 IsHudUserBlacklisted = false;
                 HudChanges.HudColor.SurvivorColor = Color.clear;
-                // clearing on destroy to force recoloring everyone's strips later
-                HudChanges.HudColor.LastKnownScoreboardStripColors.Clear();
             }
             // Handles hud color when initially spawning in & when changing players while spectating. Also handles survivor-specific HUD elements.
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
@@ -151,6 +151,15 @@ namespace CleanestHud
             #endregion
 
 
+
+            internal static void BaseConVar_AttemptSetString(On.RoR2.ConVar.BaseConVar.orig_AttemptSetString orig, RoR2.ConVar.BaseConVar self, string newValue)
+            {
+                orig(self, newValue);
+                if (self.name == "resolution")
+                {
+                    SizeBasedPositionsNeedCalculating = true;
+                }
+            }
 
             // Removes the slight transparent background image from each ally on the list on the left
             internal static void AllyCardController_Awake(On.RoR2.UI.AllyCardController.orig_Awake orig, AllyCardController self)
@@ -243,28 +252,26 @@ namespace CleanestHud
             }
             private static void EditScoreboardStripsIfApplicable(ScoreboardController scoreboardController)
             {
-                if (scoreboardController.stripAllocator.elements.Count != HudChanges.HudColor.LastKnownScoreboardStripColors.Count)
+                foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
                 {
-                    HudChanges.HudColor.LastKnownScoreboardStripColors.Clear();
-                    foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
+                    Transform scoreboardStripTransform = scoreboardStrip.transform;
+                    if (scoreboardStrip.userBody == null)
                     {
-                        HudChanges.HudColor.LastKnownScoreboardStripColors.Add(scoreboardStrip.userBody.bodyColor);
-                        HudChanges.HudColor.ColorAllOfScoreboardStrip(scoreboardStrip);
+                        Log.Debug("scoreboard strip had a null body, returning");
                         return;
                     }
-                }
 
-                for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
-                {
-                    if (scoreboardController.stripAllocator.elements[i].userBody.bodyColor != HudChanges.HudColor.LastKnownScoreboardStripColors[i])
+                    if (scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth != 58)
                     {
-                        HudChanges.HudColor.ColorAllOfScoreboardStrip(scoreboardController.stripAllocator.elements[i]);
+                        HudChanges.HudStructure.EditScoreboardStrip(scoreboardStrip);
                     }
 
-                    HudChanges.Components.ScoreboardStripEditor scoreboardStripEditor;
-                    if (scoreboardController.stripAllocator.elements[i].TryGetComponent<HudChanges.Components.ScoreboardStripEditor>(out scoreboardStripEditor))
+                    // i don't like that i have to GetComponent on every scoreboard strip but i don't think i have a choice
+                    Transform longBackground = scoreboardStripTransform.GetChild(0);
+                    Image longBackgroundImage = longBackground.GetComponent<Image>();
+                    if (!Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, scoreboardStrip.userBody.bodyColor))
                     {
-                        scoreboardStripEditor.CalculateAndSetSizeBasedPositions();
+                        HudChanges.HudColor.ColorAllOfScoreboardStrip(scoreboardStrip);
                     }
                 }
             }

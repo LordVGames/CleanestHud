@@ -5,12 +5,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Object;
 using static CleanestHud.HudResources;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace CleanestHud.HudChanges
 {
     internal class HudStructure
     {
+        internal static List<EditorComponents.ScoreboardStripEditor> LastKnownScoreboardStripEditors = [];
+
         internal static class AssetEdits
         {
             internal static void EditHudElementPrefabs()
@@ -78,7 +80,7 @@ namespace CleanestHud.HudChanges
             }
             Transform defaultFillBarRoot = defaultWaveUI.Find("FillBarRoot");
 
-            Components.SimulacrumBarEditor defaultFillBarRootBarPositioner = defaultFillBarRoot.gameObject.AddComponent<Components.SimulacrumBarEditor>();
+            EditorComponents.SimulacrumBarEditor defaultFillBarRootBarPositioner = defaultFillBarRoot.gameObject.AddComponent<EditorComponents.SimulacrumBarEditor>();
             defaultFillBarRootBarPositioner.idealLocalPosition = new Vector3(-120f, -21.15f, 0f);
             defaultFillBarRootBarPositioner.idealLocalScale = new Vector3(0.725f, 1f, 1f); ;
 
@@ -520,22 +522,34 @@ namespace CleanestHud.HudChanges
         }
 
 
+
+        internal static void HandleAnyChangedScoreboardStripCount(ScoreboardController scoreboardController)
+        {
+            if (scoreboardController.stripAllocator.elements.Count != LastKnownScoreboardStripEditors.Count)
+            {
+                LastKnownScoreboardStripEditors.Clear();
+                foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
+                {
+                    EditorComponents.ScoreboardStripEditor scoreboardStripEditor;
+                    if (!scoreboardStrip.TryGetComponent<EditorComponents.ScoreboardStripEditor>(out scoreboardStripEditor))
+                    {
+                        EditScoreboardStrip(scoreboardStrip);
+                    }
+                    LastKnownScoreboardStripEditors.Add(scoreboardStripEditor);
+                }
+            }
+        }
         internal static void EditScoreboardStrip(ScoreboardStrip scoreboardStrip)
         {
             // more space between icons, similar spacing to inventory at the top of the screen
             scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth = 58;
             scoreboardStrip.itemInventoryDisplay.maxHeight = 54;
-
-
-            if (scoreboardStrip.GetComponent<Components.ScoreboardStripEditor>() == null)
-            {
-                AttachEditorToScoreboardStrip(scoreboardStrip.transform);
-            }
+            AttachEditorToScoreboardStrip(scoreboardStrip.transform);
         }
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {
             Transform longBackground = scoreboardStripTransform.GetChild(0);
-            Components.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<Components.ScoreboardStripEditor>();
+            EditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<EditorComponents.ScoreboardStripEditor>();
 
             // ClassBackground's local position is handled by the component
             scoreboardStripEditor.ClassBackgroundRect_LocalScale = Vector3.one * 1.075f;
@@ -548,6 +562,23 @@ namespace CleanestHud.HudChanges
             scoreboardStripEditor.EquipmentBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
 
             // name label positioning is well yknow
+        }
+        internal static void HandleRecalculatingSizeBasedPositions(ScoreboardController scoreboardController)
+        {
+            if (!Main.SizeBasedPositionsNeedCalculating)
+            {
+                return;
+            }
+
+            for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
+            {
+                EditorComponents.ScoreboardStripEditor scoreboardStripEditor;
+                if (scoreboardController.stripAllocator.elements[i].TryGetComponent<EditorComponents.ScoreboardStripEditor>(out scoreboardStripEditor))
+                {
+                    scoreboardStripEditor.CalculateAndSetSizeBasedPositions();
+                }
+            }
+            Main.SizeBasedPositionsNeedCalculating = false;
         }
     }
 }
