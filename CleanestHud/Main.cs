@@ -105,6 +105,7 @@ namespace CleanestHud
                 }
 
                 HudChanges.HudStructure.EditHudStructure();
+                HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
                 HudChanges.HudDetails.EditHudDetails();
                 // manually call OnCameraChange since it isn't called when first spawning in
                 OnCameraChange(targetBody);
@@ -158,6 +159,8 @@ namespace CleanestHud
                 if (self.name == "resolution")
                 {
                     SizeBasedPositionsNeedCalculating = true;
+                    // try as we might, this doesn't really work
+                    HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
                 }
             }
 
@@ -415,7 +418,7 @@ namespace CleanestHud
 
                         // doing this doesn't actually cause that much lag and only happens for whatever icons are added/updated
                         // it also makes future mass glowimage coloring super good on performance
-                        HudChanges.HudColor.MakeItemIconGlowImageColorable(itemIcon);
+                        itemIcon.glowImage = itemIcon.transform.GetChild(1).GetComponent<RawImage>();
                         HudChanges.HudColor.ColorSingleItemIconHighlight(itemIcon);
                     });
                 }

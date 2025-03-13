@@ -1,6 +1,6 @@
 ## 0.10.0
 
-Fixed hud elements not being aligned correctly on ultrawide resolutions
+Rewrote a lot of positioning code so that hud elements are (hopefully) properly aligned at any resolution, including ultrawide ones
 
 Item highlights now get survivor colored using a better method
 - Should be more performant at high item counts so the config option for this is now on by default.
@@ -15,12 +15,11 @@ Fixed an extra background detail for the item icon in the inspect not being remo
 - Only noticed it recently as the color difference for this detail and the rest of the inspect panel is *very* slight
 
 (Hopefully) Centered player names on the inventory menu
+- This also includes some support for LookingGlass' item counters setting
 
 Made HP bar text smoother
 
 Changed "Lv: ##" text to "Level ##"
-
-Added better support for LookingGlass' item counters setting
 
 Fixed NRE when opening inventories menu when someone had no items
 

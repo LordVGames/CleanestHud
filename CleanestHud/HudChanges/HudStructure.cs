@@ -54,8 +54,8 @@ namespace CleanestHud.HudChanges
                 EditDifficultyBarSegments();
             }
             EditBarRoots();
-            EditBarRootsElements();
             EditHpBar();
+            EditLevelDisplayClusterAndElements();
             EditSpectatorLabel();
             EditSkillSlots();
             EditEquipmentSlots();
@@ -140,8 +140,7 @@ namespace CleanestHud.HudChanges
             barRootsRect.anchoredPosition = Vector2.zero;
             barRootsRect.sizeDelta = new Vector2(-400f, 100f);
         }
-        // the elements under BarRoots is the level display, XP bar and buffs/debuffs display
-        private static void EditBarRootsElements()
+        private static void EditLevelDisplayClusterAndElements()
         {
             if (!ImportantHudTransforms.BarRoots)
             {
@@ -149,37 +148,52 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            #region Finding transforms
-            Transform levelDisplayCluster = ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster");
-            Transform levelDisplayRoot = levelDisplayCluster.Find("LevelDisplayRoot");
-            Transform buffDisplayRoot = levelDisplayCluster.Find("BuffDisplayRoot");
-            Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
-            #endregion
-
+            Transform levelDisplayCluster = ImportantHudTransforms.BarRoots.GetChild(0);
             RectTransform levelDisplayClusterRect = levelDisplayCluster.GetComponent<RectTransform>();
             levelDisplayClusterRect.localPosition = new Vector3(-300f, 45f, 0f);
+
+            // calling other edit methods within this one to save on some GetChild calls
+            // also the localPositions set by these are fine and are always cenetered so DO NOT mess with them
+            EditBuffDisplay(levelDisplayCluster);
+            EditLevelDisplayRoot(levelDisplayCluster);
+            EditExpBar(levelDisplayCluster);
+        }
+        private static void EditLevelDisplayRoot(Transform levelDisplayCluster)
+        {
+            // levelDisplayCluster.GetChild(0)
+            Transform levelDisplayRoot = levelDisplayCluster.Find("LevelDisplayRoot");
+
+            RectTransform levelDisplayRootRect = levelDisplayRoot.GetComponent<RectTransform>();
+            levelDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
+            levelDisplayRootRect.localPosition = new Vector3(311, -27f, 0);
+        }
+        private static void EditBuffDisplay(Transform levelDisplayCluster)
+        {
+            // levelDisplayCluster.GetChild(2)
+            Transform buffDisplayRoot = levelDisplayCluster.Find("BuffDisplayRoot");
+
             Destroy(buffDisplayRoot.GetComponent<HorizontalLayoutGroup>());
             buffDisplayRoot.parent = ImportantHudTransforms.BarRoots;
 
             RectTransform buffDisplayRootRect = buffDisplayRoot.GetComponent<RectTransform>();
             buffDisplayRootRect.localPosition = new Vector3(-25f, -45f, 0f);
-
-            RectTransform levelDisplayRootRect = levelDisplayRoot.GetComponent<RectTransform>();
-            levelDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
-            levelDisplayRootRect.localPosition = new Vector3(311, -23.5f, 0);
+        }
+        // yes it's called "exp" not "xp" ingame
+        private static void EditExpBar(Transform levelDisplayCluster)
+        {
+            // levelDisplayCluster.GetChild(1)
+            Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
 
             Image expBarRootImage = expBarRoot.GetComponent<Image>();
             expBarRootImage.sprite = HudAssets.WhiteSprite;
-            expBarRootImage.enabled = false;
+            expBarRootImage.color = Color.clear;
 
             RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
-            expBarRootRect.localPosition = new Vector3(510.3f, -12.6f, 0f);
-            expBarRoot.localScale = new Vector3(1.244f, 0.8f, 1f);
+            expBarRootRect.pivot = new Vector2(0.5f, 0.5f);
 
-            Transform shrunkenExpBarRoot = expBarRoot.Find("ShrunkenRoot");
+            Transform shrunkenExpBarRoot = expBarRoot.GetChild(0);
             RectTransform shrunkenExpBarRootRect = shrunkenExpBarRoot.GetComponent<RectTransform>();
-            shrunkenExpBarRootRect.localScale = new Vector3(1f, 1.6666666666f, 1f);
-            shrunkenExpBarRootRect.localPosition = new Vector3(-338.6f, 15.25f);
+            shrunkenExpBarRootRect.localScale = new Vector3(1f, 1.66f, 1f);
         }
         private static void EditHpBar()
         {
@@ -188,15 +202,18 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("EditHpBar", "BarRoots", "HudStructure");
                 return;
             }
-            Transform healthbarRoot = ImportantHudTransforms.BarRoots.Find("HealthbarRoot");
+            Transform hpBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
 
-            RectTransform healthbarRootRect = healthbarRoot.GetComponent<RectTransform>();
-            healthbarRootRect.localPosition = new Vector3(-210f, 45f, 0f);
+            Image hpBarRootImage = hpBarRoot.GetComponent<Image>();
+            hpBarRootImage.sprite = HudAssets.WhiteSprite;
 
-            Image healthbarRootImage = healthbarRoot.GetComponent<Image>();
-            healthbarRootImage.sprite = HudAssets.WhiteSprite;
+            RectTransform hpBarRootRect = hpBarRoot.GetComponent<RectTransform>();
+            Transform levelDisplayCluster = ImportantHudTransforms.BarRoots.GetChild(0);
+            Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
+            RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
+            hpBarRootRect.sizeDelta = new Vector2(expBarRootRect.rect.width, hpBarRootRect.sizeDelta.y);
 
-            Transform shrunkenRoot = healthbarRoot.Find("ShrunkenRoot");
+            Transform shrunkenRoot = hpBarRoot.Find("ShrunkenRoot");
             if (shrunkenRoot.childCount != 0)
             {
                 Transform child1 = shrunkenRoot.GetChild(0);
@@ -206,8 +223,7 @@ namespace CleanestHud.HudChanges
             }
             else
             {
-                // i better see no one take this log out of context lmao
-                Log.Error("HP BAR SHRUNKENROOT DID NOT HAVE CHILDREN WHEN IT WAS SUPPOSED TO!!!!!");
+                Log.Debug("HP BAR SHRUNKENROOT DID NOT HAVE CHILDREN WHEN IT WAS SUPPOSED TO!!!!!");
             }
         }
         private static void EditSpectatorLabel()
@@ -237,12 +253,28 @@ namespace CleanestHud.HudChanges
         {
             // not doing normal for loop so i don't have "Main.MyHud.skillIcons[i]" everywhere
             // plus i only need to do index specific stuff once
+            int moveByNum = 105;
             Vector3 newSkillPosition = Vector3.zero;
             int i = 0;
+            Vector3 centerSkillIconLocalPosition = Main.MyHud.skillIcons[2].transform.localPosition;
             foreach (SkillIcon skillIcon in Main.MyHud.skillIcons)
             {
                 newSkillPosition = skillIcon.transform.localPosition;
-                newSkillPosition.x = -250 + (100 * i);
+                switch(i)
+                {
+                    case 0:
+                        newSkillPosition.x = centerSkillIconLocalPosition.x - (moveByNum * 2);
+                        break;
+                    case 1:
+                        newSkillPosition.x = centerSkillIconLocalPosition.x - moveByNum;
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        newSkillPosition.x = centerSkillIconLocalPosition.x + moveByNum;
+                        break;
+                }
+                //newSkillPosition.x = -250 + (100 * i);
                 skillIcon.transform.localPosition = newSkillPosition;
                 i++;
 
@@ -284,11 +316,12 @@ namespace CleanestHud.HudChanges
                 switch (i)
                 {
                     case 0:
-                        equipmentDisplayRootRectLocalPosition = new Vector3(-22f, 16.75f, 0f);
+                        // boosted by +1 X and +6.25 Y ingame
+                        equipmentDisplayRootRectLocalPosition = new Vector3(-10, 17.25f, 0f);
                         equipmentSlotScaleFactor = 0.925f;
                         break;
                     case 1:
-                        equipmentDisplayRootRectLocalPosition = new Vector3(-20f, -5f, 0f);
+                        equipmentDisplayRootRectLocalPosition = new Vector3(0, -5f, 0f);
                         // smaller by default, we don't have to scale any more/less unless we want it to be even smaller
                         equipmentSlotScaleFactor = 1f;
                         break;
@@ -343,12 +376,13 @@ namespace CleanestHud.HudChanges
         {
             ImportantHudTransforms.SkillsScaler.parent = ImportantHudTransforms.BottomCenterCluster;
 
+
             RectTransform scalerRect = ImportantHudTransforms.SkillsScaler.GetComponent<RectTransform>();
             scalerRect.rotation = Quaternion.identity;
-            scalerRect.pivot = new Vector2(0.5f, 0f);
-            scalerRect.sizeDelta = new Vector2(-639f, -234f);
+            scalerRect.pivot = new Vector2(0.0875f, 0);
+            scalerRect.sizeDelta = new Vector2(scalerRect.sizeDelta.x, -234f);
             float skillsHudYPos = ConfigOptions.ShowSkillKeybinds.Value ? 125f : 98f;
-            scalerRect.anchoredPosition = new Vector2(58f, skillsHudYPos);
+            scalerRect.localPosition = new Vector2(0, skillsHudYPos);
         }
         private static void EditCurrenciesSection()
         {
@@ -400,11 +434,8 @@ namespace CleanestHud.HudChanges
         {
             Transform itemInventoryDisplayRoot = Main.MyHud.itemInventoryDisplay.transform.parent;
             RectTransform itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
-            itemInventoryDisplayRootRect.localPosition = new Vector3(-26f, -90f, 0f);
-            itemInventoryDisplayRootRect.anchoredPosition = new Vector2(550f, -90f);
-            itemInventoryDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
-            itemInventoryDisplayRootRect.sizeDelta = new Vector2(1000f, 140f);
-            // goal is to have 18 icons per row instead of 20
+            // make it a lil smaller since it goes to the edges of the hud on ultrawide otherwise
+            itemInventoryDisplayRootRect.sizeDelta = new Vector2(itemInventoryDisplayRootRect.sizeDelta.x * 0.75f, itemInventoryDisplayRootRect.sizeDelta.y);
         }
         private static void EditBossHpBarAndText()
         {
@@ -523,22 +554,6 @@ namespace CleanestHud.HudChanges
 
 
 
-        internal static void HandleAnyChangedScoreboardStripCount(ScoreboardController scoreboardController)
-        {
-            if (scoreboardController.stripAllocator.elements.Count != LastKnownScoreboardStripEditors.Count)
-            {
-                LastKnownScoreboardStripEditors.Clear();
-                foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
-                {
-                    EditorComponents.ScoreboardStripEditor scoreboardStripEditor;
-                    if (!scoreboardStrip.TryGetComponent<EditorComponents.ScoreboardStripEditor>(out scoreboardStripEditor))
-                    {
-                        EditScoreboardStrip(scoreboardStrip);
-                    }
-                    LastKnownScoreboardStripEditors.Add(scoreboardStripEditor);
-                }
-            }
-        }
         internal static void EditScoreboardStrip(ScoreboardStrip scoreboardStrip)
         {
             // more space between icons, similar spacing to inventory at the top of the screen
@@ -563,22 +578,53 @@ namespace CleanestHud.HudChanges
 
             // name label positioning is well yknow
         }
-        internal static void HandleRecalculatingSizeBasedPositions(ScoreboardController scoreboardController)
+
+        
+
+        internal static void RepositionHudElementsBasedOnWidth()
         {
-            if (!Main.SizeBasedPositionsNeedCalculating)
+            if (!Main.IsHudEditable)
             {
                 return;
             }
 
-            for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
-            {
-                EditorComponents.ScoreboardStripEditor scoreboardStripEditor;
-                if (scoreboardController.stripAllocator.elements[i].TryGetComponent<EditorComponents.ScoreboardStripEditor>(out scoreboardStripEditor))
-                {
-                    scoreboardStripEditor.CalculateAndSetSizeBasedPositions();
-                }
-            }
-            Main.SizeBasedPositionsNeedCalculating = false;
+            Transform itemInventoryDisplayRoot = Main.MyHud.itemInventoryDisplay.transform.parent;
+            RectTransform itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
+            itemInventoryDisplayRootRect.localPosition = new Vector3(
+                // 0 is always at the center of the whole screen, and the inventory's left edge is placed at 0
+                // we remove half the size delta to move it over left by half it's size to get it perfectly centered no matter the game width
+                0 - (itemInventoryDisplayRootRect.sizeDelta.x / 2),
+                itemInventoryDisplayRootRect.localPosition.y,
+                itemInventoryDisplayRootRect.localPosition.z
+            );
+
+            Transform healthbarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
+            RectTransform healthbarRootRect = healthbarRoot.GetComponent<RectTransform>();
+            healthbarRootRect.localPosition = new Vector3(
+                0 - (healthbarRootRect.sizeDelta.x / 2),
+                45,
+                healthbarRootRect.localPosition.z
+            );
+
+
+
+            Transform levelDisplayCluster = ImportantHudTransforms.BarRoots.GetChild(0);
+
+            Transform expBarRoot = levelDisplayCluster.GetChild(1);
+            RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
+            // gotta do this one in 2 parts
+            expBarRootRect.position = new Vector3(
+                0,
+                expBarRootRect.position.y,
+                expBarRootRect.position.z
+            );
+            expBarRootRect.localPosition = new Vector3(
+                expBarRootRect.localPosition.x,
+                -4.2f,
+                0
+            );
+
+
         }
     }
 }

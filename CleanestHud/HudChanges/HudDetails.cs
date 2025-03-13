@@ -19,7 +19,7 @@ namespace CleanestHud.HudChanges
         {
             internal static void EditHudElementPrefabDetails()
             {
-                EditItemIconNavHighlight();
+                EditItemIcon();
                 RemoveMonsterPanelsHudDetails();
                 RemoveGameEndPanelDetails();
                 RemoveScoreboardStripAssetDetails();
@@ -27,12 +27,22 @@ namespace CleanestHud.HudChanges
                 RemoveStatStripTemplateImage();
                 RemoveChatBoxDetails();
             }
-            private static void EditItemIconNavHighlight()
+            private static void EditItemIcon()
             {
                 Transform navFocusHighlightTransform = HudAssets.ItemIconPrefab.transform.GetChild(1);
 
                 RawImage navFocusHighlightRawImage = navFocusHighlightTransform.GetComponent<RawImage>();
                 navFocusHighlightRawImage.texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
+
+                HGButton button = HudAssets.ItemIconPrefab.GetComponent<HGButton>();
+                // setting the button colors to white makes it not influence glowimage color with yellow (the default)
+                // we can always just manually color it back to yellow later anyways
+                button.m_Colors.highlightedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.highlightedColor, Color.white);
+                button.m_Colors.normalColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.normalColor, Color.white);
+                button.m_Colors.pressedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.pressedColor, Color.white);
+                button.m_Colors.selectedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.selectedColor, Color.white);
+                // better higlight visibility for some character colors
+                button.m_Colors.m_ColorMultiplier = 1.5f;
             }
             private static void RemoveMonsterPanelsHudDetails()
             {
@@ -260,8 +270,7 @@ namespace CleanestHud.HudChanges
                 EditTimerPanel();
                 DisableDifficultyBarWormgear();
             }
-            SetSprintAndInventoryKeybindsStatus();
-            RemoveItemInventoryOutline();
+            HideItemInventoryOutline();
             DisableInteractionContextBackground();
             EditBossBarDetails();
             DisableScoreboardStripContainerOutline();
@@ -271,6 +280,7 @@ namespace CleanestHud.HudChanges
             SetInspectPanelMaxAlpha();
             SetInspectPanelFadeInStatus();
             ColorMapNameTextWhite();
+            SetSprintAndInventoryKeybindsStatus();
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
             if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfig.Value)
@@ -395,10 +405,10 @@ namespace CleanestHud.HudChanges
             GameObject inventoryCluster = ImportantHudTransforms.SkillsScaler.Find("InventoryCluster").gameObject;
             inventoryCluster.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
         }
-        private static void RemoveItemInventoryOutline()
+        private static void HideItemInventoryOutline()
         {
             Image itemInventoryDisplayImage = Main.MyHud.itemInventoryDisplay.GetComponent<Image>();
-            itemInventoryDisplayImage.enabled = false;
+            itemInventoryDisplayImage.color = Color.clear;
         }
         private static void DisableInteractionContextBackground()
         {

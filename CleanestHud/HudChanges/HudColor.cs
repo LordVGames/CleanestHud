@@ -227,19 +227,6 @@ namespace CleanestHud.HudChanges
 
 
 
-        internal static void MakeItemIconGlowImageColorable(ItemIcon itemIcon)
-        {
-            itemIcon.glowImage = itemIcon.transform.GetChild(1).GetComponent<RawImage>();
-            HGButton button = itemIcon.gameObject.GetComponent<HGButton>();
-            // setting the button colors to white makes it not influence glowimage color with yellow (the default)
-            // we can always just manually color it back to yellow later anyways
-            button.m_Colors.highlightedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.highlightedColor, Color.white);
-            button.m_Colors.normalColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.normalColor, Color.white);
-            button.m_Colors.pressedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.pressedColor, Color.white);
-            button.m_Colors.selectedColor = Main.Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.selectedColor, Color.white);
-            // better higlight visibility for some character colors
-            button.m_Colors.m_ColorMultiplier = 1.5f;
-        }
         internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip)
         {
             // scoreboard strips don't have their icons immediately, so we wait a frame
