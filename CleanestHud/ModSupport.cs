@@ -196,11 +196,26 @@ namespace CleanestHud
                         // base position is moved enough away from mul-t's other equipment slot
                         // the position is also manually set because the postition & localposition change at some point while loading for no reason
                         // even if i store the position after i've modified it it still gets randomly changed
-                        ss2EquipmentIconHolder.icons[i].transform.position = new Vector3(4.5f, -5.2f, 12.8f);
+                        //ss2EquipmentIconHolder.icons[i].transform.position = new Vector3(4.5f, -5.2f, 12.8f);
+
+                        // set localposition of injector icon displayroot to the mul-t alt equipment icon displayroot
+                        ss2EquipmentIconHolder.icons[i].transform.GetChild(0).position = Main.MyHud.equipmentIcons[1].transform.GetChild(0).position;
+                        RectTransform displayRootRect = ss2EquipmentIconHolder.icons[i].transform.GetChild(0).GetComponent<RectTransform>();
                         Vector3 localPositionChange = Vector3.zero;
-                        // divide by 10 as an int for the row number and modulus 10 for the right x position regardless of row
+                        localPositionChange.x = displayRootRect.rect.width * 3;
+                        // divide by 10 as an int for the row number
                         localPositionChange.y -= 107 * (int)(i / 10);
-                        localPositionChange.x += 100 * (i % 10);
+                        if (i < 10)
+                        {
+                            // modulus 10 for the right x position regardless of row
+                            localPositionChange.x += 100 * (i % 10);
+                        }
+                        else
+                        {
+                            // make the injector slots past the 10th start at the 3rd slot's x coordinate
+                            // this is to make it not overlap with the hp bar at giga ultrawide resolutions (i.e. 3840x1080)
+                            localPositionChange.x += 100 * (((i - 11) % 8) + 3);
+                        }
                         ss2EquipmentIconHolder.icons[i].transform.localPosition += localPositionChange;
 
                         // the isready panel is weirdly not aligned + injector slots never have cooldown text anyways so they're getting removed

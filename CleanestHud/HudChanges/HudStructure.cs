@@ -64,8 +64,8 @@ namespace CleanestHud.HudChanges
             EditItemInventoryDisplay();
             EditBossHpBarAndText();
             EditNotificationArea();
-            RepositionSprintAndInventoryReminders();
             EditScoreboardPanel();
+            RepositionSprintAndInventoryReminders();
 
             CanvasGroup wholeHudCanvasGroup = Main.MyHud.GetComponent<CanvasGroup>() ?? Main.MyHud.gameObject.AddComponent<CanvasGroup>();
             wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
@@ -118,6 +118,25 @@ namespace CleanestHud.HudChanges
             Transform timerText = timerPanel.Find("TimerText");
             HGTextMeshProUGUI timerTextMesh = timerText.GetComponent<HGTextMeshProUGUI>();
             timerTextMesh.color = Color.white;
+        }
+        private static void EditDifficultyBarSegments()
+        {
+            Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
+            Transform scrollView = difficultyBar.Find("Scroll View");
+            Transform backdrop = scrollView.Find("Backdrop");
+            Transform viewport = scrollView.Find("Viewport");
+            Transform content = viewport.Find("Content");
+
+            for (int i = 0; i < content.childCount; i++)
+            {
+                Transform difficultyBarSegment = content.GetChild(i);
+
+                Image segmentImage = difficultyBarSegment.GetComponent<Image>();
+                segmentImage.preserveAspect = true;
+
+                RectTransform segmentRect = difficultyBarSegment.GetComponent<RectTransform>();
+                segmentRect.localScale = new Vector3(1f, 1.1f, 1f);
+            }
         }
         private static void EditBarRoots()
         {
@@ -220,10 +239,6 @@ namespace CleanestHud.HudChanges
                 child1.gameObject.SetActive(false);
                 Transform child2 = shrunkenRoot.GetChild(1);
                 child2.gameObject.SetActive(false);
-            }
-            else
-            {
-                Log.Debug("HP BAR SHRUNKENROOT DID NOT HAVE CHILDREN WHEN IT WAS SUPPOSED TO!!!!!");
             }
         }
         private static void EditSpectatorLabel()
@@ -496,41 +511,6 @@ namespace CleanestHud.HudChanges
             notificationAreaRect.anchorMin = new Vector2(0.8f, 0.05f);
             notificationAreaRect.anchorMax = new Vector2(0.8f, 0.05f);
         }
-        internal static void RepositionSprintAndInventoryReminders()
-        {
-            Transform scaler = ImportantHudTransforms.BottomCenterCluster.GetChild(2);
-            Transform sprintCluster = scaler.Find("SprintCluster");
-            Transform inventoryCluster = scaler.Find("InventoryCluster");
-
-            Vector3 sprintClusterPosition = new Vector3(267.5f, -114, 0);
-            Vector3 inventoryClusterPosition = new Vector3(335, -114, 0);
-            if (!ConfigOptions.ShowSkillKeybinds.Value)
-            {
-                sprintClusterPosition.y = -72;
-                inventoryClusterPosition.y = -72;
-            }
-            sprintCluster.localPosition = sprintClusterPosition;
-            inventoryCluster.localPosition = inventoryClusterPosition;
-        }
-        private static void EditDifficultyBarSegments()
-        {
-            Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
-            Transform scrollView = difficultyBar.Find("Scroll View");
-            Transform backdrop = scrollView.Find("Backdrop");
-            Transform viewport = scrollView.Find("Viewport");
-            Transform content = viewport.Find("Content");
-
-            for (int i = 0; i < content.childCount; i++)
-            {
-                Transform difficultyBarSegment = content.GetChild(i);
-
-                Image segmentImage = difficultyBarSegment.GetComponent<Image>();
-                segmentImage.preserveAspect = true;
-
-                RectTransform segmentRect = difficultyBarSegment.GetComponent<RectTransform>();
-                segmentRect.localScale = new Vector3(1f, 1.1f, 1f);
-            }
-        }
         private static void EditScoreboardPanel()
         {
             Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
@@ -550,6 +530,51 @@ namespace CleanestHud.HudChanges
             stripContainerVerticalLayoutGroup.childControlWidth = true;
             stripContainerVerticalLayoutGroup.childScaleHeight = true;
             stripContainerVerticalLayoutGroup.childScaleWidth = true;
+        }
+
+
+
+        internal static void RepositionSprintAndInventoryReminders()
+        {
+            Transform scaler = ImportantHudTransforms.BottomCenterCluster.GetChild(2);
+            Transform sprintCluster = scaler.Find("SprintCluster");
+            RectTransform sprintClusterRect = sprintCluster.GetComponent<RectTransform>();
+            Transform inventoryCluster = scaler.Find("InventoryCluster");
+            RectTransform inventoryClusterRect = inventoryCluster.GetComponent<RectTransform>();
+            Transform hpBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
+
+            // these raise up when skill keybinds are enabled for some reason
+            float localYPosition;
+            if (ConfigOptions.ShowSkillKeybinds.Value)
+            {
+                localYPosition = -106;
+            }
+            else
+            {
+                localYPosition = -64;
+            }
+
+            sprintCluster.position = new Vector3(
+                hpBarRoot.position.x,
+                sprintCluster.position.y,
+                sprintCluster.position.z
+            );
+            sprintCluster.localPosition = new Vector3(
+                sprintCluster.localPosition.x - sprintClusterRect.rect.width * 2,
+                localYPosition,
+                0
+            );
+
+            inventoryCluster.position = new Vector3(
+                hpBarRoot.position.x,
+                inventoryCluster.position.y,
+                inventoryCluster.position.z
+            );
+            inventoryCluster.localPosition = new Vector3(
+                inventoryCluster.localPosition.x - inventoryClusterRect.rect.width * 4,
+                localYPosition,
+                0
+            );
         }
 
 
@@ -624,7 +649,7 @@ namespace CleanestHud.HudChanges
                 0
             );
 
-
+            RepositionSprintAndInventoryReminders();
         }
     }
 }
