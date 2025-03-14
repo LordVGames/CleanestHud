@@ -1,6 +1,7 @@
 ## 0.10.0
 
-Rewrote a lot of positioning code so that hud elements are (hopefully) properly aligned at any resolution, including ultrawide ones
+Rewrote a lot of positioning code
+- This means that everything should be properly positioned no matter the screen size, be it 4:3 or ultrawide
 
 Item highlights now get survivor colored using a better method
 - Should be more performant at high item counts so the config option for this is now on by default.
@@ -14,8 +15,14 @@ Tweaked the inventories menu item display
 Fixed an extra background detail for the item icon in the inspect not being removed
 - Only noticed it recently as the color difference for this detail and the rest of the inspect panel is *very* slight
 
-(Hopefully) Centered player names on the inventory menu
+Centered player names on the inventory menu
 - This also includes some support for LookingGlass' item counters setting
+
+Evenly spaced out skill & equipment icons
+
+Tweaked SS2 composite injector equipment slot positions
+- Slots past the 10th start at the 5th instead of the first.
+- - This makes it not overlap with the hp bar at ultrawide resolutions
 
 Made HP bar text smoother
 

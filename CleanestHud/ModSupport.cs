@@ -212,9 +212,9 @@ namespace CleanestHud
                         }
                         else
                         {
-                            // make the injector slots past the 10th start at the 3rd slot's x coordinate
+                            // make the injector slots past the 10th start at the 5th slot's x coordinate
                             // this is to make it not overlap with the hp bar at giga ultrawide resolutions (i.e. 3840x1080)
-                            localPositionChange.x += 100 * (((i - 11) % 8) + 3);
+                            localPositionChange.x += 100 * (((i - 11) % 10) + 5);
                         }
                         ss2EquipmentIconHolder.icons[i].transform.localPosition += localPositionChange;
 

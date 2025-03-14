@@ -11,7 +11,7 @@ namespace CleanestHud.HudChanges
 {
     internal class HudStructure
     {
-        internal static List<EditorComponents.ScoreboardStripEditor> LastKnownScoreboardStripEditors = [];
+        internal const float SkillSlotSpacing = 105;
 
         internal static class AssetEdits
         {
@@ -54,7 +54,7 @@ namespace CleanestHud.HudChanges
                 EditDifficultyBarSegments();
             }
             EditBarRoots();
-            EditHpBar();
+            EditHealthBar();
             EditLevelDisplayClusterAndElements();
             EditSpectatorLabel();
             EditSkillSlots();
@@ -209,30 +209,30 @@ namespace CleanestHud.HudChanges
 
             RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
             expBarRootRect.pivot = new Vector2(0.5f, 0.5f);
+            expBarRootRect.sizeDelta = new Vector2(0, expBarRootRect.sizeDelta.y);
 
             Transform shrunkenExpBarRoot = expBarRoot.GetChild(0);
             RectTransform shrunkenExpBarRootRect = shrunkenExpBarRoot.GetComponent<RectTransform>();
             shrunkenExpBarRootRect.localScale = new Vector3(1f, 1.66f, 1f);
         }
-        private static void EditHpBar()
+        private static void EditHealthBar()
         {
             if (!ImportantHudTransforms.BarRoots)
             {
-                Main.Helpers.LogMissingHudVariable("EditHpBar", "BarRoots", "HudStructure");
+                Main.Helpers.LogMissingHudVariable("EditHealthBar", "BarRoots", "HudStructure");
                 return;
             }
-            Transform hpBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
+            Transform healthBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
 
-            Image hpBarRootImage = hpBarRoot.GetComponent<Image>();
-            hpBarRootImage.sprite = HudAssets.WhiteSprite;
+            Image healthBarRootImage = healthBarRoot.GetComponent<Image>();
+            healthBarRootImage.sprite = HudAssets.WhiteSprite;
 
-            RectTransform hpBarRootRect = hpBarRoot.GetComponent<RectTransform>();
+            RectTransform healthBarRootRect = healthBarRoot.GetComponent<RectTransform>();
             Transform levelDisplayCluster = ImportantHudTransforms.BarRoots.GetChild(0);
             Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
             RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
-            hpBarRootRect.sizeDelta = new Vector2(expBarRootRect.rect.width, hpBarRootRect.sizeDelta.y);
 
-            Transform shrunkenRoot = hpBarRoot.Find("ShrunkenRoot");
+            Transform shrunkenRoot = healthBarRoot.Find("ShrunkenRoot");
             if (shrunkenRoot.childCount != 0)
             {
                 Transform child1 = shrunkenRoot.GetChild(0);
@@ -268,7 +268,6 @@ namespace CleanestHud.HudChanges
         {
             // not doing normal for loop so i don't have "Main.MyHud.skillIcons[i]" everywhere
             // plus i only need to do index specific stuff once
-            int moveByNum = 105;
             Vector3 newSkillPosition = Vector3.zero;
             int i = 0;
             Vector3 centerSkillIconLocalPosition = Main.MyHud.skillIcons[2].transform.localPosition;
@@ -278,27 +277,27 @@ namespace CleanestHud.HudChanges
                 switch(i)
                 {
                     case 0:
-                        newSkillPosition.x = centerSkillIconLocalPosition.x - (moveByNum * 2);
+                        newSkillPosition.x = (centerSkillIconLocalPosition.x - (SkillSlotSpacing * 2));
                         break;
                     case 1:
-                        newSkillPosition.x = centerSkillIconLocalPosition.x - moveByNum;
+                        newSkillPosition.x = (centerSkillIconLocalPosition.x - SkillSlotSpacing);
                         break;
                     case 2:
                         break;
                     case 3:
-                        newSkillPosition.x = centerSkillIconLocalPosition.x + moveByNum;
+                        newSkillPosition.x = centerSkillIconLocalPosition.x + SkillSlotSpacing;
                         break;
                 }
-                //newSkillPosition.x = -250 + (100 * i);
                 skillIcon.transform.localPosition = newSkillPosition;
                 i++;
 
-                Transform cooldownText = skillIcon.transform.Find("CooldownText");
 
                 skillIcon.cooldownRemapPanel = null;
 
                 GameObject cooldownPanel = skillIcon.transform.Find("CooldownPanel").gameObject;
                 cooldownPanel.SetActive(false);
+
+                Transform cooldownText = skillIcon.transform.Find("CooldownText");
 
                 RectTransform cooldownTextRect = cooldownText.GetComponent<RectTransform>();
                 cooldownTextRect.localPosition = new Vector3(-18f, 19.5f, 0f);
@@ -331,12 +330,11 @@ namespace CleanestHud.HudChanges
                 switch (i)
                 {
                     case 0:
-                        // boosted by +1 X and +6.25 Y ingame
-                        equipmentDisplayRootRectLocalPosition = new Vector3(-10, 17.25f, 0f);
-                        equipmentSlotScaleFactor = 0.925f;
+                        equipmentDisplayRootRectLocalPosition = new Vector3(-20.75f, 17.25f, 0f);
+                        equipmentSlotScaleFactor = 0.924f;
                         break;
                     case 1:
-                        equipmentDisplayRootRectLocalPosition = new Vector3(0, -5f, 0f);
+                        equipmentDisplayRootRectLocalPosition = new Vector3(-20, -5f, 0f);
                         // smaller by default, we don't have to scale any more/less unless we want it to be even smaller
                         equipmentSlotScaleFactor = 1f;
                         break;
