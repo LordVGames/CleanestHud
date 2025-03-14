@@ -13,7 +13,8 @@ Tweaked the inventories menu item display
 - Item icons display should take up more height in a player's inventories menu section
 
 Fixed an extra background detail for the item icon in the inspect not being removed
-- Only noticed it recently as the color difference for this detail and the rest of the inspect panel is *very* slight
+
+Fixed background for the inspect button reminder not being removed
 
 Centered player names on the inventory menu
 - This also includes some support for LookingGlass' item counters setting
@@ -21,7 +22,7 @@ Centered player names on the inventory menu
 Evenly spaced out skill & equipment icons
 
 Tweaked SS2 composite injector equipment slot positions
-- Slots past the 10th start at the 5th instead of the first.
+- Slots past the 10th start at the 5th instead of the first
 - - This makes it not overlap with the hp bar at ultrawide resolutions
 
 Made HP bar text smoother

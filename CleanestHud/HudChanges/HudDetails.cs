@@ -283,6 +283,7 @@ namespace CleanestHud.HudChanges
             SetSprintAndInventoryKeybindsStatus();
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
+            RemoveInspectInteractionBakground();
             if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfig.Value)
             {
                 Main.MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
@@ -514,6 +515,13 @@ namespace CleanestHud.HudChanges
             Transform equipmentTextBackgroundPanel = equipmentDisplayRoot.GetChild(6);
             Image equipmentTextBackgroundPanelImage = equipmentTextBackgroundPanel.GetComponent<Image>();
             equipmentTextBackgroundPanelImage.enabled = false;
+        }
+        private static void RemoveInspectInteractionBakground()
+        {
+            Transform contextNotification = ImportantHudTransforms.RightCluster.Find("ContextNotification");
+            Transform inspectDisplay = contextNotification.GetChild(2);
+            RawImage inspectDisplayBackground = inspectDisplay.GetComponent<RawImage>();
+            inspectDisplayBackground.enabled = false;
         }
 
 
