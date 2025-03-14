@@ -19,13 +19,13 @@ Many elements of the hud are also configurable Most are for the hud in general, 
 
 ## Showcase
 
-<sub><sup>NOTE: other mods were used when these screenshots were taken</sup></sub>
+![20250314023946_1](https://github.com/user-attachments/assets/94455d18-acc4-4d40-b41e-3a1dd132b7b8)
 
-![20250306055419_1](https://github.com/user-attachments/assets/b4db3d4e-449f-46de-bb91-c9d7a2b82ff2)
+<sub><sup>lemurian inventory shown using another mod</sup></sub>
+![20250314025245_1](https://github.com/user-attachments/assets/76f20eed-24c0-4b2d-a41e-8bb16687ef64)
 
-![20250306055604_1](https://github.com/user-attachments/assets/3b77f875-83f3-49ed-b4ab-fa8f56c0ba1b)
+![20250314025430_1](https://github.com/user-attachments/assets/1e033eb2-0d17-4006-9376-fbc0b6437be1)
 
-![20250302002403_1](https://github.com/user-attachments/assets/dc8a2a78-db34-40b5-b65c-a8ba687cadfe)
 
 
 ## Bugs/Suggestions
