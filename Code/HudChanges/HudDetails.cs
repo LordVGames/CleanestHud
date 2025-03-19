@@ -284,7 +284,7 @@ namespace CleanestHud.HudChanges
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
             RemoveInspectInteractionBakground();
-            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfig.Value)
+            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfigValue)
             {
                 Main.MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
             }

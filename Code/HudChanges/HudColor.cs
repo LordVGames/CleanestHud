@@ -259,6 +259,12 @@ namespace CleanestHud.HudChanges
         }
         internal static void ColorSingleItemIconHighlight(ItemIcon itemIcon)
         {
+            if (itemIcon == null || itemIcon.glowImage == null)
+            {
+                Log.Debug("Item icon or it's image was null, not coloring it.");
+                return;
+            }
+
             // itemicon transform > itemsbackground > longbackground > scoreboardstrip > scoreboardstrip component
             // yes it looks stupid but i need to make this as efficient as possible to help performance at high item counts
             // a getcomponent hurts but i don't think i can do it otherwise

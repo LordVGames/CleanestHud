@@ -1,3 +1,15 @@
+## 0.10.2
+
+Fixed potential error related to item icon coloring
+
+Fixed errors when LookingGlass isn't installed
+- The hud is meant to be fully usable without it, I just messed some things up when it comes to handling if the mod is running or not
+
+## 0.10.1
+
+Fixed error spam caused by some other mod messing with the hp bar
+- I genuinely have no clue what mod was causing this, but the fix was easy
+
 ## 0.10.0
 
 Rewrote a lot of positioning code

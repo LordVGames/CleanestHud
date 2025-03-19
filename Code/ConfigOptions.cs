@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using BepInEx.Configuration;
 using RoR2.UI;
+using System.Runtime.CompilerServices;
 
 namespace CleanestHud
 {
@@ -195,6 +196,7 @@ namespace CleanestHud
         public static ConfigEntry<bool> EnableDebugLogging;
 
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         internal static void BindConfigOptions(ConfigFile config)
         {
             HudTransparency = config.Bind<float>(
@@ -307,9 +309,9 @@ namespace CleanestHud
                 SeekerLotusHudPosition.SettingChanged += SeekerLotusUiPosition_SettingChanged;
                 ModSupport.RiskOfOptionsMod.AddOptions();
             }
-            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfig != null)
+            if (ModSupport.LookingGlassMod.ModIsRunning)
             {
-                ModSupport.LookingGlassMod.StatsPanelConfig.SettingChanged += ModSupport.LookingGlassMod.StatsPanelConfig_SettingChanged;
+                ModSupport.LookingGlassMod.HookStatsPanelConfig_SettingChanged();
             }
         }
     }

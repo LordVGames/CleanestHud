@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -143,9 +144,12 @@ namespace CleanestHud.HudChanges
                     itemHeader.localPosition.z
                 );
 
-                if (ModSupport.LookingGlassMod.ItemCountersConfig != null && ModSupport.LookingGlassMod.ItemCountersConfig.Value)
+                if (ModSupport.LookingGlassMod.ModIsRunning)
                 {
-                    NameLabelRectLocalPosition = normalNameLabelRectLocalPosition;
+                    if (ModSupport.LookingGlassMod.ItemCountersConfigValue)
+                    {
+                        NameLabelRectLocalPosition = normalNameLabelRectLocalPosition;
+                    }
                 }
                 else
                 {

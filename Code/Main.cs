@@ -200,12 +200,28 @@ namespace CleanestHud
 
             internal static void HealthBar_InitializeHealthBar(On.RoR2.UI.HealthBar.orig_InitializeHealthBar orig, HealthBar self)
             {
+                // only edit the player's healthbar which has a special name
+                if (self.name != "HealthbarRoot")
+                {
+                    orig(self);
+                    return;
+                }
+
                 // sots added a new way of showing the hp bar's text which is sadly lower quality than the original
                 // luckily we can just disable the new way and it will fall back to the old higher quality way
                 self.spriteAsNumberManager = null;
                 // but it doesn't appear by default so we need to toggle the old one off and the new one on
-                self.transform.GetChild(1).gameObject.SetActive(false);
-                self.transform.GetChild(2).gameObject.SetActive(true);
+                Transform managedSpriteHP = self.transform.Find("Managed_Sprite_HP");
+                if (managedSpriteHP != null)
+                {
+                    managedSpriteHP.gameObject.SetActive(false);
+                }
+                Transform slash = self.transform.Find("Slash");
+                if (slash != null)
+                {
+                    slash.gameObject.SetActive(true);
+                }
+                
                 orig(self);
             }
 
@@ -284,7 +300,6 @@ namespace CleanestHud
                 if (IsHudUserBlacklisted)
                 {
                     orig(self);
-                    return;
                 }
                 if (ConfigOptions.EnableAutoScoreboardHighlight.Value)
                 {

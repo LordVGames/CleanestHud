@@ -286,15 +286,40 @@ namespace CleanestHud
                 }
             }
 
-            internal static ConfigEntry<bool> StatsPanelConfig
+            internal static bool ItemCountersConfigValue
             {
+                [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
                 get
                 {
                     if (ModIsRunning)
                     {
-                        return LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay;
+                        return LookingGlass.ItemCounters.ItemCounter.itemCounters.Value;
                     }
-                    return null;
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            internal static bool StatsPanelConfigValue
+            {
+                [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+                get
+                {
+                    if (ModIsRunning)
+                    {
+                        return LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.Value;
+                    }
+                    return false;
+                }
+            }
+            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            internal static void HookStatsPanelConfig_SettingChanged()
+            {
+                if (LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay != null)
+                {
+                    LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.SettingChanged += ModSupport.LookingGlassMod.StatsPanelConfig_SettingChanged;
                 }
             }
             internal static void StatsPanelConfig_SettingChanged(object sender, EventArgs e)
@@ -304,21 +329,9 @@ namespace CleanestHud
                     return;
                 }
 
-                if (StatsPanelConfig.Value)
+                if (StatsPanelConfigValue)
                 {
                     Main.MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
-                }
-            }
-
-            internal static ConfigEntry<bool> ItemCountersConfig
-            {
-                get
-                {
-                    if (ModIsRunning)
-                    {
-                        return LookingGlass.ItemCounters.ItemCounter.itemCounters;
-                    }
-                    return null;
                 }
             }
 

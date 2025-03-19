@@ -35,6 +35,8 @@ This isn't a finished release, so there's likely bugs that I've either already f
 - Some hud elements are still edited when a survivor is added to the mod's blacklist
 - Changing resolutions mid-stage doesn't re-scale the hud
 - - Kind of a vanilla issue, especially when going from a big resolution to a small one, but I feel it should still be mentioned
+- Having the "auto highlight when opening the inventory menu" setting disabled causes movement to stop when hovering over a player's inventory
+- - This can be fixed by re-enabling the option, or it can be worked around by first clicking on an item icon
 
 
 
