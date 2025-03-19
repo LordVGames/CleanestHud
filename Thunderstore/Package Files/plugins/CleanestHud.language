@@ -1,8 +1,12 @@
 {
   "strings": {
-    "HUD_LEVEL_PREFIX": "Level"
+    "HUD_LEVEL_PREFIX": "Level",
+    "STAGE_COUNT_FORMAT": "Stage {0}",
+    "AMBIENT_LEVEL_DISPLAY_FORMAT": "Level {0)"
   },
   "en": {
-    "HUD_LEVEL_PREFIX": "Level"
+    "HUD_LEVEL_PREFIX": "Level",
+    "STAGE_COUNT_FORMAT": "Stage {0}",
+    "AMBIENT_LEVEL_DISPLAY_FORMAT": "Level {0}"
   }
 }
