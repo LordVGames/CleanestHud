@@ -38,11 +38,11 @@ namespace CleanestHud
             On.RoR2.UI.AllyCardController.Awake += Main.OnHooks.AllyCardController_Awake;
             On.RoR2.UI.AllyCardController.UpdateInfo += Main.OnHooks.AllyCardController_UpdateInfo;
             On.RoR2.UI.HealthBar.InitializeHealthBar += Main.OnHooks.HealthBar_InitializeHealthBar;
+            On.RoR2.UI.DifficultyBarController.OnCurrentSegmentIndexChanged += Main.OnHooks.DifficultyBarController_OnCurrentSegmentIndexChanged;
             On.RoR2.UI.InfiniteTowerWaveProgressBar.OnEnable += Main.OnHooks.InfiniteTowerWaveProgressBar_OnEnable;
             On.RoR2.UI.NotificationUIController.SetUpNotification += Main.OnHooks.NotificationUIController_SetUpNotification;
             On.RoR2.UI.ScoreboardController.Rebuild += Main.OnHooks.ScoreboardController_Rebuild;
             On.RoR2.UI.ScoreboardController.SelectFirstScoreboardStrip += Main.OnHooks.ScoreboardController_SelectFirstScoreboardStrip;
-            On.RoR2.UI.DifficultyBarController.OnCurrentSegmentIndexChanged += Main.OnHooks.DifficultyBarController_OnCurrentSegmentIndexChanged;
             On.RoR2.VoidSurvivorController.OnOverlayInstanceAdded += Main.OnHooks.VoidSurvivorController_OnOverlayInstanceAdded;
             On.EntityStates.Seeker.MeditationUI.SetupInputUIIcons += Main.OnHooks.MeditationUI_SetupInputUIIcons;
 

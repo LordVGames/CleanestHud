@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using BepInEx;
 using System.Runtime.CompilerServices;
+using BepInEx;
+using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 using RoR2;
@@ -10,8 +12,6 @@ using RiskOfOptions;
 using RiskOfOptions.Options;
 using RiskOfOptions.OptionConfigs;
 using SS2;
-using System.Collections;
-using BepInEx.Configuration;
 
 namespace CleanestHud
 {
@@ -37,6 +37,7 @@ namespace CleanestHud
             {
                 ModSettingsManager.SetModIcon(ModAssets.AssetBundle.LoadAsset<Sprite>("CleanestHudIcon.png"));
                 ModSettingsManager.SetModDescription("Adds an artifact that disables proc chains and prevents most items from starting a proc chain.");
+
 
                 ModSettingsManager.AddOption(
                     new StepSliderOption(
@@ -81,6 +82,16 @@ namespace CleanestHud
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
+                        ConfigOptions.EnableScoreboardLabels
+                    )
+                );
+                ModSettingsManager.AddOption(
+                    new CheckBoxOption(
+                        ConfigOptions.EnableScoreboardItemHighlightColoring
+                    )
+                );
+                ModSettingsManager.AddOption(
+                    new CheckBoxOption(
                         ConfigOptions.EnableAutoScoreboardHighlight
                     )
                 );
@@ -91,14 +102,11 @@ namespace CleanestHud
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableScoreboardItemHighlightColoring
-                    )
-                );
-                ModSettingsManager.AddOption(
-                    new CheckBoxOption(
                         ConfigOptions.AllowSimulacrumWaveBarAnimating
                     )
                 );
+
+
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
                         ConfigOptions.AllowVoidFiendMeterAnimating
@@ -119,6 +127,8 @@ namespace CleanestHud
                         ConfigOptions.BodyNameBlacklist_Config
                     )
                 );
+
+
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
                         ConfigOptions.EnableDebugLogging

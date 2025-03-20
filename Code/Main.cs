@@ -260,6 +260,7 @@ namespace CleanestHud
                 }
 
                 HudChanges.HudStructure.AssetEdits.EditScoreboardStripAsset();
+                HudChanges.HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardController.transform);
                 orig(scoreboardController);
                 MyHud.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
             }

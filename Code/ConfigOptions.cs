@@ -2,12 +2,12 @@
 using BepInEx.Configuration;
 using RoR2.UI;
 using System.Runtime.CompilerServices;
+using static CleanestHud.HudResources;
 
 namespace CleanestHud
 {
     public static class ConfigOptions
     {
-        // TODO reorganize
         public static class SpecialConfig
         {
             public enum SeekerMeditateHudPosition
@@ -22,12 +22,6 @@ namespace CleanestHud
             }
         }
 
-        public static ConfigEntry<string> BodyNameBlacklist_Config;
-        private static void BodyNameBlacklist_Config_SettingChanged(object sender, System.EventArgs e)
-        {
-            BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
-        }
-        internal static string[] BodyNameBlacklist_Array;
 
 
         public static ConfigEntry<float> HudTransparency;
@@ -112,6 +106,19 @@ namespace CleanestHud
         }
 
 
+        public static ConfigEntry<bool> EnableScoreboardLabels;
+        private static void EnableScoreboardLabels_SettingChanged(object sender, System.EventArgs e)
+        {
+            if (!Main.IsHudEditable)
+            {
+                return;
+            }
+
+            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            HudChanges.HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardPanel);
+        }
+
+
         public static ConfigEntry<bool> EnableScoreboardItemHighlightColoring;
         private static void EnableScoreboardItemHighlightColoring_SettingChanged(object sender, System.EventArgs e)
         {
@@ -156,6 +163,8 @@ namespace CleanestHud
         }
 
 
+
+
         public static ConfigEntry<bool> AllowVoidFiendMeterAnimating;
         private static void AllowVoidFiendMeterAnimating_SettingChanged(object sender, System.EventArgs e)
         {
@@ -191,6 +200,14 @@ namespace CleanestHud
 
             HudChanges.SurvivorSpecific.RepositionSeekerLotusUI();
         }
+
+
+        public static ConfigEntry<string> BodyNameBlacklist_Config;
+        private static void BodyNameBlacklist_Config_SettingChanged(object sender, System.EventArgs e)
+        {
+            BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
+        }
+        internal static string[] BodyNameBlacklist_Array;
 
 
         public static ConfigEntry<bool> EnableDebugLogging;
@@ -235,17 +252,11 @@ namespace CleanestHud
                 true,
                 "Should the allies on the left side of the HUD have their backgrounds? If enabled, the backgrounds will be properly colored."
             );
-            EnableConsistentDifficultyBarColor = config.Bind<bool>(
+            EnableScoreboardLabels = config.Bind<bool>(
                 "HUD Settings",
-                "Enable consistent difficulty bar segment colors",
-                true,
-                "Should the coloring for the difficulty bar stay the same instead of getting darker as the difficulty increases?"
-            );
-            AllowSimulacrumWaveBarAnimating = config.Bind<bool>(
-                "HUD Settings",
-                "Allow simulacrum wave progress bar animations",
+                "Enable inventories menu labels",
                 false,
-                "Should the progress bar on the simulacrum's wave UI be allowed to animate & squish around whenever enemies spawn/enemies are left?\nNOTE: Will cause the bar to become stuck squished after a second or 2 of an active wave."
+                "Should the player/items/equipment labels be visible on the inventories screen?"
             );
             EnableScoreboardItemHighlightColoring = config.Bind<bool>(
                 "HUD Settings",
@@ -259,6 +270,19 @@ namespace CleanestHud
                 false,
                 "Should the automatic highlight for the first person in TAB inventories list be enabled?"
             );
+            EnableConsistentDifficultyBarColor = config.Bind<bool>(
+                "HUD Settings",
+                "Enable consistent difficulty bar segment colors",
+                true,
+                "Should the coloring for the difficulty bar stay the same instead of getting darker as the difficulty increases?"
+            );
+            AllowSimulacrumWaveBarAnimating = config.Bind<bool>(
+                "HUD Settings",
+                "Allow simulacrum wave progress bar animations",
+                false,
+                "Should the progress bar on the simulacrum's wave UI be allowed to animate & squish around whenever enemies spawn/enemies are left?\nNOTE: Will cause the bar to become stuck squished after a second or 2 of an active wave."
+            );
+
             AllowVoidFiendMeterAnimating = config.Bind<bool>(
                 "HUD Settings - Survivor Specific",
                 "Allow Void Fiend corruption meter animations",
@@ -284,6 +308,8 @@ namespace CleanestHud
                 "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the mod's hud changes when playing that survivor. Each body name needs separated by a comma and NO spaces."
             );
             BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
+
+
             EnableDebugLogging = config.Bind<bool>(
                 "Other",
                 "Enable debug logging",
@@ -294,7 +320,6 @@ namespace CleanestHud
 
             if (ModSupport.RiskOfOptionsMod.ModIsRunning)
             {
-                BodyNameBlacklist_Config.SettingChanged += BodyNameBlacklist_Config_SettingChanged;
                 HudTransparency.SettingChanged += HudTransparency_SettingChanged;
                 ShowSkillKeybinds.SettingChanged += ShowSkillKeybinds_SettingChanged;
                 ShowSprintAndInventoryKeybinds.SettingChanged += ShowSprintAndInventoryKeybinds_SettingChanged;
@@ -304,9 +329,12 @@ namespace CleanestHud
                 EnableScoreboardItemHighlightColoring.SettingChanged += EnableScoreboardItemHighlightColoring_SettingChanged;
                 EnableConsistentDifficultyBarColor.SettingChanged += EnableConsistentDifficultyBarColor_SettingChanged;
                 AllowSimulacrumWaveBarAnimating.SettingChanged += AllowSimulacrumWaveBarAnimating_SettingChanged;
+
                 AllowVoidFiendMeterAnimating.SettingChanged += AllowVoidFiendMeterAnimating_SettingChanged;
                 SeekerMeditateHudPosition.SettingChanged += SeekerMeditateHudPosition_SettingChanged;
                 SeekerLotusHudPosition.SettingChanged += SeekerLotusUiPosition_SettingChanged;
+                BodyNameBlacklist_Config.SettingChanged += BodyNameBlacklist_Config_SettingChanged;
+
                 ModSupport.RiskOfOptionsMod.AddOptions();
             }
             if (ModSupport.LookingGlassMod.ModIsRunning)

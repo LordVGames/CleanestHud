@@ -4,6 +4,8 @@ Fixed ambient "Lv." text not being changed to "Level"
 
 Changed ambient level & stage count text to be completely white
 
+Added a config option for showing the section labels in the inventories screen (off by default)
+
 ## 0.10.2
 
 Fixed potential error related to item icon coloring

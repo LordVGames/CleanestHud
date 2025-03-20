@@ -140,7 +140,7 @@ namespace CleanestHud.HudChanges
                 );
                 ItemHeader_LocalPosition = new Vector3(
                     ItemsBackgroundRect_LocalPosition.x + (itemsBackgroundRect.sizeDelta.x / 2),
-                    itemHeader.localPosition.y,
+                    playerHeader.localPosition.y,
                     itemHeader.localPosition.z
                 );
 

@@ -816,5 +816,14 @@ namespace CleanestHud.HudChanges
             portrait.localPosition = new Vector3(-0.9f, -24, 1);
             portrait.localScale = new Vector3(1, 0.99f, 1);
         }
+
+
+        internal static void SetScoreboardLabelsActiveOrNot(Transform scoreboardPanel)
+        {
+            Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
+            Transform headerGroup = container.GetChild(0);
+
+            headerGroup?.gameObject.SetActive(ConfigOptions.EnableScoreboardLabels.Value);
+        }
     }
 }
