@@ -148,7 +148,8 @@ namespace CleanestHud.HudChanges
         {
             Transform inspectionPanel = container.Find("InspectPanel").GetChild(0).GetChild(0);
             Image inspectionPanelImage = inspectionPanel.GetComponent<Image>();
-            inspectionPanelImage.color = new Color(SurvivorColor.r, SurvivorColor.g, SurvivorColor.b, 0.3f);
+            inspectionPanelImage.sprite = HudAssets.WhiteSprite;
+            inspectionPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, transparencyMultiplier: 0.15f);
         }
         internal static void ColorDifficultyBar()
         {

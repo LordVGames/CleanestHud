@@ -210,6 +210,7 @@ namespace CleanestHud.HudChanges
             RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
             expBarRootRect.pivot = new Vector2(0.5f, 0.5f);
             expBarRootRect.sizeDelta = new Vector2(0, expBarRootRect.sizeDelta.y);
+            expBarRootRect.localScale = new Vector3(1.002f, 1, 1);
 
             Transform shrunkenExpBarRoot = expBarRoot.GetChild(0);
             RectTransform shrunkenExpBarRootRect = shrunkenExpBarRoot.GetComponent<RectTransform>();
