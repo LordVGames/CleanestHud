@@ -15,7 +15,7 @@ namespace CleanestHud
         {
             // always do debug logging when compiled for debug, only do it if config allows it when compiled for release
 #if !DEBUG
-            if (ConfigOptions.EnableDebugLogging.Value)
+            if (ConfigOptions.AllowDebugLogging.Value)
             {
 #endif
                 _logSource.LogDebug(data);

@@ -160,7 +160,7 @@ namespace CleanestHud.HudChanges
             Transform content = viewport.Find("Content");
 
             Color[] difficultyBarSegmentColors = [];
-            if (ConfigOptions.EnableConsistentDifficultyBarColor.Value)
+            if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
                 difficultyBarSegmentColors = Enumerable.Repeat(SurvivorColor, 9).ToArray();
             }
@@ -237,7 +237,7 @@ namespace CleanestHud.HudChanges
         internal static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip)
         {
             Color colorToUse;
-            if (ConfigOptions.EnableScoreboardItemHighlightColoring.Value)
+            if (ConfigOptions.AllowScoreboardItemHighlightColoring.Value)
             {
                 colorToUse = scoreboardStrip.userBody.bodyColor;
             }

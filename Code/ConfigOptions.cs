@@ -54,6 +54,19 @@ namespace CleanestHud
         }
 
 
+        public static ConfigEntry<bool> ShowSkillAndEquipmentOutlines;
+        private static void ShowSkillAndEquipmentOutlines_SettingChanged(object sender, System.EventArgs e)
+        {
+            if (!Main.IsHudEditable)
+            {
+                return;
+            }
+
+            HudChanges.HudDetails.SetSkillOutlinesStatus();
+            //Main.MyHud.StartCoroutine(HudChanges.HudDetails.DelaySetSkillAndEquipmentOutlinesStatus());
+        }
+
+
         public static ConfigEntry<bool> ShowSprintAndInventoryKeybinds;
         private static void ShowSprintAndInventoryKeybinds_SettingChanged(object sender, System.EventArgs e)
         {
@@ -90,15 +103,15 @@ namespace CleanestHud
         }
 
 
-        public static ConfigEntry<bool> EnableAllyCardBackgrounds;
-        private static void EnableAllyCardBackgrounds_SettingChanged(object sender, System.EventArgs e)
+        public static ConfigEntry<bool> AllowAllyCardBackgrounds;
+        private static void AllowAllyCardBackgrounds_SettingChanged(object sender, System.EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
                 return;
             }
 
-            if (EnableAllyCardBackgrounds.Value)
+            if (AllowAllyCardBackgrounds.Value)
             {
                 HudChanges.HudColor.ColorAllAllyCardBackgrounds();
             }
@@ -106,8 +119,8 @@ namespace CleanestHud
         }
 
 
-        public static ConfigEntry<bool> EnableScoreboardLabels;
-        private static void EnableScoreboardLabels_SettingChanged(object sender, System.EventArgs e)
+        public static ConfigEntry<bool> AllowScoreboardLabels;
+        private static void AllowScoreboardLabels_SettingChanged(object sender, System.EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -119,8 +132,8 @@ namespace CleanestHud
         }
 
 
-        public static ConfigEntry<bool> EnableScoreboardItemHighlightColoring;
-        private static void EnableScoreboardItemHighlightColoring_SettingChanged(object sender, System.EventArgs e)
+        public static ConfigEntry<bool> AllowScoreboardItemHighlightColoring;
+        private static void AllowScoreboardItemHighlightColoring_SettingChanged(object sender, System.EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -135,11 +148,11 @@ namespace CleanestHud
         }
 
 
-        public static ConfigEntry<bool> EnableAutoScoreboardHighlight;
+        public static ConfigEntry<bool> AllowAutoScoreboardHighlight;
 
 
-        public static ConfigEntry<bool> EnableConsistentDifficultyBarColor;
-        private static void EnableConsistentDifficultyBarColor_SettingChanged(object sender, System.EventArgs e)
+        public static ConfigEntry<bool> AllowConsistentDifficultyBarColor;
+        private static void AllowConsistentDifficultyBarColor_SettingChanged(object sender, System.EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -210,7 +223,7 @@ namespace CleanestHud
         internal static string[] BodyNameBlacklist_Array;
 
 
-        public static ConfigEntry<bool> EnableDebugLogging;
+        public static ConfigEntry<bool> AllowDebugLogging;
 
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
@@ -221,6 +234,12 @@ namespace CleanestHud
                 "HUD Transparency",
                 0.8f,
                 "How transparent should the entire HUD be?\n1 = 100% opaque (no transparency), 0.8 = 80% opaque (20% transparency)"
+            );
+            ShowSkillAndEquipmentOutlines = config.Bind<bool>(
+                "HUD Settings",
+                "Show skill outlines",
+                true,
+                "Should skills have survivor-colored outlines?"
             );
             ShowSkillKeybinds = config.Bind<bool>(
                 "HUD Settings",
@@ -246,33 +265,33 @@ namespace CleanestHud
                 0.4f,
                 "Set a custom duration for the inspect panel's fade-in animation. Vanilla is 0.2"
             );
-            EnableAllyCardBackgrounds = config.Bind<bool>(
+            AllowAllyCardBackgrounds = config.Bind<bool>(
                 "HUD Settings",
-                "Enable ally backgrounds",
+                "Allow ally backgrounds",
                 true,
-                "Should the allies on the left side of the HUD have their backgrounds? If enabled, the backgrounds will be properly colored."
+                "Should the allies on the left side of the HUD have their backgrounds? If Allowd, the backgrounds will be properly colored."
             );
-            EnableScoreboardLabels = config.Bind<bool>(
+            AllowScoreboardLabels = config.Bind<bool>(
                 "HUD Settings",
-                "Enable inventories menu labels",
+                "Allow inventories menu labels",
                 false,
                 "Should the player/items/equipment labels be visible on the inventories screen?"
             );
-            EnableScoreboardItemHighlightColoring = config.Bind<bool>(
+            AllowScoreboardItemHighlightColoring = config.Bind<bool>(
                 "HUD Settings",
-                "Enable changing inventory item icon highlight colors",
+                "Allow changing inventory item icon highlight colors",
                 true,
                 "Should the highlights for item icons in the TAB inventories menu be colored based on the survivor that has those items?"
             );
-            EnableAutoScoreboardHighlight = config.Bind<bool>(
+            AllowAutoScoreboardHighlight = config.Bind<bool>(
                 "HUD Settings",
-                "Enable auto highlight when opening the inventory menu",
+                "Allow auto highlight when opening the inventory menu",
                 false,
-                "Should the automatic highlight for the first person in TAB inventories list be enabled?"
+                "Should the automatic highlight for the first person in TAB inventories list be Allowd?"
             );
-            EnableConsistentDifficultyBarColor = config.Bind<bool>(
+            AllowConsistentDifficultyBarColor = config.Bind<bool>(
                 "HUD Settings",
-                "Enable consistent difficulty bar segment colors",
+                "Allow consistent difficulty bar segment colors",
                 true,
                 "Should the coloring for the difficulty bar stay the same instead of getting darker as the difficulty increases?"
             );
@@ -310,24 +329,25 @@ namespace CleanestHud
             BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
 
 
-            EnableDebugLogging = config.Bind<bool>(
+            AllowDebugLogging = config.Bind<bool>(
                 "Other",
-                "Enable debug logging",
+                "Allow debug logging",
                 false,
-                "Enable to do some extra debug logging that can help diagnose issues with the mod."
+                "Allow to do some extra debug logging that can help diagnose issues with the mod."
             );
 
 
             if (ModSupport.RiskOfOptionsMod.ModIsRunning)
             {
                 HudTransparency.SettingChanged += HudTransparency_SettingChanged;
+                ShowSkillAndEquipmentOutlines.SettingChanged += ShowSkillAndEquipmentOutlines_SettingChanged;
                 ShowSkillKeybinds.SettingChanged += ShowSkillKeybinds_SettingChanged;
                 ShowSprintAndInventoryKeybinds.SettingChanged += ShowSprintAndInventoryKeybinds_SettingChanged;
                 AllowInspectPanelFadeIn.SettingChanged += AllowInspectPanelFadeIn_SettingChanged;
                 InspectPanelFadeInDuration.SettingChanged += InspectPanelFadeInDuration_SettingChanged;
-                EnableAllyCardBackgrounds.SettingChanged += EnableAllyCardBackgrounds_SettingChanged;
-                EnableScoreboardItemHighlightColoring.SettingChanged += EnableScoreboardItemHighlightColoring_SettingChanged;
-                EnableConsistentDifficultyBarColor.SettingChanged += EnableConsistentDifficultyBarColor_SettingChanged;
+                AllowAllyCardBackgrounds.SettingChanged += AllowAllyCardBackgrounds_SettingChanged;
+                AllowScoreboardItemHighlightColoring.SettingChanged += AllowScoreboardItemHighlightColoring_SettingChanged;
+                AllowConsistentDifficultyBarColor.SettingChanged += AllowConsistentDifficultyBarColor_SettingChanged;
                 AllowSimulacrumWaveBarAnimating.SettingChanged += AllowSimulacrumWaveBarAnimating_SettingChanged;
 
                 AllowVoidFiendMeterAnimating.SettingChanged += AllowVoidFiendMeterAnimating_SettingChanged;

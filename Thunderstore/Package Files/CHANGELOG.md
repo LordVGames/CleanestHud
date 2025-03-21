@@ -1,10 +1,15 @@
 ## 0.11.0
 
-Fixed ambient "Lv." text not being changed to "Level"
+Renamed many config options, double check your settings!
+
+Added a config options for:
+- Showing the section labels in the inventories screen (off by default)
+- Showing the outlines for skill icons (on by default)
+- - This will hopefully support equipment icons too in the future
+
+Fixed ambient level "Lv." text not being changed to "Level"
 
 Changed ambient level & stage count text to be completely white
-
-Added a config option for showing the section labels in the inventories screen (off by default)
 
 Fixed a missing space before the right cloud in the boss subtitle
 - AFAIK this has always been a thing in vanilla, now it's finally fixed
@@ -16,7 +21,7 @@ Removed outline from inspect panel
 
 Fixed xp bar being a *tiny* bit misaligned from the hp bar
 
-Fixed buff bar still being moved for blacklisted characterbodies
+Fixed buff bar still being moved for blacklisted character bodies
 
 ## 0.10.2
 

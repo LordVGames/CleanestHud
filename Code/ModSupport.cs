@@ -51,6 +51,11 @@ namespace CleanestHud
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
+                        ConfigOptions.ShowSkillAndEquipmentOutlines
+                    )
+                );
+                ModSettingsManager.AddOption(
+                    new CheckBoxOption(
                         ConfigOptions.ShowSkillKeybinds
                     )
                 );
@@ -77,27 +82,27 @@ namespace CleanestHud
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableAllyCardBackgrounds
+                        ConfigOptions.AllowAllyCardBackgrounds
                     )
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableScoreboardLabels
+                        ConfigOptions.AllowScoreboardLabels
                     )
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableScoreboardItemHighlightColoring
+                        ConfigOptions.AllowScoreboardItemHighlightColoring
                     )
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableAutoScoreboardHighlight
+                        ConfigOptions.AllowAutoScoreboardHighlight
                     )
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableConsistentDifficultyBarColor
+                        ConfigOptions.AllowConsistentDifficultyBarColor
                     )
                 );
                 ModSettingsManager.AddOption(
@@ -131,7 +136,7 @@ namespace CleanestHud
 
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.EnableDebugLogging
+                        ConfigOptions.AllowDebugLogging
                     )
                 );
             }

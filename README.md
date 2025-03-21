@@ -40,6 +40,8 @@ This isn't a finished release, so there's likely bugs that I've either already f
 - - Kind of a vanilla issue, especially when going from a big resolution to a small one, but I feel it should still be mentioned
 - Having the "auto highlight when opening the inventory menu" setting disabled causes movement to stop when hovering over a player's inventory
 - - This can be fixed by re-enabling the option, or it can be worked around by first clicking on an item icon
+- Having the [HealthbarImmune](https://thunderstore.io/c/riskofrain2/p/DestroyedClone/HealthbarImmune/) mod causes the hp bar text to disappear
+- - May or may not be an issue from HealthbarImmune itself. In any case, installing [NoMoreMath](https://thunderstore.io/package/Goorakh/NoMoreMath/) seems to fix it, even with the "effective health" setting off
 
 
 

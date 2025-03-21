@@ -284,6 +284,7 @@ namespace CleanestHud.HudChanges
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
             RemoveInspectInteractionBakground();
+            SetSkillOutlinesStatus();
             if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfigValue)
             {
                 Main.MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
@@ -632,7 +633,7 @@ namespace CleanestHud.HudChanges
             Transform backdrop = scrollView.GetChild(0);
 
             SetLastDifficultySegmentSprite(content);
-            if (ConfigOptions.EnableConsistentDifficultyBarColor.Value)
+            if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
                 SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
             }
@@ -652,7 +653,7 @@ namespace CleanestHud.HudChanges
             {
                 HudAssets.LastDifficultySegmentSprite = lastDifficultySegmentImage.sprite;
             }
-            if (ConfigOptions.EnableConsistentDifficultyBarColor.Value)
+            if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
                 lastDifficultySegmentImage.sprite = firstDifficultySegmentImage.sprite;
             }
@@ -801,7 +802,7 @@ namespace CleanestHud.HudChanges
             {
                 Transform allyCard = allyCardContainer.GetChild(i);
                 Image background = allyCard.GetComponent<Image>();
-                background.enabled = ConfigOptions.EnableAllyCardBackgrounds.Value;
+                background.enabled = ConfigOptions.AllowAllyCardBackgrounds.Value;
                 // portrait edits get reset after enabling/disabling the background
                 Main.MyHud.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
             }
@@ -823,7 +824,18 @@ namespace CleanestHud.HudChanges
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
             Transform headerGroup = container.GetChild(0);
 
-            headerGroup?.gameObject.SetActive(ConfigOptions.EnableScoreboardLabels.Value);
+            headerGroup?.gameObject.SetActive(ConfigOptions.AllowScoreboardLabels.Value);
+        }
+
+        internal static void SetSkillOutlinesStatus()
+        {
+            foreach (var skillIcon in Main.MyHud.skillIcons)
+            {
+                Transform isReadyPanel = skillIcon.transform.GetChild(0);
+                Image iconOutline = isReadyPanel.GetComponent<Image>();
+                iconOutline.enabled = ConfigOptions.ShowSkillAndEquipmentOutlines.Value;
+            }
+            // TODO trying to edit equipment icons here is really fucky here for some reason. might be fixable but idk
         }
     }
 }

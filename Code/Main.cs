@@ -177,7 +177,7 @@ namespace CleanestHud
                 Transform portrait = self.transform.GetChild(0);
                 MyHud.StartCoroutine(HudChanges.HudDetails.DelayEditAllyCardPortrait(portrait));
 
-                if (!ConfigOptions.EnableAllyCardBackgrounds.Value)
+                if (!ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
                     Image background = self.GetComponent<Image>();
                     background.enabled = false;
@@ -192,7 +192,7 @@ namespace CleanestHud
                     return;
                 }
 
-                if (ConfigOptions.EnableAllyCardBackgrounds.Value)
+                if (ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
                     HudChanges.HudColor.ColorAllyCardControllerBackground(self);
                 }
@@ -207,6 +207,7 @@ namespace CleanestHud
                     return;
                 }
 
+                Log.Debug("HealthBar_InitializeHealthBar");
                 // sots added a new way of showing the hp bar's text which is sadly lower quality than the original
                 // luckily we can just disable the new way and it will fall back to the old higher quality way
                 self.spriteAsNumberManager = null;
@@ -216,12 +217,20 @@ namespace CleanestHud
                 {
                     managedSpriteHP.gameObject.SetActive(false);
                 }
+                else
+                {
+                    Log.Debug("Couldn't find managedSpriteHP! This is OK though since it isn't needed for the HUD.");
+                }
                 Transform slash = self.transform.Find("Slash");
                 if (slash != null)
                 {
                     slash.gameObject.SetActive(true);
                 }
-                
+                else
+                {
+                    Log.Error("Couldn't find \"Slash\" on the HP bar! Another mod may have already disabled/removed it. This means the improved HP bar text will not be shown, and no text will be shown if \"managedSpriteHP\" was successfully set to inactive. Report this on github!");
+                }
+
                 orig(self);
             }
 
@@ -302,7 +311,7 @@ namespace CleanestHud
                 {
                     orig(self);
                 }
-                if (ConfigOptions.EnableAutoScoreboardHighlight.Value)
+                if (ConfigOptions.AllowAutoScoreboardHighlight.Value)
                 {
                     orig(self);
                 }
@@ -319,9 +328,9 @@ namespace CleanestHud
 
                 Log.Debug("DifficultyBarController_OnCurrentSegmentIndexChanged");
                 Log.Debug($"newSegmentIndex is {newSegmentIndex}");
-                Log.Debug($"ConfigOptions.EnableConsistentDifficultyBarColor.Value is {ConfigOptions.EnableConsistentDifficultyBarColor.Value}");
+                Log.Debug($"ConfigOptions.AllowConsistentDifficultyBarColor.Value is {ConfigOptions.AllowConsistentDifficultyBarColor.Value}");
 
-                if (newSegmentIndex > 6 && ConfigOptions.EnableConsistentDifficultyBarColor.Value)
+                if (newSegmentIndex > 6 && ConfigOptions.AllowConsistentDifficultyBarColor.Value)
                 {
                     HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegment();
                 }
