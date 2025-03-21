@@ -6,6 +6,12 @@ Changed ambient level & stage count text to be completely white
 
 Added a config option for showing the section labels in the inventories screen (off by default)
 
+Fixed a missing space before the right cloud in all boss subtitles
+- AFAIK this has always been a thing in vanilla, now finally fixed
+
+Made boss hp bar coloring perfectly cover the background
+- Before this, the background would be peeking out a little bit on both ends of the bar
+
 ## 0.10.2
 
 Fixed potential error related to item icon coloring

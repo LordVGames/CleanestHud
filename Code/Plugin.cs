@@ -46,6 +46,7 @@ namespace CleanestHud
             On.RoR2.VoidSurvivorController.OnOverlayInstanceAdded += Main.OnHooks.VoidSurvivorController_OnOverlayInstanceAdded;
             On.EntityStates.Seeker.MeditationUI.SetupInputUIIcons += Main.OnHooks.MeditationUI_SetupInputUIIcons;
 
+            IL.RoR2.BossGroup.UpdateObservations += Main.ILHooks.BossGroup_UpdateObservations;
             IL.RoR2.UI.BuffDisplay.UpdateLayout += Main.ILHooks.BuffDisplay_UpdateLayout;
             IL.RoR2.UI.ItemIcon.SetItemIndex += Main.ILHooks.ItemIcon_SetItemIndex;
 

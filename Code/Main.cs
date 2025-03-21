@@ -353,6 +353,29 @@ namespace CleanestHud
 
         internal static class ILHooks
         {
+            // hopoo forgot to put an extra space before the right cloud
+            // then they never fixed it lol
+            internal static void BossGroup_UpdateObservations(ILContext il)
+            {
+                ILCursor c = new(il);
+                if (!c.TryGotoNext(MoveType.After,
+                    x => x.MatchLdstr("<sprite name=\"CloudRight\" tint=1>")
+                ))
+                {
+                    Log.Error("COULD NOT IL HOOK BossGroup_UpdateObservations");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+
+                c.EmitDelegate<Func<string, string>>((cloudRightString) =>
+                {
+                    return cloudRightString.Insert(0, " ");
+                });
+            }
+
+
+
             // this was originally an On hook but there was always a half second where the buffs weren't realigned
             // doing this with an IL hook fixes that
             internal static void BuffDisplay_UpdateLayout(ILContext il)

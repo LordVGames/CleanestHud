@@ -482,10 +482,16 @@ namespace CleanestHud.HudChanges
             bossBackgroundPanelRect.localPosition = new Vector3(0f, -42.5f, 0f);
             bossBackgroundPanelRect.localScale = new Vector3(1f, 1.5f, 1f);
 
+            // make the colored bars completely cover the background
+            Vector3 newFillPanelScale = new(1.02f, 1, 1);
 
             Transform delayFillPanel = bossBackgroundPanel.Find("DelayFillPanel");
+            delayFillPanel.localScale = newFillPanelScale;
             Image delayFillPanelImage = delayFillPanel.GetComponent<Image>();
-            delayFillPanelImage.color = new Color32(138, 0, 0, 255); // red color for boss hp bar
+            delayFillPanelImage.color = new Color32(138, 0, 0, 255);
+
+            Transform fillPanel = bossBackgroundPanel.GetChild(1);
+            fillPanel.localScale = newFillPanelScale;
 
             Transform shieldPanel = bossBackgroundPanel.Find("ShieldPanel");
             Transform healthText = bossBackgroundPanel.Find("HealthText");
