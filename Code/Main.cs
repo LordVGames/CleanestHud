@@ -401,21 +401,20 @@ namespace CleanestHud
                     {
                         return;
                     }
-                    if (IsHudUserBlacklisted)
-                    {
-                        return;
-                    }
                     if (buffDisplay.buffIconDisplayData.Count < 1)
                     {
                         return;
                     }
 
-                    buffDisplay.rectTranform.localPosition = new Vector3(-25f * buffDisplay.buffIconDisplayData.Count, -45f, 0f);
                     // the first buff always has +6 rotation on Y because ?????????? so it needs to be reset to 0
                     // also i swear this was working without needing to delay it but now i have to?????
                     if (buffDisplay.buffIconDisplayData[0].buffIconComponent != null)
                     {
                         MyHud.StartCoroutine(DelayFixFirstBuffRotation(buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform));
+                    }
+                    if (IsHudEditable)
+                    {
+                        buffDisplay.rectTranform.localPosition = new Vector3(-25f * buffDisplay.buffIconDisplayData.Count, -45f, 0f);
                     }
                 });
             }

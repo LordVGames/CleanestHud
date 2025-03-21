@@ -6,8 +6,8 @@ Changed ambient level & stage count text to be completely white
 
 Added a config option for showing the section labels in the inventories screen (off by default)
 
-Fixed a missing space before the right cloud in all boss subtitles
-- AFAIK this has always been a thing in vanilla, now finally fixed
+Fixed a missing space before the right cloud in the boss subtitle
+- AFAIK this has always been a thing in vanilla, now it's finally fixed
 
 Made boss hp bar coloring perfectly cover the background
 - Before this, the background would be peeking out a little bit on both ends of the bar
@@ -15,6 +15,8 @@ Made boss hp bar coloring perfectly cover the background
 Removed outline from inspect panel
 
 Fixed xp bar being a *tiny* bit misaligned from the hp bar
+
+Fixed buff bar still being moved for blacklisted characterbodies
 
 ## 0.10.2
 
