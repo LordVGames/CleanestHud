@@ -541,10 +541,9 @@ namespace CleanestHud.HudChanges
 
         internal static void RepositionSprintAndInventoryReminders()
         {
-            Transform scaler = ImportantHudTransforms.BottomCenterCluster.GetChild(2);
-            Transform sprintCluster = scaler.Find("SprintCluster");
+            Transform sprintCluster = ImportantHudTransforms.SkillsScaler.Find("SprintCluster");
             RectTransform sprintClusterRect = sprintCluster.GetComponent<RectTransform>();
-            Transform inventoryCluster = scaler.Find("InventoryCluster");
+            Transform inventoryCluster = ImportantHudTransforms.SkillsScaler.Find("InventoryCluster");
             RectTransform inventoryClusterRect = inventoryCluster.GetComponent<RectTransform>();
             Transform hpBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
 

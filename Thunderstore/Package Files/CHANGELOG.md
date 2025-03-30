@@ -1,3 +1,7 @@
+## 0.11.1
+
+Fixed a specific setup with the DPSMeter mod causing this mod to die
+
 ## 0.11.0
 
 Renamed many config options, double check your settings!

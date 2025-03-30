@@ -490,16 +490,12 @@ namespace CleanestHud.HudChanges
         }
         private static void RemoveSprintAndInventoryReminderTextBackgrounds()
         {
-            Transform scaler = ImportantHudTransforms.BottomCenterCluster.GetChild(2);
-            //RemoveReminderClusterTextBackground(scaler.Find("SprintCluster"));
-            //RemoveReminderClusterTextBackground(scaler.Find("InventoryCluster"));
-
-            Transform sprintCluster = scaler.Find("SprintCluster");
+            Transform sprintCluster = ImportantHudTransforms.SkillsScaler.Find("SprintCluster");
             Transform keyBackgroundPanel = sprintCluster.GetChild(1);
             Image keyBackgroundPanelImage = keyBackgroundPanel.GetComponent<Image>();
             keyBackgroundPanelImage.enabled = false;
 
-            Transform inventoryCluster = scaler.Find("InventoryCluster");
+            Transform inventoryCluster = ImportantHudTransforms.SkillsScaler.Find("InventoryCluster");
             Transform skillBackgroundPanel = inventoryCluster.Find("SkillBackgroundPanel");
             Image skillBackgroundPanelBackgroundImage = skillBackgroundPanel.GetComponent<Image>();
             skillBackgroundPanelBackgroundImage.enabled = false;

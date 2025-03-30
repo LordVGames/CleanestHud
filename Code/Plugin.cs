@@ -14,7 +14,7 @@ namespace CleanestHud
         public static PluginInfo PluginInfo { get; private set; }
         public const string PluginAuthor = "LordVGames";
         public const string PluginName = "CleanestHud";
-        public const string PluginVersion = "0.11.0";
+        public const string PluginVersion = "0.11.1";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public void Awake()
