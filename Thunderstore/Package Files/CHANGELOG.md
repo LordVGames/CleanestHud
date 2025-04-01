@@ -1,3 +1,16 @@
+## 0.11.2
+
+Reworked coloring system a bit
+- This should hopefully also fix the HUD sometimes using a different player's color in multiplayer
+
+Hopefully fixed NRE related to item icon coloring
+
+Fixed the player's name going to the middle of their inventory section when LookingGlass isn't installed
+
+Fixed consistent difficulty bar coloring not working at the "HAHAHAHA" segment for real this time
+
+Slightly moved the items list in the inventories menu
+
 ## 0.11.1
 
 Fixed a specific setup with the DPSMeter mod causing this mod to die

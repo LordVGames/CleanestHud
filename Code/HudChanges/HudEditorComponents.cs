@@ -5,26 +5,25 @@ using UnityEngine.UI;
 
 namespace CleanestHud.HudChanges
 {
-    internal class EditorComponents
+    internal class HudEditorComponents
     {
-        public class DifficultyBarBackgroundColorChanger : MonoBehaviour
+        public class DifficultyBarBackgroundTransparencyRemover : MonoBehaviour
         {
-            public Color newColor;
-            public Image backgroundImage;
+            private Image BackgroundImage;
+            private Color survivorColorNoTransparency;
 
             public void Start()
             {
-                backgroundImage = GetComponent<Image>();
+                BackgroundImage = GetComponent<Image>();
+                survivorColorNoTransparency = HudChanges.HudColor.SurvivorColor;
+                survivorColorNoTransparency.a = 1;
             }
 
-            public void Update()
+            public void LateUpdate()
             {
-                Log.Debug($"backgroundImage.color.a is {backgroundImage.color.a}");
-                Log.Debug($"newColor.a is {newColor.a}");
-                if (backgroundImage.color.a < newColor.a)
+                if (BackgroundImage.color.a < 1)
                 {
-                    Log.Debug("resetting color");
-                    backgroundImage.color = newColor;
+                    BackgroundImage.color = survivorColorNoTransparency;
                 }
             }
         }
@@ -48,8 +47,8 @@ namespace CleanestHud.HudChanges
         public class ScoreboardStripEditor : MonoBehaviour
         {
             private bool hasStarted = false;
+            // local position values are made public so they can be edited ingame
 
-            // local position values are made public in debug mode so they can be edited ingame
             private RectTransform classBackgroundRect;
             /// <remarks>
             /// Don't set manually - the component sets this itself
@@ -134,7 +133,7 @@ namespace CleanestHud.HudChanges
                     equipmentBackgroundRect.localPosition.z
                 );
                 ItemsBackgroundRect_LocalPosition = new Vector3(
-                    itemsBackgroundRect.localPosition.x,
+                    -170,
                     (int)Math.Ceiling(longBackgroundRect.rect.height * 0.07f),
                     itemsBackgroundRect.localPosition.z
                 );
@@ -154,7 +153,7 @@ namespace CleanestHud.HudChanges
                 else
                 {
                     NameLabelRectLocalPosition = new Vector3(
-                        playerHeader.localPosition.x - nameLabelRect.sizeDelta.x / 2,
+                        -324.08f - (nameLabelRect.sizeDelta.x / 2),
                         normalNameLabelRectLocalPosition.y,
                         normalNameLabelRectLocalPosition.z
                     );

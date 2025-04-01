@@ -9,7 +9,7 @@ using UnityEngine;
 using RoR2;
 using RoR2.UI;
 using static CleanestHud.HudResources;
-using static CleanestHud.HudChanges.EditorComponents;
+using static CleanestHud.HudChanges.HudEditorComponents;
 
 namespace CleanestHud.HudChanges
 {
@@ -337,9 +337,6 @@ namespace CleanestHud.HudChanges
 
             GameObject objectiveLabel2 = objectivePanel.Find("Label").gameObject;
             objectiveLabel2.SetActive(false);
-
-            //SetLastDifficultySegmentSprite();
-            SetFakeInfiniteLastDifficultySegment();
         }
         private static void EditSimulacrumDefaultWaveUI()
         {
@@ -400,7 +397,6 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("SetSprintAndInventoryKeybindsStatus", "SkillsScaler");
             }
 
-            Log.Debug("SetSprintAndInventoryKeybindsStatus");
             GameObject sprintCluster = ImportantHudTransforms.SkillsScaler.Find("SprintCluster").gameObject;
             sprintCluster.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
 
@@ -613,8 +609,9 @@ namespace CleanestHud.HudChanges
 
 
         #region Infinite last difficulty segment
-        internal static void SetFakeInfiniteLastDifficultySegment()
+        internal static void SetFakeInfiniteLastDifficultySegmentStatus()
         {
+            Log.Debug("SetFakeInfiniteLastDifficultySegmentStatus");
             Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
             DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
             // can't see the changes below "IM COMING FOR YOU" so
@@ -628,7 +625,7 @@ namespace CleanestHud.HudChanges
             Transform content = viewport.GetChild(0);
             Transform backdrop = scrollView.GetChild(0);
 
-            SetLastDifficultySegmentSprite(content);
+            SetCorrectLastDifficultySegmentSprite(content);
             if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
                 SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
@@ -638,7 +635,7 @@ namespace CleanestHud.HudChanges
                 UndoFakeInfiniteDifficultySegment(backdrop);
             }
         }
-        private static void SetLastDifficultySegmentSprite(Transform content)
+        private static void SetCorrectLastDifficultySegmentSprite(Transform content)
         {
             Transform firstDifficultySegment = content.GetChild(0);
             Image firstDifficultySegmentImage = firstDifficultySegment.GetComponent<Image>();
@@ -673,11 +670,10 @@ namespace CleanestHud.HudChanges
         private static IEnumerator TempComponentBackgroundImage(Image backdropImage, Color newColor)
         {
             // this is stupid
-            DifficultyBarBackgroundColorChanger colorChanger = backdropImage.transform.gameObject.GetComponent<DifficultyBarBackgroundColorChanger>() ?? backdropImage.transform.gameObject.AddComponent<DifficultyBarBackgroundColorChanger>();
-            colorChanger.enabled = true;
-            colorChanger.newColor = newColor;
+            DifficultyBarBackgroundTransparencyRemover transparencyRemover = backdropImage.transform.gameObject.GetComponent<DifficultyBarBackgroundTransparencyRemover>() ?? backdropImage.transform.gameObject.AddComponent<DifficultyBarBackgroundTransparencyRemover>();
+            transparencyRemover.enabled = true;
             yield return new WaitForSeconds(1f);
-            colorChanger.enabled = false;
+            transparencyRemover.enabled = false;
         }
 
         private static void UndoFakeInfiniteDifficultySegment(Transform backdrop)

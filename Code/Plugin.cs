@@ -14,7 +14,7 @@ namespace CleanestHud
         public static PluginInfo PluginInfo { get; private set; }
         public const string PluginAuthor = "LordVGames";
         public const string PluginName = "CleanestHud";
-        public const string PluginVersion = "0.11.1";
+        public const string PluginVersion = "0.11.2";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public void Awake()
@@ -51,6 +51,7 @@ namespace CleanestHud
             IL.RoR2.UI.ItemIcon.SetItemIndex += Main.ILHooks.ItemIcon_SetItemIndex;
 
             InfiniteTowerRun.onWaveInitialized += Main.Events.InfiniteTowerRun_onWaveInitialized;
+            Run.onRunStartGlobal += Main.Events.Run_onRunStartGlobal;
 
             if (ModSupport.Starstorm2.ModIsRunning)
             {

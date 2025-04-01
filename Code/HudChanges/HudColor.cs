@@ -13,14 +13,6 @@ namespace CleanestHud.HudChanges
 {
     internal class HudColor
     {
-        /// <summary>
-        /// Stores the current survivor's color.
-        /// Setting this will automatically update the HUD's color, but only when it's a different color.
-        /// </summary>
-        /// 
-        /// <remarks>
-        /// Updated every time the camera's target changes.
-        /// </remarks>
         public static Color SurvivorColor
         {
             get { return _survivorColor; }
@@ -29,13 +21,24 @@ namespace CleanestHud.HudChanges
                 Log.Debug("SurvivorColor has changed!");
                 Log.Debug($"New color will be {value}");
                 Log.Debug($"_survivorColor is {_survivorColor}");
-                if (value == _survivorColor)
+                // i hate this
+                if (MyHud && MyHud.skillIcons.Length > 0)
                 {
-                    Log.Debug("Value is the same as current color. Returning.");
-                    return;
+                    if (MyHud.skillIcons[0].isReadyPanelObject.GetComponent<Image>().color == value)
+                    {
+                        Log.Debug("HUD is already using the new color, returning.");
+                    }
+                    else
+                    {
+                        Log.Debug("HUD is not using the new color yet!");
+                        _survivorColor = value;
+                        UpdateHudColor();
+                    }
                 }
-                _survivorColor = value;
-                UpdateHudColor();
+                else
+                {
+                    Log.Debug("HUD has not finished setting up yet, not coloring");
+                }
             }
         }
         private static Color _survivorColor;
@@ -48,6 +51,7 @@ namespace CleanestHud.HudChanges
             Log.Debug("UpdateHudColor");
             if (!IsHudEditable)
             {
+                Log.Debug("Tried to run UpdateHudColor, but the HUD is not editable!");
                 return;
             }
             if (!Helpers.TestLevelDisplayClusterAvailability())
@@ -55,6 +59,8 @@ namespace CleanestHud.HudChanges
                 return;
             }
             Log.Debug($"SurvivorColor is {SurvivorColor}");
+
+
 
             Transform simulacrumWaveUI = ImportantHudTransforms.RunInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
             if (IsGameModeSimulacrum && simulacrumWaveUI)
@@ -181,7 +187,7 @@ namespace CleanestHud.HudChanges
             }
 
             DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
-            // this changes the color flash when the next difficulty backgroundImage is reached
+            // this changes the color flash when the next difficulty BackgroundImage is reached
             for (int i = 0; i < difficultyBarController.segmentDefs.Length; i++)
             {
                 difficultyBarController.segmentDefs[i].color = difficultyBarSegmentColors[i];
@@ -189,7 +195,7 @@ namespace CleanestHud.HudChanges
             // this actually changes the colors of the difficulty segments
             for (int i = 0; i < difficultyBarController.images.Length; i++)
             {
-                EditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].gameObject.GetComponent<EditorComponents.DifficultyScalingBarColorChanger>() ?? difficultyBarController.images[i].gameObject.AddComponent<EditorComponents.DifficultyScalingBarColorChanger>();
+                HudEditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].gameObject.GetComponent<HudEditorComponents.DifficultyScalingBarColorChanger>() ?? difficultyBarController.images[i].gameObject.AddComponent<HudEditorComponents.DifficultyScalingBarColorChanger>();
                 coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
             }
             // coloring the backdrop needs to happen as it fades in or else it gets overridden
@@ -222,7 +228,7 @@ namespace CleanestHud.HudChanges
 
             Transform fillBar = fillBarRoot.GetChild(3);
             Image fillBarImage = fillBar.GetComponent<Image>();
-            EditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetComponent<EditorComponents.SimulacrumBarColorChanger>() ?? fillBarImage.gameObject.AddComponent<EditorComponents.SimulacrumBarColorChanger>();
+            HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetComponent<HudEditorComponents.SimulacrumBarColorChanger>() ?? fillBarImage.gameObject.AddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
             barImageColorChanger.newFillBarColor = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
         }
 
@@ -265,11 +271,22 @@ namespace CleanestHud.HudChanges
                 Log.Debug("Item icon or it's image was null, not coloring it.");
                 return;
             }
-
             // itemicon transform > itemsbackground > longbackground > scoreboardstrip > scoreboardstrip component
             // yes it looks stupid but i need to make this as efficient as possible to help performance at high item counts
             // a getcomponent hurts but i don't think i can do it otherwise
             // at least this only happens when a single icon is created/updated
+            ScoreboardStrip scoreboardStrip = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>();
+            if (scoreboardStrip == null)
+            {
+                Log.Debug("ScoreboardStrip was null??? returning");
+                return;
+            }
+            if (scoreboardStrip.userBody == null)
+            {
+                Log.Debug("ScoreboardStrip's userBody was null?????????? returning");
+                return;
+            }
+
             itemIcon.glowImage.color = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>().userBody.bodyColor;
         }
 

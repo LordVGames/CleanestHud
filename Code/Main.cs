@@ -117,34 +117,35 @@ namespace CleanestHud
                 IsHudUserBlacklisted = false;
                 HudChanges.HudColor.SurvivorColor = Color.clear;
             }
-            // Handles hud color when initially spawning in & when changing players while spectating. Also handles survivor-specific HUD elements.
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
             {
                 orig(self, cameraRigController, args);
                 if (!cameraRigController.targetBody)
                 {
-                    return;
-                }
-                if (!IsHudEditable)
-                {
-                    Log.Debug("Camera changed while HUD was not editable, returning");
+                    Log.Debug("cameraRigController.targetBody was invalid? returning");
                     return;
                 }
                 OnCameraChange(cameraRigController.targetBody);
             }
             internal static void OnCameraChange(CharacterBody targetCharacterBody)
             {
-                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                Log.Debug("OnCameraChange");
                 Log.Debug($"cameraRigController.targetBody.baseNameToken is {targetCharacterBody.baseNameToken}");
+                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                if (!IsHudEditable)
+                {
+                    Log.Debug("Camera changed while HUD was not editable, returning");
+                    return;
+                }
                 switch (targetCharacterBody.baseNameToken)
                 {
                     case "VOIDSURVIVOR_BODY_NAME":
                         // void fiend's meter sometimes doesn't get edited on revive???????
+                        // and because of that it needs to be delayed
                         MyHud.StartCoroutine(HudChanges.SurvivorSpecific.DelayEditVoidFiendCorruptionUI());
                         break;
                     case "SEEKER_BODY_NAME":
                         // seeker-specific hud elements don't appear immediately because ?????????????
-                        // so the repositioning needs to be delayed
                         MyHud.StartCoroutine(HudChanges.SurvivorSpecific.DelayRepositionSeekerLotusUI());
                         break;
                 }
@@ -164,7 +165,7 @@ namespace CleanestHud
                 }
             }
 
-            // Removes the slight transparent background image from each ally on the list on the left
+            // removes the slight transparent background image from each ally on the list on the left
             internal static void AllyCardController_Awake(On.RoR2.UI.AllyCardController.orig_Awake orig, AllyCardController self)
             {
                 orig(self);
@@ -173,7 +174,7 @@ namespace CleanestHud
                     return;
                 }
 
-                // icons go out of the background so they need to be changed a lil bit
+                // icons go out of the background when there's not a lot of allies so they need to be changed a lil bit
                 Transform portrait = self.transform.GetChild(0);
                 MyHud.StartCoroutine(HudChanges.HudDetails.DelayEditAllyCardPortrait(portrait));
 
@@ -234,7 +235,7 @@ namespace CleanestHud
                 orig(self);
             }
 
-            // Even though it's OnEnable, it's called every time a wave starts, not just the first wave of a map
+            // even though it's OnEnable, it's called every time a wave starts, not just the first wave of a map
             internal static void InfiniteTowerWaveProgressBar_OnEnable(On.RoR2.UI.InfiniteTowerWaveProgressBar.orig_OnEnable orig, InfiniteTowerWaveProgressBar simulacrumTowerWaveProgressBar)
             {
                 orig(simulacrumTowerWaveProgressBar);
@@ -332,7 +333,7 @@ namespace CleanestHud
 
                 if (newSegmentIndex > 6 && ConfigOptions.AllowConsistentDifficultyBarColor.Value)
                 {
-                    HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegment();
+                    HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }
             }
 
@@ -535,6 +536,13 @@ namespace CleanestHud
 
                 MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveSimulacrumWavePopUpPanelDetails());
                 MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveTimeUntilNextWaveBackground());
+            }
+
+            internal static void Run_onRunStartGlobal(Run obj)
+            {
+                // why doesn't the color reset when clicking the restart button from that one mod
+                // just reset fuck
+                HudChanges.HudColor.SurvivorColor = Color.clear;
             }
         }
 

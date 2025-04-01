@@ -80,7 +80,7 @@ namespace CleanestHud.HudChanges
             }
             Transform defaultFillBarRoot = defaultWaveUI.Find("FillBarRoot");
 
-            EditorComponents.SimulacrumBarEditor defaultFillBarRootBarPositioner = defaultFillBarRoot.gameObject.AddComponent<EditorComponents.SimulacrumBarEditor>();
+            HudEditorComponents.SimulacrumBarEditor defaultFillBarRootBarPositioner = defaultFillBarRoot.gameObject.AddComponent<HudEditorComponents.SimulacrumBarEditor>();
             defaultFillBarRootBarPositioner.idealLocalPosition = new Vector3(-120f, -21.15f, 0f);
             defaultFillBarRootBarPositioner.idealLocalScale = new Vector3(0.725f, 1f, 1f); ;
 
@@ -593,7 +593,7 @@ namespace CleanestHud.HudChanges
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {
             Transform longBackground = scoreboardStripTransform.GetChild(0);
-            EditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<EditorComponents.ScoreboardStripEditor>();
+            HudEditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<HudEditorComponents.ScoreboardStripEditor>();
 
             // ClassBackground's local position is handled by the component
             scoreboardStripEditor.ClassBackgroundRect_LocalScale = Vector3.one * 1.075f;

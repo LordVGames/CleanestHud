@@ -159,7 +159,7 @@ namespace CleanestHud
                 return;
             }
 
-            HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegment();
+            HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
             HudChanges.HudColor.ColorDifficultyBar();
         }
 
