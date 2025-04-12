@@ -500,7 +500,7 @@ namespace CleanestHud.HudChanges
         {
             foreach (SkillIcon skillIcon in Main.MyHud.skillIcons)
             {
-                Transform skillBackgroundPanel = skillIcon.transform.GetChild(5);
+                Transform skillBackgroundPanel = skillIcon.transform.Find("SkillBackgroundPanel");
                 Image skillBackgroundPanelImage = skillBackgroundPanel.GetComponent<Image>();
                 skillBackgroundPanelImage.enabled = false;
             }

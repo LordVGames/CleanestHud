@@ -268,7 +268,6 @@ namespace CleanestHud.HudChanges
         private static void EditSkillSlots()
         {
             // not doing normal for loop so i don't have "Main.MyHud.skillIcons[i]" everywhere
-            // plus i only need to do index specific stuff once
             Vector3 newSkillPosition = Vector3.zero;
             int i = 0;
             Vector3 centerSkillIconLocalPosition = Main.MyHud.skillIcons[2].transform.localPosition;
@@ -316,7 +315,7 @@ namespace CleanestHud.HudChanges
                 GameObject skillBackgroundPanel = skillIcon.transform.Find("SkillBackgroundPanel").gameObject;
                 skillBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
 
-                Transform skillStockRoot = skillIcon.transform.GetChild(4);
+                Transform skillStockRoot = skillIcon.transform.Find($"Skill{i}StockRoot");
                 Transform skillStockRootText = skillStockRoot.Find("StockText");
                 HGTextMeshProUGUI skillStockRootTextMesh = skillStockRootText.GetComponent<HGTextMeshProUGUI>();
                 skillStockRootTextMesh.color = Color.white;

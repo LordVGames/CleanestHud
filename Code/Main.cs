@@ -108,7 +108,7 @@ namespace CleanestHud
                 HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
                 HudChanges.HudDetails.EditHudDetails();
                 // manually call OnCameraChange since it isn't called when first spawning in
-                OnCameraChange(targetBody);
+                MyHud.StartCoroutine(DelayOnCameraChange(targetBody));
             }
             internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
             {
@@ -125,28 +125,39 @@ namespace CleanestHud
                     Log.Debug("cameraRigController.targetBody was invalid? returning");
                     return;
                 }
-                OnCameraChange(cameraRigController.targetBody);
+                MyHud.StartCoroutine(DelayOnCameraChange(cameraRigController.targetBody));
             }
-            internal static void OnCameraChange(CharacterBody targetCharacterBody)
+            private static IEnumerator DelayOnCameraChange(CharacterBody targetCharacterBody)
+            {
+                // color change usually works, but if the camera changes again in 2 frames the color isn't applied?????
+                // and survivor hud elements don't always get changed unless we wait a frame too??????
+                // why is this so FUCKING JANK
+                yield return null;
+                OnCameraChange(targetCharacterBody);
+            }
+            private static void OnCameraChange(CharacterBody targetCharacterBody)
             {
                 Log.Debug("OnCameraChange");
+                if (targetCharacterBody == null)
+                {
+                    Log.Error("targetCharacterBody WAS NULL IN OnCameraChange! NO HUD CHANGES WILL OCCUR!");
+                    return;
+                }
                 Log.Debug($"cameraRigController.targetBody.baseNameToken is {targetCharacterBody.baseNameToken}");
+
                 HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
                 if (!IsHudEditable)
                 {
-                    Log.Debug("Camera changed while HUD was not editable, returning");
+                    Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
                     return;
                 }
                 switch (targetCharacterBody.baseNameToken)
                 {
                     case "VOIDSURVIVOR_BODY_NAME":
-                        // void fiend's meter sometimes doesn't get edited on revive???????
-                        // and because of that it needs to be delayed
-                        MyHud.StartCoroutine(HudChanges.SurvivorSpecific.DelayEditVoidFiendCorruptionUI());
+                        HudChanges.SurvivorSpecific.EditVoidFiendCorruptionUI();
                         break;
                     case "SEEKER_BODY_NAME":
-                        // seeker-specific hud elements don't appear immediately because ?????????????
-                        MyHud.StartCoroutine(HudChanges.SurvivorSpecific.DelayRepositionSeekerLotusUI());
+                        HudChanges.SurvivorSpecific.RepositionSeekerLotusUI();
                         break;
                 }
             }

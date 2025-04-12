@@ -13,15 +13,10 @@ namespace CleanestHud
 
         internal static void Debug(object data)
         {
-            // always do debug logging when compiled for debug, only do it if config allows it when compiled for release
-#if !DEBUG
             if (ConfigOptions.AllowDebugLogging.Value)
             {
-#endif
                 _logSource.LogDebug(data);
-#if !DEBUG
             }
-#endif
         }
         internal static void Error(object data) => _logSource.LogError(data);
         internal static void Fatal(object data) => _logSource.LogFatal(data);

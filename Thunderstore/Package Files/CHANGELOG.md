@@ -1,3 +1,15 @@
+## 0.11.4
+
+Fixed SkillsPlusPlus causing the HUD editing process to die
+
+Made color change apply a frame after the camera target change happens, similar to survivor-specific HUD element edits
+- This is another attempt to fix another player's color being applied in multiplayer but I have good feeling about this one
+
+## 0.11.3
+
+Recompiled using latest dependencies
+- The RoR2-related dependencies for the mod's code weren't updated since SOTS initial release, so this may fix some weird errors related to UI
+
 ## 0.11.2
 
 Reworked coloring system a bit
