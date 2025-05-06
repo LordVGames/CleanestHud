@@ -18,7 +18,7 @@ namespace CleanestHud
             public enum SeekerLotusHudPosition
             {
                 AboveHealthBar,
-                LeftOfHealthbar
+                LeftOfSkills
             }
         }
 
@@ -63,7 +63,6 @@ namespace CleanestHud
             }
 
             HudChanges.HudDetails.SetSkillOutlinesStatus();
-            //Main.MyHud.StartCoroutine(HudChanges.HudDetails.DelaySetSkillAndEquipmentOutlinesStatus());
         }
 
 
@@ -317,7 +316,7 @@ namespace CleanestHud
             SeekerLotusHudPosition = config.Bind<SpecialConfig.SeekerLotusHudPosition>(
                 "HUD Settings - Survivor Specific",
                 "Seeker Lotus UI Position",
-                SpecialConfig.SeekerLotusHudPosition.LeftOfHealthbar,
+                SpecialConfig.SeekerLotusHudPosition.LeftOfSkills,
                 "Choose the position for the lotus flower thing on the UI that shows your progress towards your 7th meditation."
             );
             BodyNameBlacklist_Config = config.Bind<string>(

@@ -60,22 +60,16 @@ namespace CleanestHud.HudChanges
         #endregion
 
         #region Seeker
-        internal static IEnumerator DelayRepositionSeekerLotusUI()
-        {
-            yield return null;
-            RepositionSeekerLotusUI();
-        }
         internal static void RepositionSeekerLotusUI()
         {
-            // this might get fucked up when other mods get involved
             Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
             Transform springCanvas = mainUIArea.GetChild(2);
             Transform bottomCenterCluster = springCanvas.GetChild(4);
-            // this is ran twice when spawning in as seeker but it errors out here the first time?????
-            // it works the 2nd time though
             Transform bottomCenterClusterScaler = bottomCenterCluster.GetChild(2);
             Transform utilityArea = bottomCenterClusterScaler.GetChild(1);
             Transform utilityAreaDisplayRoot = utilityArea.GetChild(0);
+            // this is ran twice when spawning in as seeker but it errors out here the first time?????
+            // it works the 2nd time though
             try
             {
                 Transform seekerLotusUi = utilityAreaDisplayRoot.Find("SeekerLotusUI(Clone)");
@@ -84,8 +78,8 @@ namespace CleanestHud.HudChanges
                     case ConfigOptions.SpecialConfig.SeekerLotusHudPosition.AboveHealthBar:
                         seekerLotusUi.localPosition = new Vector3(98, -75, 0);
                         break;
-                    case ConfigOptions.SpecialConfig.SeekerLotusHudPosition.LeftOfHealthbar:
-                        seekerLotusUi.localPosition = new Vector3(-115, -165, 0);
+                    case ConfigOptions.SpecialConfig.SeekerLotusHudPosition.LeftOfSkills:
+                        seekerLotusUi.localPosition = new Vector3(-82, -150, 0);
                         break;
                 }
             }

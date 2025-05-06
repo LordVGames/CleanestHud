@@ -24,10 +24,7 @@ namespace CleanestHud
             {
                 get
                 {
-                    if (_modexists == null)
-                    {
-                        _modexists = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(RiskOfOptions.PluginInfo.PLUGIN_GUID);
-                    }
+                    _modexists ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(RiskOfOptions.PluginInfo.PLUGIN_GUID);
                     return (bool)_modexists;
                 }
             }

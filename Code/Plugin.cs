@@ -14,7 +14,7 @@ namespace CleanestHud
         public static PluginInfo PluginInfo { get; private set; }
         public const string PluginAuthor = "LordVGames";
         public const string PluginName = "CleanestHud";
-        public const string PluginVersion = "0.11.4";
+        public const string PluginVersion = "0.11.5";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public void Awake()
@@ -44,7 +44,7 @@ namespace CleanestHud
             On.RoR2.UI.ScoreboardController.Rebuild += Main.OnHooks.ScoreboardController_Rebuild;
             On.RoR2.UI.ScoreboardController.SelectFirstScoreboardStrip += Main.OnHooks.ScoreboardController_SelectFirstScoreboardStrip;
             On.RoR2.VoidSurvivorController.OnOverlayInstanceAdded += Main.OnHooks.VoidSurvivorController_OnOverlayInstanceAdded;
-            On.EntityStates.Seeker.MeditationUI.SetupInputUIIcons += Main.OnHooks.MeditationUI_SetupInputUIIcons;
+            On.EntityStates.Seeker.Meditate.SetupInputUIIcons += Main.OnHooks.Meditate_SetupInputUIIcons;
 
             IL.RoR2.BossGroup.UpdateObservations += Main.ILHooks.BossGroup_UpdateObservations;
             IL.RoR2.UI.BuffDisplay.UpdateLayout += Main.ILHooks.BuffDisplay_UpdateLayout;

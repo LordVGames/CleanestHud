@@ -1,3 +1,15 @@
+## 0.11.5
+
+Fixed for SOTS phase 3
+
+Fixed buffs list slowing becoming more off-center the longer the list is
+
+Made another attempt to fix the hud color sometimes being wrong in multiplayer
+- Untested, but might actually fix it
+
+Repositioned seeker lotus UI position a bit so it doesn't overlap the sprint & inventory keybind reminders
+
+
 ## 0.11.4
 
 Fixed SkillsPlusPlus causing the HUD editing process to die

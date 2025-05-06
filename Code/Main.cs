@@ -18,6 +18,7 @@ namespace CleanestHud
         internal static HUD MyHud = null;
         internal static bool IsHudFinishedLoading = false;
         internal static bool IsHudUserBlacklisted = false;
+        internal static bool IsColorChangeCoroutineWaiting = false;
         internal static bool IsHudEditable
         {
             get
@@ -107,14 +108,13 @@ namespace CleanestHud
                 HudChanges.HudStructure.EditHudStructure();
                 HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
                 HudChanges.HudDetails.EditHudDetails();
-                // manually call OnCameraChange since it isn't called when first spawning in
-                MyHud.StartCoroutine(DelayOnCameraChange(targetBody));
             }
             internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
             {
                 orig(self);
                 IsHudFinishedLoading = false;
                 IsHudUserBlacklisted = false;
+                IsColorChangeCoroutineWaiting = false;
                 HudChanges.HudColor.SurvivorColor = Color.clear;
             }
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
@@ -125,27 +125,42 @@ namespace CleanestHud
                     Log.Debug("cameraRigController.targetBody was invalid? returning");
                     return;
                 }
-                MyHud.StartCoroutine(DelayOnCameraChange(cameraRigController.targetBody));
+                MyHud.StartCoroutine(DelayOnCameraChange(cameraRigController));
             }
-            private static IEnumerator DelayOnCameraChange(CharacterBody targetCharacterBody)
+            
+            private static IEnumerator DelayOnCameraChange(CameraRigController cameraRigController)
             {
-                // color change usually works, but if the camera changes again in 2 frames the color isn't applied?????
-                // and survivor hud elements don't always get changed unless we wait a frame too??????
-                // why is this so FUCKING JANK
+                // delay a frame to make sure everything that needs to be changed/setup has been (i.e. survivor specific ui)
                 yield return null;
-                OnCameraChange(targetCharacterBody);
-            }
-            private static void OnCameraChange(CharacterBody targetCharacterBody)
-            {
                 Log.Debug("OnCameraChange");
-                if (targetCharacterBody == null)
+                if (cameraRigController.targetBody == null)
                 {
-                    Log.Error("targetCharacterBody WAS NULL IN OnCameraChange! NO HUD CHANGES WILL OCCUR!");
-                    return;
+                    Log.Error("targetCharacterBody WAS NULL IN OnCameraChange PART 1! NO HUD CHANGES WILL OCCUR!");
+                    yield break;
                 }
-                Log.Debug($"cameraRigController.targetBody.baseNameToken is {targetCharacterBody.baseNameToken}");
 
-                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                EditSurvivorSpecificUI(cameraRigController.targetBody);
+                // game is a dumbass in multiplayer and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
+                // so we're gonna set the color like normal then wait a tiny bit then get the color again
+                // not noticeable in singleplayer and not really noticeable in multiplayer since everything is fading in while this happens
+                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                if (IsColorChangeCoroutineWaiting)
+                {
+                    yield break;
+                }
+                IsColorChangeCoroutineWaiting = true;
+                yield return new WaitForSeconds(0.15f);
+                if (cameraRigController.targetBody == null)
+                {
+                    Log.Error("targetCharacterBody WAS NULL IN OnCameraChange PART 2! NO HUD COLOR CHANGES WILL OCCUR!");
+                    yield break;
+                }
+                Log.Debug($"cameraRigController.targetBody after dumbass delay is {cameraRigController.targetBody.baseNameToken}");
+                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                IsColorChangeCoroutineWaiting = false;
+            }
+            private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
+            {
                 if (!IsHudEditable)
                 {
                     Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
@@ -360,7 +375,7 @@ namespace CleanestHud
                 self.overlayInstanceAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
             }
 
-            internal static void MeditationUI_SetupInputUIIcons(On.EntityStates.Seeker.MeditationUI.orig_SetupInputUIIcons orig, EntityStates.Seeker.MeditationUI self)
+            internal static void Meditate_SetupInputUIIcons(On.EntityStates.Seeker.Meditate.orig_SetupInputUIIcons orig, EntityStates.Seeker.Meditate self)
             {
                 orig(self);
                 if (IsHudUserBlacklisted)
@@ -402,10 +417,10 @@ namespace CleanestHud
             internal static void BuffDisplay_UpdateLayout(ILContext il)
             {
                 ILCursor c = new(il);
-                if (!c.TryGotoNext(MoveType.AfterLabel,
-                    x => x.MatchCallvirt<BuffIcon>("get_rectTransform"),
-                    x => x.MatchLdloc(0),
-                    x => x.MatchCallvirt<RectTransform>("set_anchoredPosition")
+                if (!c.TryGotoNext(MoveType.After,
+                    x => x.MatchCallvirt(out _),
+                    x => x.MatchEndfinally(),
+                    x => x.MatchLdarg(0)
                 ))
                 {
                     Log.Error("COULD NOT IL HOOK BuffDisplay_UpdateLayout");
@@ -414,7 +429,6 @@ namespace CleanestHud
                     return;
                 }
 
-                c.Emit(OpCodes.Ldarg_0);
                 c.EmitDelegate<Action<BuffDisplay>>((buffDisplay) =>
                 {
                     // all healthbars have a buffDisplay, but the one for the player's hud has a special name
@@ -435,9 +449,10 @@ namespace CleanestHud
                     }
                     if (IsHudEditable)
                     {
-                        buffDisplay.rectTranform.localPosition = new Vector3(-25f * buffDisplay.buffIconDisplayData.Count, -45f, 0f);
+                        buffDisplay.rectTranform.localPosition = new Vector3(-24 * buffDisplay.buffIconDisplayData.Count, -45, 0);
                     }
                 });
+                c.Emit(OpCodes.Ldarg_0);
             }
             private static IEnumerator DelayFixFirstBuffRotation(RectTransform rectTransform)
             {
