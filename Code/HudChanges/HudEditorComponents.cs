@@ -9,13 +9,13 @@ namespace CleanestHud.HudChanges
     {
         public class DifficultyBarBackgroundTransparencyRemover : MonoBehaviour
         {
+            public Color survivorColorNoTransparency;
             private Image BackgroundImage;
-            private Color survivorColorNoTransparency;
 
             public void Start()
             {
                 BackgroundImage = GetComponent<Image>();
-                survivorColorNoTransparency = HudChanges.HudColor.SurvivorColor;
+                survivorColorNoTransparency = HudColor.SurvivorColor;
                 survivorColorNoTransparency.a = 1;
             }
 

@@ -611,59 +611,50 @@ namespace CleanestHud.HudChanges
         #region Infinite last difficulty segment
         internal static void SetFakeInfiniteLastDifficultySegmentStatus()
         {
-            Log.Debug("SetFakeInfiniteLastDifficultySegmentStatus");
+            Log.Debug("Attempting SetFakeInfiniteLastDifficultySegmentStatus");
             Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
             DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
             // can't see the changes below "IM COMING FOR YOU" so
             if (difficultyBarController.currentSegmentIndex < 7)
             {
+                Log.Debug("Difficulty bar is not far enough to matter, not doing SetFakeInfiniteLastDifficultySegmentStatus");
                 return;
             }
+
+
             Transform segmentTemplate = difficultyBar.GetChild(4);
             Transform scrollView = difficultyBar.GetChild(1);
             Transform viewport = scrollView.GetChild(1);
             Transform content = viewport.GetChild(0);
             Transform backdrop = scrollView.GetChild(0);
 
-            SetCorrectLastDifficultySegmentSprite(content);
+
+            Log.Debug($"ConfigOptions.AllowConsistentDifficultyBarColor.Value is {ConfigOptions.AllowConsistentDifficultyBarColor.Value}");
             if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
-                SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
+                SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate, content);
             }
             else
             {
-                UndoFakeInfiniteDifficultySegment(backdrop);
+                UndoFakeInfiniteDifficultySegment(backdrop, content);
             }
         }
-        private static void SetCorrectLastDifficultySegmentSprite(Transform content)
+        
+        private static void SetupFakeInfiniteDifficultySegment(Transform backdrop, Transform segmentTemplate, Transform content)
         {
             Transform firstDifficultySegment = content.GetChild(0);
             Image firstDifficultySegmentImage = firstDifficultySegment.GetComponent<Image>();
             Transform lastDifficultySegment = content.GetChild(8);
             Image lastDifficultySegmentImage = lastDifficultySegment.GetComponent<Image>();
-
-            if (HudAssets.LastDifficultySegmentSprite == null)
-            {
-                HudAssets.LastDifficultySegmentSprite = lastDifficultySegmentImage.sprite;
-            }
-            if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
-            {
-                lastDifficultySegmentImage.sprite = firstDifficultySegmentImage.sprite;
-            }
-            else
-            {
-                lastDifficultySegmentImage.sprite = HudAssets.LastDifficultySegmentSprite;
-            }
-        }
-        private static void SetupFakeInfiniteDifficultySegment(Transform backdrop, Transform segmentTemplate)
-        {
             Image backdropImage = backdrop.GetComponent<Image>();
 
             Vector3 slightlyShorter = new (1, 0.9f, 1);
             backdrop.localScale = slightlyShorter;
 
+            lastDifficultySegmentImage.sprite = firstDifficultySegmentImage.sprite;
+
             backdropImage.sprite = segmentTemplate.GetComponent<Image>().sprite;
-            Color noMoreTransparency = backdropImage.color;
+            Color noMoreTransparency = HudColor.SurvivorColor;
             noMoreTransparency.a = 1;
             Main.MyHud.StartCoroutine(TempComponentBackgroundImage(backdropImage, noMoreTransparency));
         }
@@ -671,17 +662,28 @@ namespace CleanestHud.HudChanges
         {
             // this is stupid
             DifficultyBarBackgroundTransparencyRemover transparencyRemover = backdropImage.transform.gameObject.GetComponent<DifficultyBarBackgroundTransparencyRemover>() ?? backdropImage.transform.gameObject.AddComponent<DifficultyBarBackgroundTransparencyRemover>();
+            transparencyRemover.survivorColorNoTransparency = newColor;
             transparencyRemover.enabled = true;
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(2f);
             transparencyRemover.enabled = false;
         }
 
-        private static void UndoFakeInfiniteDifficultySegment(Transform backdrop)
+        private static void UndoFakeInfiniteDifficultySegment(Transform backdrop, Transform content)
         {
+            Log.Debug("UndoFakeInfiniteDifficultySegment");
+            Transform firstDifficultySegment = content.GetChild(0);
+            Image firstDifficultySegmentImage = firstDifficultySegment.GetComponent<Image>();
+            Transform lastDifficultySegment = content.GetChild(8);
+            Image lastDifficultySegmentImage = lastDifficultySegment.GetComponent<Image>();
             Image backdropImage = backdrop.GetComponent<Image>();
 
-            backdrop.localScale = Vector3.one;
+            if (HudAssets.LastDifficultySegmentSprite == null)
+            {
+                HudAssets.LastDifficultySegmentSprite = lastDifficultySegmentImage.sprite;
+            }
+            lastDifficultySegmentImage.sprite = HudAssets.LastDifficultySegmentSprite;
 
+            backdrop.localScale = Vector3.one;
             // i can't figure out loading the original texture and this is basically the same so it's good enough
             backdropImage.sprite = HudAssets.WhiteSprite;
             Color normalTransparency = backdropImage.color;

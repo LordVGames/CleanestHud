@@ -185,7 +185,7 @@ namespace CleanestHud
                 return;
             }
 
-            HudChanges.SurvivorSpecific.SetVoidFiendMeterAnimatorStatus();
+            HudChanges.SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
         }
 
 
@@ -198,7 +198,7 @@ namespace CleanestHud
             }
 
             // this really isn't needed but i know someone would've noticed it eventually
-            HudChanges.SurvivorSpecific.RepositionSeekerMeditationUI();
+            HudChanges.SurvivorSpecific.Seeker.RepositionSeekerMeditationUI();
         }
 
 
@@ -210,7 +210,7 @@ namespace CleanestHud
                 return;
             }
 
-            HudChanges.SurvivorSpecific.RepositionSeekerLotusUI();
+            HudChanges.SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
         }
 
 

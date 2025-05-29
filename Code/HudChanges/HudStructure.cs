@@ -151,7 +151,7 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            ImportantHudTransforms.BarRoots.parent = ImportantHudTransforms.BottomCenterCluster;
+            ImportantHudTransforms.BarRoots.SetParent(ImportantHudTransforms.BottomCenterCluster);
             Destroy(ImportantHudTransforms.BarRoots.GetComponent<VerticalLayoutGroup>());
             RectTransform barRootsRect = ImportantHudTransforms.BarRoots.GetComponent<RectTransform>();
             barRootsRect.rotation = Quaternion.identity;
@@ -192,7 +192,7 @@ namespace CleanestHud.HudChanges
             Transform buffDisplayRoot = levelDisplayCluster.Find("BuffDisplayRoot");
 
             Destroy(buffDisplayRoot.GetComponent<HorizontalLayoutGroup>());
-            buffDisplayRoot.parent = ImportantHudTransforms.BarRoots;
+            buffDisplayRoot.SetParent(ImportantHudTransforms.BarRoots);
 
             RectTransform buffDisplayRootRect = buffDisplayRoot.GetComponent<RectTransform>();
             buffDisplayRootRect.localPosition = new Vector3(-25f, -45f, 0f);
@@ -387,8 +387,7 @@ namespace CleanestHud.HudChanges
         }
         internal static void RepositionSkillScaler()
         {
-            ImportantHudTransforms.SkillsScaler.parent = ImportantHudTransforms.BottomCenterCluster;
-
+            ImportantHudTransforms.SkillsScaler.SetParent(ImportantHudTransforms.BottomCenterCluster);
 
             RectTransform scalerRect = ImportantHudTransforms.SkillsScaler.GetComponent<RectTransform>();
             scalerRect.rotation = Quaternion.identity;

@@ -41,7 +41,6 @@ namespace CleanestHud
                 return MyHud.targetBodyObject.GetComponent<CharacterBody>();
             }
         }
-        internal static bool SizeBasedPositionsNeedCalculating;
 
 
         internal static bool IsGameModeSimulacrum
@@ -97,7 +96,6 @@ namespace CleanestHud
                 CharacterBody targetBody = HudTargetBody;
 
                 IsHudFinishedLoading = true;
-                SizeBasedPositionsNeedCalculating = true;
                 // substring is to remove "(Clone)" from the end of the name
                 if (ConfigOptions.BodyNameBlacklist_Array.Contains(targetBody.name.Substring(0, targetBody.name.Length - 7)))
                 {
@@ -108,6 +106,11 @@ namespace CleanestHud
                 HudChanges.HudStructure.EditHudStructure();
                 HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
                 HudChanges.HudDetails.EditHudDetails();
+                if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
+                {
+                    HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
+                }
+
             }
             internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
             {
@@ -125,7 +128,14 @@ namespace CleanestHud
                     Log.Debug("cameraRigController.targetBody was invalid? returning");
                     return;
                 }
-                MyHud.StartCoroutine(DelayOnCameraChange(cameraRigController));
+                if (MyHud != null)
+                {
+                    MyHud.StartCoroutine(DelayOnCameraChange(cameraRigController));
+                }
+                else
+                {
+                    Log.Debug("MyHud was null in CameraModeBase_OnTargetChanged somehow, not doing DelayOnCameraChange");
+                }
             }
             
             private static IEnumerator DelayOnCameraChange(CameraRigController cameraRigController)
@@ -139,8 +149,7 @@ namespace CleanestHud
                     yield break;
                 }
 
-                EditSurvivorSpecificUI(cameraRigController.targetBody);
-                // game is a dumbass in multiplayer and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
+                // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
                 // so we're gonna set the color like normal then wait a tiny bit then get the color again
                 // not noticeable in singleplayer and not really noticeable in multiplayer since everything is fading in while this happens
                 HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
@@ -156,6 +165,7 @@ namespace CleanestHud
                     yield break;
                 }
                 Log.Debug($"cameraRigController.targetBody after dumbass delay is {cameraRigController.targetBody.baseNameToken}");
+                EditSurvivorSpecificUI(cameraRigController.targetBody);
                 HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
                 IsColorChangeCoroutineWaiting = false;
             }
@@ -169,10 +179,10 @@ namespace CleanestHud
                 switch (targetCharacterBody.baseNameToken)
                 {
                     case "VOIDSURVIVOR_BODY_NAME":
-                        HudChanges.SurvivorSpecific.EditVoidFiendCorruptionUI();
+                        HudChanges.SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
                         break;
                     case "SEEKER_BODY_NAME":
-                        HudChanges.SurvivorSpecific.RepositionSeekerLotusUI();
+                        HudChanges.SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
                         break;
                 }
             }
@@ -185,7 +195,6 @@ namespace CleanestHud
                 orig(self, newValue);
                 if (self.name == "resolution")
                 {
-                    SizeBasedPositionsNeedCalculating = true;
                     // try as we might, this doesn't really work
                     HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
                 }
@@ -357,7 +366,7 @@ namespace CleanestHud
                 Log.Debug($"newSegmentIndex is {newSegmentIndex}");
                 Log.Debug($"ConfigOptions.AllowConsistentDifficultyBarColor.Value is {ConfigOptions.AllowConsistentDifficultyBarColor.Value}");
 
-                if (newSegmentIndex > 6 && ConfigOptions.AllowConsistentDifficultyBarColor.Value)
+                if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
                 {
                     HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }
@@ -383,7 +392,7 @@ namespace CleanestHud
                     return;
                 }
 
-                HudChanges.SurvivorSpecific.RepositionSeekerMeditationUI();
+                HudChanges.SurvivorSpecific.Seeker.RepositionSeekerMeditationUI();
             }
         }
 

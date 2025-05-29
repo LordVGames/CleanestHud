@@ -1,3 +1,18 @@
+## 1.0.0
+
+I've fixed the last few bugs I know of, which I'd say is good enough for a full release!
+- The last few are fixed in this version
+
+Fixed consistent difficulty bar coloring not working
+
+Fixed Seeker's lotus being slightly off center
+
+Mod now depends on [MiscFixes](https://thunderstore.io/package/score/MiscFixes/) because it makes more sections of the HUD easy to navigate to
+
+## 0.11.6
+
+Fixed dead players in the inventories menu preventing styling for other scoreboard strips below it
+
 ## 0.11.5
 
 Fixed for SOTS phase 3
