@@ -123,7 +123,6 @@ namespace CleanestHud.HudChanges
         {
             Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
             Transform scrollView = difficultyBar.Find("Scroll View");
-            Transform backdrop = scrollView.Find("Backdrop");
             Transform viewport = scrollView.Find("Viewport");
             Transform content = viewport.Find("Content");
 
@@ -145,13 +144,13 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("EditBarRoots", "BarRoots", "HudStructure");
                 return;
             }
-            if (!ImportantHudTransforms.BottomCenterCluster)
+            if (!Main.MyHudLocator.FindChild("BottomCenterCluster"))
             {
                 Main.Helpers.LogMissingHudVariable("EditBarRoots", "BottomCenterCluster");
                 return;
             }
 
-            ImportantHudTransforms.BarRoots.SetParent(ImportantHudTransforms.BottomCenterCluster);
+            ImportantHudTransforms.BarRoots.SetParent(Main.MyHudLocator.FindChild("BottomCenterCluster"));
             Destroy(ImportantHudTransforms.BarRoots.GetComponent<VerticalLayoutGroup>());
             RectTransform barRootsRect = ImportantHudTransforms.BarRoots.GetComponent<RectTransform>();
             barRootsRect.rotation = Quaternion.identity;
@@ -200,7 +199,6 @@ namespace CleanestHud.HudChanges
         // yes it's called "exp" not "xp" ingame
         private static void EditExpBar(Transform levelDisplayCluster)
         {
-            // levelDisplayCluster.GetChild(1)
             Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
 
             Image expBarRootImage = expBarRoot.GetComponent<Image>();
@@ -228,11 +226,6 @@ namespace CleanestHud.HudChanges
             Image healthBarRootImage = healthBarRoot.GetComponent<Image>();
             healthBarRootImage.sprite = HudAssets.WhiteSprite;
 
-            RectTransform healthBarRootRect = healthBarRoot.GetComponent<RectTransform>();
-            Transform levelDisplayCluster = ImportantHudTransforms.BarRoots.GetChild(0);
-            Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
-            RectTransform expBarRootRect = expBarRoot.GetComponent<RectTransform>();
-
             Transform shrunkenRoot = healthBarRoot.Find("ShrunkenRoot");
             if (shrunkenRoot.childCount != 0)
             {
@@ -249,18 +242,18 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomRightCluster", "HudStructure");
                 return;
             }
-            if (!ImportantHudTransforms.BottomCenterCluster)
+            if (!Main.MyHudLocator.FindChild("BottomCenterCluster"))
             {
                 Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomCenterCluster");
                 return;
             }
 
-            Transform spectatorLabel = ImportantHudTransforms.BottomCenterCluster.Find("SpectatorLabel");
+            Transform spectatorLabel = Main.MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
             RectTransform spectatorLabelRect = spectatorLabel.GetComponent<RectTransform>();
             spectatorLabelRect.anchoredPosition = new Vector2(0f, 150f);
 
             GraphicRaycaster bottomRightGraphicRaycaster = ImportantHudTransforms.BottomRightCluster.GetComponent<GraphicRaycaster>();
-            GraphicRaycaster bottomCenterGraphicRaycaster = ImportantHudTransforms.BottomCenterCluster.gameObject.AddComponent<GraphicRaycaster>();
+            GraphicRaycaster bottomCenterGraphicRaycaster = Main.MyHudLocator.FindChild("BottomCenterCluster").gameObject.AddComponent<GraphicRaycaster>();
             bottomCenterGraphicRaycaster.blockingObjects = bottomRightGraphicRaycaster.blockingObjects;
             bottomCenterGraphicRaycaster.ignoreReversedGraphics = bottomRightGraphicRaycaster.ignoreReversedGraphics;
             bottomCenterGraphicRaycaster.useGUILayout = bottomRightGraphicRaycaster.useGUILayout;
@@ -387,7 +380,7 @@ namespace CleanestHud.HudChanges
         }
         internal static void RepositionSkillScaler()
         {
-            ImportantHudTransforms.SkillsScaler.SetParent(ImportantHudTransforms.BottomCenterCluster);
+            ImportantHudTransforms.SkillsScaler.SetParent(Main.MyHudLocator.FindChild("BottomCenterCluster"));
 
             RectTransform scalerRect = ImportantHudTransforms.SkillsScaler.GetComponent<RectTransform>();
             scalerRect.rotation = Quaternion.identity;
@@ -604,6 +597,23 @@ namespace CleanestHud.HudChanges
             scoreboardStripEditor.EquipmentBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
 
             // name label positioning is well yknow
+        }
+
+
+
+        internal static void MoveSpectatorLabel()
+        {
+            if (!Main.IsHudEditable)
+            {
+                return;
+            }
+            Transform spectatorLabel = Main.MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
+            if (spectatorLabel == null)
+            {
+                return;
+            }
+
+            spectatorLabel.localPosition = new Vector3(0, 700, 0);
         }
 
         

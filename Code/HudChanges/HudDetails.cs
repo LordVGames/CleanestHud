@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using RoR2;
 using RoR2.UI;
+using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudChanges.HudEditorComponents;
 
@@ -20,7 +21,6 @@ namespace CleanestHud.HudChanges
             internal static void EditHudElementPrefabDetails()
             {
                 EditItemIcon();
-                RemoveMonsterPanelsHudDetails();
                 RemoveGameEndPanelDetails();
                 RemoveScoreboardStripAssetDetails();
                 RemoveMoonDetonationPanelDetails();
@@ -44,38 +44,15 @@ namespace CleanestHud.HudChanges
                 // better higlight visibility for some character colors
                 button.m_Colors.m_ColorMultiplier = 1.5f;
             }
-            private static void RemoveMonsterPanelsHudDetails()
-            {
-                Image enemyInfoPanelImage = HudAssets.EnemyInfoPanel.GetComponent<Image>();
-                enemyInfoPanelImage.enabled = false;
-
-                Transform innerFrame = HudAssets.EnemyInfoPanel.transform.Find("InnerFrame");
-                Image innerFrameImage = innerFrame.GetComponent<Image>();
-                innerFrameImage.enabled = false;
-
-                Transform monsterBodiesContainer = innerFrame.Find("MonsterBodiesContainer");
-                Transform monsterBodyIconContainer = monsterBodiesContainer.Find("MonsterBodyIconContainer");
-                Image monsterBodyIconContainerImage = monsterBodyIconContainer.GetComponent<Image>();
-                monsterBodyIconContainerImage.enabled = false;
-
-                Transform inventoryContainer = innerFrame.Find("InventoryContainer");
-                Transform inventoryDisplay = inventoryContainer.Find("InventoryDisplay");
-                Image inventoryDisplayImage = inventoryDisplay.GetComponent<Image>();
-                inventoryDisplayImage.enabled = false;
-            }
 
 
-            // TODO i think the chatbox here doesn't get edited? idk look into it
-            // also finish this
             private static void RemoveGameEndPanelDetails()
             {
-                #region Finding transforms
                 Transform safeAreaJUICEDLMAO = HudAssets.GameEndReportPanel.transform.Find("SafeArea (JUICED)");
                 Transform headerArea = safeAreaJUICEDLMAO.Find("HeaderArea");
                 Transform deathFlavorText = headerArea.Find("DeathFlavorText");
                 Transform resultArea = headerArea.Find("ResultArea");
                 Transform resultLabel = resultArea.Find("ResultLabel");
-                #endregion
 
                 HGTextMeshProUGUI deathFlavorTextMesh = deathFlavorText.GetComponent<HGTextMeshProUGUI>();
                 deathFlavorTextMesh.fontStyle = FontStyles.Normal;
@@ -119,15 +96,6 @@ namespace CleanestHud.HudChanges
                 Image handleImage = handle.GetComponent<Image>();
                 handleImage.enabled = false;
 
-                Transform chatArea = statsAndChatArea.Find("ChatArea");
-                Image chatAreaImage = chatArea.GetComponent<Image>();
-                chatAreaImage.enabled = false;
-
-                RectTransform chatAreaRect = chatArea.GetComponent<RectTransform>();
-                chatAreaRect.localPosition = new Vector3(441.5f, -311.666666666f, 0f);
-                chatAreaRect.localEulerAngles = new Vector3(0f, 357f, 0f);
-                chatAreaRect.sizeDelta = new Vector2(832f, 200f);
-
                 Transform rightArea = bodyArea.Find("RightArea");
                 Transform infoArea = rightArea.Find("InfoArea");
                 Transform infoAreaBorderImage = infoArea.Find("BorderImage");
@@ -164,7 +132,30 @@ namespace CleanestHud.HudChanges
                 Transform unlockAreaScrollbarVertical = unlockAreaScrollView.Find("Scrollbar Vertical");
                 Image unlockAreaScrollbarVerticalImage = unlockAreaScrollbarVertical.GetComponent<Image>();
                 unlockAreaScrollbarVerticalImage.enabled = false;
+
+                Transform chatArea = statsAndChatArea.Find("ChatArea");
+                Image chatAreaImage = chatArea.GetComponent<Image>();
+                chatAreaImage.enabled = false;
+
+                Transform chatBox = chatArea.GetChild(0);
+                Transform permanentBg = chatBox.GetChild(0);
+                Image permanentBgImage = permanentBg.GetComponent<Image>();
+                permanentBgImage.enabled = false;
+
+                Transform standardRect = chatBox.GetChild(2);
+                Transform standardRectScrollView = standardRect.GetChild(0);
+                Transform standardRectScrollViewBackground = standardRectScrollView.GetChild(1);
+                standardRectScrollViewBackground.gameObject.SetActive(false);
+                Transform standardRectScrollViewBorderImage = standardRectScrollView.GetChild(2);
+                standardRectScrollViewBorderImage.gameObject.SetActive(false);
+
+                RectTransform chatAreaRect = chatArea.GetComponent<RectTransform>();
+                chatAreaRect.sizeDelta = new Vector2(817f, 200f);
+                chatAreaRect.localPosition = new Vector3(441.5f, -311.666666666f, 0f);
+                //chatAreaRect.localEulerAngles = new Vector3(0f, 357f, 0f); // TODO this fucks things up
             }
+
+
             private static void RemoveScoreboardStripAssetDetails()
             {
                 RawImage scoreboardStripRawImageBackground = HudAssets.ScoreboardStrip.gameObject.GetComponent<RawImage>();
@@ -191,6 +182,8 @@ namespace CleanestHud.HudChanges
                 // im pretty sure its fine to disable the backgroud image here since it doesn't scale with resolution
                 nameFocusHighlightImage.enabled = false;
             }
+
+
             private static void RemoveMoonDetonationPanelDetails()
             {
                 RectTransform hudCountdownPanelRect = HudAssets.MoonDetonationPanel.GetComponent<RectTransform>();
@@ -217,11 +210,15 @@ namespace CleanestHud.HudChanges
                 countdownLabelMesh.fontSharedMaterial = HudAssets.FontMaterial;
                 countdownLabelMesh.color = Color.red;
             }
+
+
             private static void RemoveStatStripTemplateImage()
             {
                 Image statStripTemplateImage = HudAssets.StatStripTemplate.GetComponent<Image>();
                 statStripTemplateImage.enabled = false;
             }
+
+
             private static void RemoveChatBoxDetails()
             {
                 Image chatBoxImage = HudAssets.ChatBox.GetComponent<Image>();
@@ -260,7 +257,7 @@ namespace CleanestHud.HudChanges
         internal static void EditHudDetails()
         {
             EditDifficultyHudDetails();
-            if (Main.IsGameModeSimulacrum)
+            if (IsGameModeSimulacrum)
             {
                 EditSimulacrumDefaultWaveUI();
                 EditSimulacrumWavePanel();
@@ -276,7 +273,7 @@ namespace CleanestHud.HudChanges
             DisableScoreboardStripContainerOutline();
             DisableInspectionPanelItemIconDetails();
             RemoveArtifactPanelBackground();
-            ChangeSuppressedItemsBackground();
+            EditSuppressedItemsStrip();
             SetInspectPanelMaxAlpha();
             SetInspectPanelFadeInStatus();
             ColorMapNameTextWhite();
@@ -287,7 +284,7 @@ namespace CleanestHud.HudChanges
             SetSkillOutlinesStatus();
             if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfigValue)
             {
-                Main.MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
+                MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
             }
         }
         private static void EditDifficultyHudDetails()
@@ -405,7 +402,7 @@ namespace CleanestHud.HudChanges
         }
         private static void HideItemInventoryOutline()
         {
-            Image itemInventoryDisplayImage = Main.MyHud.itemInventoryDisplay.GetComponent<Image>();
+            Image itemInventoryDisplayImage = MyHud.itemInventoryDisplay.GetComponent<Image>();
             itemInventoryDisplayImage.color = Color.clear;
         }
         private static void DisableInteractionContextBackground()
@@ -464,13 +461,18 @@ namespace CleanestHud.HudChanges
                 artifactPanelImage.enabled = false;
             }
         }
-        private static void ChangeSuppressedItemsBackground()
+        private static void EditSuppressedItemsStrip()
         {
-            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
             Transform suppressedItems = container.GetChild(3);
-            Image suppressedItemsBackground = suppressedItems.GetComponent<Image>();
 
+
+
+            ItemInventoryDisplay itemInventoryDisplay = suppressedItems.GetComponent<ItemInventoryDisplay>();
+            itemInventoryDisplay.itemIconPrefabWidth = 68;
+
+            Image suppressedItemsBackground = suppressedItems.GetComponent<Image>();
             suppressedItemsBackground.sprite = HudAssets.WhiteSprite;
 
             Color newBackgroundColor = suppressedItemsBackground.color;
@@ -498,13 +500,13 @@ namespace CleanestHud.HudChanges
         }
         private static void RemoveSkillAndEquipmentReminderTextBackgrounds()
         {
-            foreach (SkillIcon skillIcon in Main.MyHud.skillIcons)
+            foreach (SkillIcon skillIcon in MyHud.skillIcons)
             {
                 Transform skillBackgroundPanel = skillIcon.transform.Find("SkillBackgroundPanel");
                 Image skillBackgroundPanelImage = skillBackgroundPanel.GetComponent<Image>();
                 skillBackgroundPanelImage.enabled = false;
             }
-            Transform equipmentDisplayRoot = Main.MyHud.equipmentIcons[0].transform.GetChild(1);
+            Transform equipmentDisplayRoot = MyHud.equipmentIcons[0].transform.GetChild(1);
             Transform equipmentTextBackgroundPanel = equipmentDisplayRoot.GetChild(6);
             Image equipmentTextBackgroundPanelImage = equipmentTextBackgroundPanel.GetComponent<Image>();
             equipmentTextBackgroundPanelImage.enabled = false;
@@ -538,13 +540,13 @@ namespace CleanestHud.HudChanges
 
         internal static void SetSkillsAndEquipmentReminderTextStatus()
         {
-            foreach (SkillIcon skillIcon in Main.MyHud.skillIcons)
+            foreach (SkillIcon skillIcon in MyHud.skillIcons)
             {
                 Transform skillTextBackgroundPanel = skillIcon.transform.GetChild(5);
                 skillTextBackgroundPanel.gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
             }
 
-            Transform equipment1DisplayRoot = Main.MyHud.equipmentIcons[0].displayRoot.transform;
+            Transform equipment1DisplayRoot = MyHud.equipmentIcons[0].displayRoot.transform;
             GameObject equipment1TextBackgroundPanel = equipment1DisplayRoot.GetChild(6).gameObject;
             equipment1TextBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
         }
@@ -558,7 +560,7 @@ namespace CleanestHud.HudChanges
         }
         private static void RemoveNotificationBackground()
         {
-            Transform mainContainer = Main.MyHud.mainContainer.transform;
+            Transform mainContainer = MyHud.mainContainer.transform;
             Transform notificationArea = mainContainer.Find("NotificationArea");
             if (notificationArea.childCount == 0)
             {
@@ -624,39 +626,31 @@ namespace CleanestHud.HudChanges
 
             Transform segmentTemplate = difficultyBar.GetChild(4);
             Transform scrollView = difficultyBar.GetChild(1);
-            Transform viewport = scrollView.GetChild(1);
-            Transform content = viewport.GetChild(0);
             Transform backdrop = scrollView.GetChild(0);
 
 
             Log.Debug($"ConfigOptions.AllowConsistentDifficultyBarColor.Value is {ConfigOptions.AllowConsistentDifficultyBarColor.Value}");
             if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
-                SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate, content);
+                SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
             }
             else
             {
-                UndoFakeInfiniteDifficultySegment(backdrop, content);
+                UndoFakeInfiniteDifficultySegment(backdrop);
             }
         }
         
-        private static void SetupFakeInfiniteDifficultySegment(Transform backdrop, Transform segmentTemplate, Transform content)
+        private static void SetupFakeInfiniteDifficultySegment(Transform backdrop, Transform segmentTemplate)
         {
-            Transform firstDifficultySegment = content.GetChild(0);
-            Image firstDifficultySegmentImage = firstDifficultySegment.GetComponent<Image>();
-            Transform lastDifficultySegment = content.GetChild(8);
-            Image lastDifficultySegmentImage = lastDifficultySegment.GetComponent<Image>();
             Image backdropImage = backdrop.GetComponent<Image>();
 
             Vector3 slightlyShorter = new (1, 0.9f, 1);
             backdrop.localScale = slightlyShorter;
 
-            lastDifficultySegmentImage.sprite = firstDifficultySegmentImage.sprite;
-
             backdropImage.sprite = segmentTemplate.GetComponent<Image>().sprite;
             Color noMoreTransparency = HudColor.SurvivorColor;
             noMoreTransparency.a = 1;
-            Main.MyHud.StartCoroutine(TempComponentBackgroundImage(backdropImage, noMoreTransparency));
+            MyHud.StartCoroutine(TempComponentBackgroundImage(backdropImage, noMoreTransparency));
         }
         private static IEnumerator TempComponentBackgroundImage(Image backdropImage, Color newColor)
         {
@@ -668,20 +662,10 @@ namespace CleanestHud.HudChanges
             transparencyRemover.enabled = false;
         }
 
-        private static void UndoFakeInfiniteDifficultySegment(Transform backdrop, Transform content)
+        private static void UndoFakeInfiniteDifficultySegment(Transform backdrop)
         {
             Log.Debug("UndoFakeInfiniteDifficultySegment");
-            Transform firstDifficultySegment = content.GetChild(0);
-            Image firstDifficultySegmentImage = firstDifficultySegment.GetComponent<Image>();
-            Transform lastDifficultySegment = content.GetChild(8);
-            Image lastDifficultySegmentImage = lastDifficultySegment.GetComponent<Image>();
             Image backdropImage = backdrop.GetComponent<Image>();
-
-            if (HudAssets.LastDifficultySegmentSprite == null)
-            {
-                HudAssets.LastDifficultySegmentSprite = lastDifficultySegmentImage.sprite;
-            }
-            lastDifficultySegmentImage.sprite = HudAssets.LastDifficultySegmentSprite;
 
             backdrop.localScale = Vector3.one;
             // i can't figure out loading the original texture and this is basically the same so it's good enough
@@ -699,7 +683,7 @@ namespace CleanestHud.HudChanges
             {
                 return;
             }
-            Transform upperRightCluster = Main.MyHud.gameModeUiRoot.transform;
+            Transform upperRightCluster = MyHud.gameModeUiRoot.transform;
             Transform runInfoHudPanel = upperRightCluster.GetChild(0);
             Transform simulacrumWaveUIClone = runInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
             if (!simulacrumWaveUIClone)
@@ -741,7 +725,7 @@ namespace CleanestHud.HudChanges
         {
             // panel usually doesn't appear on the first frame
             yield return null;
-            Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
+            Transform mainUIArea = MyHud.mainUIPanel.transform;
             Transform crosshairExtras = mainUIArea.Find("CrosshairCanvas").Find("CrosshairExtras");
             Transform simulacrumWavePopUp;
             while (!TryGetSimulacrumWavePopUpTransform(crosshairExtras, out simulacrumWavePopUp))
@@ -765,7 +749,7 @@ namespace CleanestHud.HudChanges
 
         internal static IEnumerator DelayRemoveTimeUntilNextWaveBackground()
         {
-            Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
+            Transform mainUIArea = MyHud.mainUIPanel.transform;
             Transform crosshairExtras = mainUIArea.Find("CrosshairCanvas").Find("CrosshairExtras");
             while (!crosshairExtras.Find("InfiniteTowerNextWaveUI(Clone)"))
             {
@@ -788,6 +772,7 @@ namespace CleanestHud.HudChanges
         }
 
 
+
         internal static void SetAllyCardBackgroundsStatus()
         {
             Transform leftCluster = ImportantHudTransforms.SpringCanvas.Find("LeftCluster");
@@ -798,7 +783,7 @@ namespace CleanestHud.HudChanges
                 Image background = allyCard.GetComponent<Image>();
                 background.enabled = ConfigOptions.AllowAllyCardBackgrounds.Value;
                 // portrait edits get reset after enabling/disabling the background
-                Main.MyHud.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
+                MyHud.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
             }
         }
         internal static IEnumerator DelayEditAllyCardPortrait(Transform portrait)
@@ -813,6 +798,7 @@ namespace CleanestHud.HudChanges
         }
 
 
+
         internal static void SetScoreboardLabelsActiveOrNot(Transform scoreboardPanel)
         {
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
@@ -823,13 +809,46 @@ namespace CleanestHud.HudChanges
 
         internal static void SetSkillOutlinesStatus()
         {
-            foreach (var skillIcon in Main.MyHud.skillIcons)
+            foreach (var skillIcon in MyHud.skillIcons)
             {
                 Transform isReadyPanel = skillIcon.transform.GetChild(0);
                 Image iconOutline = isReadyPanel.GetComponent<Image>();
                 iconOutline.enabled = ConfigOptions.ShowSkillAndEquipmentOutlines.Value;
             }
-            // TODO trying to edit equipment icons here is really fucky here for some reason. might be fixable but idk
+        }
+
+
+
+        internal static IEnumerator DelayRemoveMonstersItemsPanelDetails()
+        {
+            yield return null;
+            RemoveMonstersItemsPanelDetails();
+        }
+        private static void RemoveMonstersItemsPanelDetails()
+        {
+            Transform enemyInfoPanel = ImportantHudTransforms.RunInfoHudPanel.Find("RightInfoBar").Find("EnemyInfoPanel(Clone)");
+            if (enemyInfoPanel == null)
+            {
+                return;
+            }
+
+
+            Image enemyInfoPanelImage = enemyInfoPanel.GetComponent<Image>();
+            enemyInfoPanelImage.enabled = false;
+
+            Transform innerFrame = enemyInfoPanel.transform.Find("InnerFrame");
+            Image innerFrameImage = innerFrame.GetComponent<Image>();
+            innerFrameImage.enabled = false;
+
+            Transform monsterBodiesContainer = innerFrame.Find("MonsterBodiesContainer");
+            Transform monsterBodyIconContainer = monsterBodiesContainer.Find("MonsterBodyIconContainer");
+            Image monsterBodyIconContainerImage = monsterBodyIconContainer.GetComponent<Image>();
+            monsterBodyIconContainerImage.enabled = false;
+
+            Transform inventoryContainer = innerFrame.Find("InventoryContainer");
+            Transform inventoryDisplay = inventoryContainer.Find("InventoryDisplay");
+            Image inventoryDisplayImage = inventoryDisplay.GetComponent<Image>();
+            inventoryDisplayImage.enabled = false;
         }
     }
 }

@@ -37,11 +37,8 @@ namespace CleanestHud.HudChanges
             // LevelDisplayCluster sometimes doesn't exist even though IsHudFinishedLoading is true???????
             // it works when CameraModeBase_OnTargetChanged goes off though so as long as we can catch it and handle it we're fine
 
-            Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
-            Transform springCanvas = mainUIArea.Find("SpringCanvas");
             // BarRoots is at BottomLeftCluster before ChangeRestOfHud changes it to BottomCenterCluster
-            Transform bottomCenterCluster = springCanvas.Find("BottomCenterCluster");
-            Transform barRoots = bottomCenterCluster.Find("BarRoots");
+            Transform barRoots = Main.MyHudLocator.FindChild("BottomCenterCluster").Find("BarRoots");
             Transform levelDisplayCluster;
             try
             {

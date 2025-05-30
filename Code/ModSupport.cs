@@ -202,8 +202,6 @@ namespace CleanestHud
                             return;
                         }
                         Transform injectorSlotDisplayRoot = ss2EquipmentIconHolder.icons[i].displayRoot.transform;
-                        RectTransform injectorSlotDisplayRootRect = injectorSlotDisplayRoot.GetComponent<RectTransform>();
-                        RectTransform injectorSlotRect = ss2EquipmentIconHolder.icons[i].GetComponent<RectTransform>();
 
                         // base position is moved enough away from mul-t's other equipment slot
                         // the position is also manually set because the postition & localposition change at some point while loading for no reason
@@ -234,7 +232,7 @@ namespace CleanestHud
                         Transform injectorSlotIsReadyPanel = injectorSlotDisplayRoot.GetChild(0);
                         injectorSlotIsReadyPanel.gameObject.SetActive(false);
                         // we can still use it to check if we've scaled the slot already or not
-                        Vector3 alreadyScaled = new Vector3(1.1f, 1.1f, 1.1f);
+                        Vector3 alreadyScaled = new(1.1f, 1.1f, 1.1f);
                         if (injectorSlotIsReadyPanel.localScale != alreadyScaled)
                         {
                             HudChanges.HudStructure.ScaleEquipmentSlot(injectorSlotDisplayRoot, 1.1f);

@@ -9,6 +9,8 @@ using Mono.Cecil.Cil;
 using RoR2;
 using RoR2.UI;
 using System.Linq;
+using CleanestHud.HudChanges;
+using static CleanestHud.HudResources;
 
 
 namespace CleanestHud
@@ -16,6 +18,7 @@ namespace CleanestHud
     internal static class Main
     {
         internal static HUD MyHud = null;
+        internal static ChildLocator MyHudLocator = null;
         internal static bool IsHudFinishedLoading = false;
         internal static bool IsHudUserBlacklisted = false;
         internal static bool IsColorChangeCoroutineWaiting = false;
@@ -23,7 +26,7 @@ namespace CleanestHud
         {
             get
             {
-                return IsHudFinishedLoading && !IsHudUserBlacklisted;
+                return IsHudFinishedLoading && !IsHudUserBlacklisted && MyHudLocator != null;
             }
         }
         internal static CharacterBody HudTargetBody
@@ -64,6 +67,8 @@ namespace CleanestHud
         }
         internal static List<Color> LastKnownScoreboardBodyColors = [];
 
+
+
         internal static class OnHooks
         {
             #region Important hooks
@@ -72,12 +77,13 @@ namespace CleanestHud
                 orig(hud);
                 Log.Debug("HUD_Awake");
                 MyHud = hud;
-
-                HudResources.ImportantHudTransforms.FindHudTransforms();
+                MyHudLocator = MyHud.GetComponent<ChildLocator>();
+                HudStructure.AssetEdits.EditHudElementPrefabs();
+                ImportantHudTransforms.FindImportantHudTransforms();
 
                 // for SOME reason the hp bar's sub bars don't exist on AWAKE????
                 // so we need to wait and keep checking until they do exist, THEN and ONLY THEN can we safely do all our hud changes
-                Transform hpBarShrunkenRoot = MyHud.mainUIPanel.transform.Find("SpringCanvas").Find("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").Find("ShrunkenRoot");
+                Transform hpBarShrunkenRoot = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").Find("ShrunkenRoot");
                 MyHud.StartCoroutine(WaitForHpBarToFinishLoading(hpBarShrunkenRoot));
             }
             private static IEnumerator WaitForHpBarToFinishLoading(Transform hpBarShrunkenRoot)
@@ -103,14 +109,13 @@ namespace CleanestHud
                     return;
                 }
 
-                HudChanges.HudStructure.EditHudStructure();
-                HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
-                HudChanges.HudDetails.EditHudDetails();
+                HudStructure.EditHudStructure();
+                HudStructure.RepositionHudElementsBasedOnWidth();
+                HudDetails.EditHudDetails();
                 if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
                 {
-                    HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
+                    HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }
-
             }
             internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
             {
@@ -118,7 +123,7 @@ namespace CleanestHud
                 IsHudFinishedLoading = false;
                 IsHudUserBlacklisted = false;
                 IsColorChangeCoroutineWaiting = false;
-                HudChanges.HudColor.SurvivorColor = Color.clear;
+                HudColor.SurvivorColor = Color.clear;
             }
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
             {
@@ -148,11 +153,12 @@ namespace CleanestHud
                     Log.Error("targetCharacterBody WAS NULL IN OnCameraChange PART 1! NO HUD CHANGES WILL OCCUR!");
                     yield break;
                 }
+                HudStructure.MoveSpectatorLabel();
 
                 // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
                 // so we're gonna set the color like normal then wait a tiny bit then get the color again
                 // not noticeable in singleplayer and not really noticeable in multiplayer since everything is fading in while this happens
-                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudColor.DefaultSurvivorColorMultiplier, HudColor.DefaultSurvivorColorMultiplier);
                 if (IsColorChangeCoroutineWaiting)
                 {
                     yield break;
@@ -166,11 +172,12 @@ namespace CleanestHud
                 }
                 Log.Debug($"cameraRigController.targetBody after dumbass delay is {cameraRigController.targetBody.baseNameToken}");
                 EditSurvivorSpecificUI(cameraRigController.targetBody);
-                HudChanges.HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudChanges.HudColor.DefaultSurvivorColorMultiplier, HudChanges.HudColor.DefaultSurvivorColorMultiplier);
+                HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudColor.DefaultSurvivorColorMultiplier, HudColor.DefaultSurvivorColorMultiplier);
                 IsColorChangeCoroutineWaiting = false;
             }
             private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
             {
+                Log.Debug($"targetCharacterBody.baseNameToken is {targetCharacterBody.baseNameToken}");
                 if (!IsHudEditable)
                 {
                     Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
@@ -179,10 +186,10 @@ namespace CleanestHud
                 switch (targetCharacterBody.baseNameToken)
                 {
                     case "VOIDSURVIVOR_BODY_NAME":
-                        HudChanges.SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
+                        SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
                         break;
                     case "SEEKER_BODY_NAME":
-                        HudChanges.SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
+                        SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
                         break;
                 }
             }
@@ -196,9 +203,10 @@ namespace CleanestHud
                 if (self.name == "resolution")
                 {
                     // try as we might, this doesn't really work
-                    HudChanges.HudStructure.RepositionHudElementsBasedOnWidth();
+                    HudStructure.RepositionHudElementsBasedOnWidth();
                 }
             }
+
 
             // removes the slight transparent background image from each ally on the list on the left
             internal static void AllyCardController_Awake(On.RoR2.UI.AllyCardController.orig_Awake orig, AllyCardController self)
@@ -211,7 +219,7 @@ namespace CleanestHud
 
                 // icons go out of the background when there's not a lot of allies so they need to be changed a lil bit
                 Transform portrait = self.transform.GetChild(0);
-                MyHud.StartCoroutine(HudChanges.HudDetails.DelayEditAllyCardPortrait(portrait));
+                MyHud.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
 
                 if (!ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
@@ -219,6 +227,7 @@ namespace CleanestHud
                     background.enabled = false;
                 }
             }
+
 
             internal static void AllyCardController_UpdateInfo(On.RoR2.UI.AllyCardController.orig_UpdateInfo orig, AllyCardController self)
             {
@@ -230,9 +239,10 @@ namespace CleanestHud
 
                 if (ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
-                    HudChanges.HudColor.ColorAllyCardControllerBackground(self);
+                    HudColor.ColorAllyCardControllerBackground(self);
                 }
             }
+
 
             internal static void HealthBar_InitializeHealthBar(On.RoR2.UI.HealthBar.orig_InitializeHealthBar orig, HealthBar self)
             {
@@ -266,9 +276,16 @@ namespace CleanestHud
                 {
                     Log.Error("Couldn't find \"Slash\" on the HP bar! Another mod may have already disabled/removed it. This means the improved HP bar text will not be shown, and no text will be shown if \"managedSpriteHP\" was successfully set to inactive. Report this on github!");
                 }
+                // sometimes an extra sub bar gets perma enabled??? it makes the healthbar a very light green and i don't want that
+                Image badHpBarImage = HudResources.ImportantHudTransforms.BarRoots.Find("HealthbarRoot").GetChild(2).GetComponent<Image>();
+                if (badHpBarImage)
+                {
+                    badHpBarImage.enabled = false;
+                }
 
                 orig(self);
             }
+
 
             // even though it's OnEnable, it's called every time a wave starts, not just the first wave of a map
             internal static void InfiniteTowerWaveProgressBar_OnEnable(On.RoR2.UI.InfiniteTowerWaveProgressBar.orig_OnEnable orig, InfiniteTowerWaveProgressBar simulacrumTowerWaveProgressBar)
@@ -281,9 +298,10 @@ namespace CleanestHud
 
                 // i would make a HudDetails method for this but it's literally one line
                 simulacrumTowerWaveProgressBar.barImage.sprite = HudResources.HudAssets.WhiteSprite;
-                HudChanges.HudColor.ColorSimulacrumWaveProgressBar(simulacrumTowerWaveProgressBar.barImage.transform.parent);
-                HudChanges.HudDetails.SetSimulacrumWaveBarAnimatorStatus();
+                HudColor.ColorSimulacrumWaveProgressBar(simulacrumTowerWaveProgressBar.barImage.transform.parent);
+                HudDetails.SetSimulacrumWaveBarAnimatorStatus();
             }
+
 
             internal static void NotificationUIController_SetUpNotification(On.RoR2.UI.NotificationUIController.orig_SetUpNotification orig, NotificationUIController self, CharacterMasterNotificationQueue.NotificationInfo notificationInfo)
             {
@@ -293,8 +311,9 @@ namespace CleanestHud
                     return;
                 }
 
-                MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveNotificationBackground());
+                MyHud.StartCoroutine(HudDetails.DelayRemoveNotificationBackground());
             }
+
 
             internal static void ScoreboardController_Rebuild(On.RoR2.UI.ScoreboardController.orig_Rebuild orig, ScoreboardController scoreboardController)
             {
@@ -304,9 +323,10 @@ namespace CleanestHud
                     return;
                 }
 
-                HudChanges.HudStructure.AssetEdits.EditScoreboardStripAsset();
-                HudChanges.HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardController.transform);
+                //asset edit was here???
+                HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardController.transform);
                 orig(scoreboardController);
+                //SetupSuppressedItemsStripEditor(scoreboardController);
                 MyHud.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
             }
             private static IEnumerator DelayScoreboardController_Rebuild(ScoreboardController scoreboardController)
@@ -314,32 +334,39 @@ namespace CleanestHud
                 // wait a frame first to make scoreboard strips added by other mods work
                 yield return null;
                 EditScoreboardStripsIfApplicable(scoreboardController);
+                //yield return new WaitForSeconds(1);
+                //HudDetails.EditSuppressedItemsStrip();
+                SetupSuppressedItemsStripEditor(scoreboardController);
             }
             private static void EditScoreboardStripsIfApplicable(ScoreboardController scoreboardController)
             {
                 foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
                 {
                     Transform scoreboardStripTransform = scoreboardStrip.transform;
-                    if (scoreboardStrip.userBody == null)
-                    {
-                        Log.Debug("scoreboard strip had a null body, returning");
-                        return;
-                    }
 
                     if (scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth != 58)
                     {
-                        HudChanges.HudStructure.EditScoreboardStrip(scoreboardStrip);
+                        HudStructure.EditScoreboardStrip(scoreboardStrip);
                     }
 
-                    // i don't like that i have to GetComponent on every scoreboard strip but i don't think i have a choice
                     Transform longBackground = scoreboardStripTransform.GetChild(0);
                     Image longBackgroundImage = longBackground.GetComponent<Image>();
-                    if (!Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, scoreboardStrip.userBody.bodyColor))
+                    if (scoreboardStrip.userBody != null && !Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, scoreboardStrip.userBody.bodyColor))
                     {
-                        HudChanges.HudColor.ColorAllOfScoreboardStrip(scoreboardStrip);
+                        HudColor.ColorAllOfScoreboardStrip(scoreboardStrip, scoreboardStrip.userBody.bodyColor);
                     }
                 }
             }
+            private static void SetupSuppressedItemsStripEditor(ScoreboardController scoreboardController)
+            {
+                Transform container = scoreboardController.transform.GetChild(0);
+                Transform suppressedItems = container.GetChild(3);
+                if (!suppressedItems.gameObject.TryGetComponent<HudEditorComponents.SuppressedItemsStripEditor>(out _))
+                {
+                    suppressedItems.gameObject.AddComponent<HudEditorComponents.SuppressedItemsStripEditor>();
+                }
+            }
+
 
             internal static void ScoreboardController_SelectFirstScoreboardStrip(On.RoR2.UI.ScoreboardController.orig_SelectFirstScoreboardStrip orig, ScoreboardController self)
             {
@@ -353,6 +380,7 @@ namespace CleanestHud
                 }
                 return;
             }
+
 
             internal static void DifficultyBarController_OnCurrentSegmentIndexChanged(On.RoR2.UI.DifficultyBarController.orig_OnCurrentSegmentIndexChanged orig, DifficultyBarController self, int newSegmentIndex)
             {
@@ -368,9 +396,10 @@ namespace CleanestHud
 
                 if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
                 {
-                    HudChanges.HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
+                    HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }
             }
+
 
             internal static void VoidSurvivorController_OnOverlayInstanceAdded(On.RoR2.VoidSurvivorController.orig_OnOverlayInstanceAdded orig, VoidSurvivorController self, RoR2.HudOverlay.OverlayController controller, GameObject instance)
             {
@@ -384,6 +413,7 @@ namespace CleanestHud
                 self.overlayInstanceAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
             }
 
+
             internal static void Meditate_SetupInputUIIcons(On.EntityStates.Seeker.Meditate.orig_SetupInputUIIcons orig, EntityStates.Seeker.Meditate self)
             {
                 orig(self);
@@ -392,9 +422,11 @@ namespace CleanestHud
                     return;
                 }
 
-                HudChanges.SurvivorSpecific.Seeker.RepositionSeekerMeditationUI();
+                SurvivorSpecific.Seeker.RepositionSeekerMeditationUI();
             }
         }
+
+
 
         internal static class ILHooks
         {
@@ -502,7 +534,7 @@ namespace CleanestHud
                         // doing this doesn't actually cause that much lag and only happens for whatever icons are added/updated
                         // it also makes future mass glowimage coloring super good on performance
                         itemIcon.glowImage = itemIcon.transform.GetChild(1).GetComponent<RawImage>();
-                        HudChanges.HudColor.ColorSingleItemIconHighlight(itemIcon);
+                        HudColor.ColorSingleItemIconHighlight(itemIcon);
                     });
                 }
                 catch (Exception e)
@@ -560,6 +592,8 @@ namespace CleanestHud
             }
         }
 
+
+
         internal static class Events
         {
             internal static void InfiniteTowerRun_onWaveInitialized(InfiniteTowerWaveController obj)
@@ -569,17 +603,28 @@ namespace CleanestHud
                     return;
                 }
 
-                MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveSimulacrumWavePopUpPanelDetails());
-                MyHud.StartCoroutine(HudChanges.HudDetails.DelayRemoveTimeUntilNextWaveBackground());
+                MyHud.StartCoroutine(HudDetails.DelayRemoveSimulacrumWavePopUpPanelDetails());
+                MyHud.StartCoroutine(HudDetails.DelayRemoveTimeUntilNextWaveBackground());
             }
 
             internal static void Run_onRunStartGlobal(Run obj)
             {
                 // why doesn't the color reset when clicking the restart button from that one mod
                 // just reset fuck
-                HudChanges.HudColor.SurvivorColor = Color.clear;
+                HudColor.SurvivorColor = Color.clear;
+            }
+
+            // idk what's with the jetbrains stuff here but that's what it autocompleted with so whatever
+            internal static void RunArtifactManager_onArtifactEnabledGlobal([JetBrains.Annotations.NotNull] RunArtifactManager runArtifactManager, [JetBrains.Annotations.NotNull] ArtifactDef artifactDef)
+            {
+                if (artifactDef.cachedName == "MonsterTeamGainsItems" && runArtifactManager.IsArtifactEnabled(artifactDef) && IsHudEditable)
+                {
+                    MyHud.StartCoroutine(HudDetails.DelayRemoveMonstersItemsPanelDetails());
+                }
             }
         }
+
+
 
         internal static class Helpers
         {

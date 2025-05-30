@@ -7,6 +7,7 @@ namespace CleanestHud
 {
     [NetworkCompatibility(CompatibilityLevel.NoNeedForSync, VersionStrictness.DifferentModVersionsAreOk)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [BepInDependency(MiscFixes.MiscFixesPlugin.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(LookingGlass.PluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(SS2.SS2Main.GUID, BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
@@ -25,7 +26,6 @@ namespace CleanestHud
             ConfigOptions.BindConfigOptions(Config);
             // prefab changes need to happen very early because when the hud is fully initialized the prefab may have already been spawned and then it can't be edited that way
             HudResources.HudAssets.LoadHudAssets();
-            //HudChanges.HudStructure.AssetEdits.EditHudElementPrefabs();
             HudChanges.HudDetails.AssetEdits.EditHudElementPrefabDetails();
 
 
@@ -52,6 +52,7 @@ namespace CleanestHud
 
             InfiniteTowerRun.onWaveInitialized += Main.Events.InfiniteTowerRun_onWaveInitialized;
             Run.onRunStartGlobal += Main.Events.Run_onRunStartGlobal;
+            RunArtifactManager.onArtifactEnabledGlobal += Main.Events.RunArtifactManager_onArtifactEnabledGlobal;
 
             if (ModSupport.Starstorm2.ModIsRunning)
             {

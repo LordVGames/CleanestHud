@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using RoR2.UI;
 using System.Runtime.CompilerServices;
 using static CleanestHud.HudResources;
+using UnityEngine.UI;
 
 namespace CleanestHud
 {
@@ -139,10 +140,21 @@ namespace CleanestHud
                 return;
             }
 
-            ScoreboardController scoreboardController = HudResources.ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel").GetComponent<ScoreboardController>();
+            ScoreboardController scoreboardController = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel").GetComponent<ScoreboardController>();
             for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
             {
-                Main.MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i]));
+                Color colorToUse;
+                if (scoreboardController.stripAllocator.elements[i].userBody == null)
+                {
+                    Color longBackgroundColor = scoreboardController.stripAllocator.elements[i].transform.GetChild(0).GetComponent<Image>().color;
+                    longBackgroundColor.a = 1;
+                    colorToUse = longBackgroundColor;
+                }
+                else
+                {
+                    colorToUse = scoreboardController.stripAllocator.elements[i].userBody.bodyColor;
+                }
+                Main.MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i], colorToUse));
             }
         }
 
@@ -286,7 +298,7 @@ namespace CleanestHud
                 "HUD Settings",
                 "Allow auto highlight when opening the inventory menu",
                 false,
-                "Should the automatic highlight for the first person in TAB inventories list be Allowd?"
+                "Should the automatic highlight for the first person in TAB inventories list be allowed?\n\nNOTE: Disabling this and hovering over something will cause movement to stop working!"
             );
             AllowConsistentDifficultyBarColor = config.Bind<bool>(
                 "HUD Settings",

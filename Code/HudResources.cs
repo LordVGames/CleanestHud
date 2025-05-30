@@ -26,9 +26,6 @@ namespace CleanestHud
             internal static GameObject ChatBox;
             internal static GameObject ItemIconPrefab;
 
-            // this is set later
-            internal static Sprite LastDifficultySegmentSprite;
-
             internal static void LoadHudAssets()
             {
                 Texture2D texWhite = Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Common/texWhite.png").WaitForCompletion();
@@ -53,7 +50,6 @@ namespace CleanestHud
         {
             internal static Transform MainUIArea = null;
             internal static Transform MainContainer = null;
-            internal static Transform UpperRightCluster = null;
 
             // in simulacrum the RunInfoHudPanel is InfiniteTowerUI(Clone)
             // in normal runs it's ClassicRunInfoHudPanel(Clone)
@@ -63,7 +59,6 @@ namespace CleanestHud
             internal static Transform SpringCanvas = null;
             internal static Transform TopCenterCluster = null;
             internal static Transform BottomLeftCluster = null;
-            internal static Transform BottomCenterCluster = null;
             internal static Transform BottomRightCluster = null;
             internal static Transform RightCluster = null;
 
@@ -85,19 +80,17 @@ namespace CleanestHud
                     return inspectPanel.GetChild(0);
                 }
             }
-            internal static void FindHudTransforms()
+            internal static void FindImportantHudTransforms()
             {
                 MainUIArea = Main.MyHud.mainUIPanel.transform;
                 MainContainer = Main.MyHud.mainContainer.transform;
-                UpperRightCluster = Main.MyHud.gameModeUiRoot.transform;
 
-                RunInfoHudPanel = UpperRightCluster.GetChild(0);
+                RunInfoHudPanel = Main.MyHudLocator.FindChild("UpperRightCluster").GetChild(0);
                 RightInfoBar = RunInfoHudPanel.Find("RightInfoBar");
 
                 SpringCanvas = MainUIArea.Find("SpringCanvas");
                 TopCenterCluster = SpringCanvas.Find("TopCenterCluster");
                 BottomLeftCluster = SpringCanvas.Find("BottomLeftCluster");
-                BottomCenterCluster = SpringCanvas.Find("BottomCenterCluster");
                 BottomRightCluster = SpringCanvas.Find("BottomRightCluster");
                 RightCluster = SpringCanvas.Find("RightCluster");
 

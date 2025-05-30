@@ -7,6 +7,16 @@ Fixed consistent difficulty bar coloring not working
 
 Fixed Seeker's lotus being slightly off center
 
+Fixed scoreboard/inventory strips for dead players & every player below them not being styled
+- Part of support for [RestoreScoreboard](https://thunderstore.io/c/riskofrain2/p/itsschwer/RestoreScoreboard/)
+
+Added a note about not being able to move when hovering over something in the TAB menu if the inventory auto highlight option is disabled
+
+Fixed the panel showing monsters' items having it's background removed when playing as a character that was set as blacklisted from the hud
+
+Fixed the suppressed items panel not being styled correctly
+- It still jitters a bit if you click on an item but I don't know of anything I can do about that
+
 Mod now depends on [MiscFixes](https://thunderstore.io/package/score/MiscFixes/) because it makes more sections of the HUD easy to navigate to
 
 ## 0.11.6

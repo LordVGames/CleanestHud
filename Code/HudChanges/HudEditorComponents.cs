@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RoR2.UI;
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
@@ -163,11 +164,11 @@ namespace CleanestHud.HudChanges
             public void Update()
             {
                 // make background image invisible instead of disabling to allow game's automatic ui scaling to happen
-                if (itemsBackgroundImage.color.a != 0)
+                if (itemsBackgroundImage != null && itemsBackgroundImage.color.a != 0)
                 {
                     itemsBackgroundImage.color = Color.clear;
                 }
-                if (itemsBackgroundRect.localPosition.x != 0)
+                if (itemsBackgroundRect != null && itemsBackgroundRect.localPosition.x != 0)
                 {
                     itemsBackgroundRect.localPosition = ItemsBackgroundRect_LocalPosition;
                 }
@@ -231,6 +232,30 @@ namespace CleanestHud.HudChanges
             public void LateUpdate()
             {
                 fillBar.color = newFillBarColor;
+            }
+        }
+
+        public class SuppressedItemsStripEditor : MonoBehaviour
+        {
+            private RectTransform lastScoreboardStripRect;
+            private RectTransform suppressedItemsStripRect;
+            public Vector3 newLocalPos;
+
+            public void Start()
+            {
+                suppressedItemsStripRect = GetComponent<RectTransform>();
+                lastScoreboardStripRect = Main.MyHudLocator.FindChild("ScoreboardPanel").GetComponent<ScoreboardController>().stripAllocator.elements[^1].gameObject.GetComponent<RectTransform>();
+                newLocalPos = new Vector3(
+                    lastScoreboardStripRect.localPosition.x - (lastScoreboardStripRect.sizeDelta.x / 2),
+                    lastScoreboardStripRect.localPosition.y - (lastScoreboardStripRect.sizeDelta.y * 2.5f),
+                    suppressedItemsStripRect.localPosition.z
+                );
+            }
+
+            public void Update()
+            {
+                // trying to change sizedelta at all doesn't work and prevents other edits from working because ???????
+                suppressedItemsStripRect.localPosition = newLocalPos;
             }
         }
     }

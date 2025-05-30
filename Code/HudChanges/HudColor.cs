@@ -19,18 +19,18 @@ namespace CleanestHud.HudChanges
             set
             {
                 Log.Debug("SurvivorColor has changed!");
-                Log.Debug($"New color will be {value}");
+                Log.Debug($"New newColor will be {value}");
                 Log.Debug($"_survivorColor is {_survivorColor}");
                 // i hate this
                 if (MyHud && MyHud.skillIcons.Length > 0)
                 {
                     if (MyHud.skillIcons[0].isReadyPanelObject.GetComponent<Image>().color == value)
                     {
-                        Log.Debug("HUD is already using the new color, returning.");
+                        Log.Debug("HUD is already using the new newColor, returning.");
                     }
                     else
                     {
-                        Log.Debug("HUD is not using the new color yet!");
+                        Log.Debug("HUD is not using the new newColor yet!");
                         _survivorColor = value;
                         UpdateHudColor();
                     }
@@ -162,13 +162,11 @@ namespace CleanestHud.HudChanges
             Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
             Transform scrollView = difficultyBar.Find("Scroll View");
             Transform backdrop = scrollView.Find("Backdrop");
-            Transform viewport = scrollView.Find("Viewport");
-            Transform content = viewport.Find("Content");
 
             Color[] difficultyBarSegmentColors = [];
             if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
             {
-                difficultyBarSegmentColors = Enumerable.Repeat(SurvivorColor, 9).ToArray();
+                difficultyBarSegmentColors = [.. Enumerable.Repeat(SurvivorColor, 9)];
             }
             else
             {
@@ -187,7 +185,7 @@ namespace CleanestHud.HudChanges
             }
 
             DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
-            // this changes the color flash when the next difficulty BackgroundImage is reached
+            // this changes the newColor flash when the next difficulty BackgroundImage is reached
             for (int i = 0; i < difficultyBarController.segmentDefs.Length; i++)
             {
                 difficultyBarController.segmentDefs[i].color = difficultyBarSegmentColors[i];
@@ -234,64 +232,6 @@ namespace CleanestHud.HudChanges
 
 
 
-        internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip)
-        {
-            // scoreboard strips don't have their icons immediately, so we wait a frame
-            yield return null;
-            ColorItemIconGlowImages(scoreboardStrip);
-        }
-        internal static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip)
-        {
-            Color colorToUse;
-            if (ConfigOptions.AllowScoreboardItemHighlightColoring.Value)
-            {
-                colorToUse = scoreboardStrip.userBody.bodyColor;
-            }
-            else
-            {
-                // not exactly the original color after being applied but it's close enough
-                colorToUse = new Color(1, 0.8353f, 0.1934f);
-            }
-
-            foreach (ItemIcon itemIcon in scoreboardStrip.itemInventoryDisplay.itemIcons)
-            {
-                itemIcon.glowImage.color = colorToUse;
-            }
-        }
-        internal static void ColorEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip)
-        {
-            Transform navFocusHighlight = scoreboardStrip.equipmentIcon.transform.GetChild(1);
-            RawImage navFocusHighlightRawImage = navFocusHighlight.GetComponent<RawImage>();
-            navFocusHighlightRawImage.color = scoreboardStrip.userBody.bodyColor;
-        }
-        internal static void ColorSingleItemIconHighlight(ItemIcon itemIcon)
-        {
-            if (itemIcon == null || itemIcon.glowImage == null)
-            {
-                Log.Debug("Item icon or it's image was null, not coloring it.");
-                return;
-            }
-            // itemicon transform > itemsbackground > longbackground > scoreboardstrip > scoreboardstrip component
-            // yes it looks stupid but i need to make this as efficient as possible to help performance at high item counts
-            // a getcomponent hurts but i don't think i can do it otherwise
-            // at least this only happens when a single icon is created/updated
-            ScoreboardStrip scoreboardStrip = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>();
-            if (scoreboardStrip == null)
-            {
-                Log.Debug("ScoreboardStrip was null??? returning");
-                return;
-            }
-            if (scoreboardStrip.userBody == null)
-            {
-                Log.Debug("ScoreboardStrip's userBody was null?????????? returning");
-                return;
-            }
-
-            itemIcon.glowImage.color = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>().userBody.bodyColor;
-        }
-
-
-
         internal static void ColorAllyCardControllerBackground(AllyCardController allyCardController)
         {
             if (!allyCardController || !allyCardController.cachedSourceCharacterBody)
@@ -319,34 +259,92 @@ namespace CleanestHud.HudChanges
 
 
 
-        internal static void ColorAllOfScoreboardStrip(ScoreboardStrip scoreboardStrip)
+        internal static void ColorAllOfScoreboardStrip(ScoreboardStrip scoreboardStrip, Color newColor)
         {
-            ColorScoreboardStrip(scoreboardStrip);
-            ColorItemIconGlowImages(scoreboardStrip);
+            ColorScoreboardStrip(scoreboardStrip, newColor);
+            ColorItemIconGlowImages(scoreboardStrip, newColor);
             HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
-            ColorEquipmentSlotHighlight(scoreboardStrip);
+            ColorEquipmentSlotHighlight(scoreboardStrip, newColor);
         }
-        private static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip)
+        private static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip, Color newColor)
         {
             Transform scoreboardStripTransform = scoreboardStrip.transform;
-            if (scoreboardStrip.userBody == null)
-            {
-                return;
-            }
-
             Transform longBackground = scoreboardStripTransform.GetChild(0);
             Image longBackgroundImage = longBackground.GetComponent<Image>();
-            Color normalPlayerColor = scoreboardStrip.userBody.bodyColor;
-            normalPlayerColor.a = 0.15f;
-            if (longBackgroundImage.color == normalPlayerColor)
+            newColor.a = 0.15f;
+            if (longBackgroundImage.color == newColor)
             {
+                Log.Debug("long background is already colored correctly, returning");
                 return;
             }
-            longBackgroundImage.color = normalPlayerColor;
 
+
+            longBackgroundImage.color = newColor;
             Color highlightColor = Main.Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
             RawImage scoreboardStripHighlightRawImage = scoreboardStripTransform.gameObject.GetComponent<RawImage>();
             scoreboardStripHighlightRawImage.color = highlightColor;
+        }
+        internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip, Color newColor)
+        {
+            // scoreboard strips don't have their icons immediately, so we wait a frame
+            yield return null;
+            ColorItemIconGlowImages(scoreboardStrip, newColor);
+        }
+        internal static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip, Color newColor)
+        {
+            Color colorToUse;
+            if (ConfigOptions.AllowScoreboardItemHighlightColoring.Value)
+            {
+                colorToUse = newColor;
+            }
+            else
+            {
+                // not exactly the original newColor after being applied but it's close enough
+                colorToUse = new Color(1, 0.8353f, 0.1934f);
+            }
+
+            foreach (ItemIcon itemIcon in scoreboardStrip.itemInventoryDisplay.itemIcons)
+            {
+                itemIcon.glowImage.color = colorToUse;
+            }
+        }
+        internal static void ColorEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip, Color newColor)
+        {
+            Transform navFocusHighlight = scoreboardStrip.equipmentIcon.transform.GetChild(1);
+            RawImage navFocusHighlightRawImage = navFocusHighlight.GetComponent<RawImage>();
+            navFocusHighlightRawImage.color = newColor;
+        }
+        internal static void ColorSingleItemIconHighlight(ItemIcon itemIcon)
+        {
+            if (itemIcon == null || itemIcon.glowImage == null)
+            {
+                Log.Debug("Item icon or it's image was null, not coloring it.");
+                return;
+            }
+            // itemicon transform > itemsbackground > longbackground > scoreboardstrip > scoreboardstrip component
+            // yes it looks stupid but i need to make this as efficient as possible to help performance at high item counts
+            // a getcomponent hurts but i don't think i can do it otherwise
+            // at least this only happens when a single icon is created/updated
+            ScoreboardStrip scoreboardStrip = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>();
+            if (scoreboardStrip == null)
+            {
+                Log.Debug("ScoreboardStrip was null??? returning");
+                return;
+            }
+
+            Color colorToUse;
+            if (scoreboardStrip.userBody == null)
+            {
+                Log.Debug("ScoreboardStrip's userBody was null, using existing color from longbackground");
+                Color longBackgroundColor = scoreboardStrip.transform.GetChild(0).GetComponent<Image>().color;
+                longBackgroundColor.a = 1; // restore original survivor body color
+                colorToUse = longBackgroundColor;
+            }
+            else
+            {
+                colorToUse = scoreboardStrip.userBody.bodyColor;
+            }
+            itemIcon.glowImage.color = colorToUse;
         }
     }
 }
