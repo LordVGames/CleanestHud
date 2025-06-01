@@ -25,6 +25,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="DriverMod">
+	    <HintPath>..\..\! Assemblies to reference\DriverMod-nstrip.dll</HintPath>
+	  </Reference>
 	  <Reference Include="LookingGlass">
 	    <HintPath>..\..\! Assemblies to reference\LookingGlass-nstrip.dll</HintPath>
 	  </Reference>

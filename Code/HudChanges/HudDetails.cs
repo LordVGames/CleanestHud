@@ -14,8 +14,12 @@ using static CleanestHud.HudChanges.HudEditorComponents;
 
 namespace CleanestHud.HudChanges
 {
-    internal class HudDetails
+    public class HudDetails
     {
+        public static event Action OnHudDetailEditsFinished;
+
+
+
         internal static class AssetEdits
         {
             internal static void EditHudElementPrefabDetails()
@@ -282,10 +286,7 @@ namespace CleanestHud.HudChanges
             RemoveSkillAndEquipmentReminderTextBackgrounds();
             RemoveInspectInteractionBakground();
             SetSkillOutlinesStatus();
-            if (ModSupport.LookingGlassMod.ModIsRunning && ModSupport.LookingGlassMod.StatsPanelConfigValue)
-            {
-                MyHud.StartCoroutine(ModSupport.LookingGlassMod.DelayRemoveLookingGlassStatsPanelBackground());
-            }
+            OnHudDetailEditsFinished?.Invoke();
         }
         private static void EditDifficultyHudDetails()
         {

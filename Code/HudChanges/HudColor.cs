@@ -8,10 +8,11 @@ using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using System.Linq;
+using System;
 
 namespace CleanestHud.HudChanges
 {
-    internal class HudColor
+    public class HudColor
     {
         public static Color SurvivorColor
         {
@@ -46,6 +47,8 @@ namespace CleanestHud.HudChanges
         public const float DefaultHudColorIntensity = 0.643f;
         public const float DefaultSurvivorColorMultiplier = 0.85f;
 
+        public static event Action OnHudColorEditsFinished;
+
         public static void UpdateHudColor()
         {
             Log.Debug("UpdateHudColor");
@@ -75,7 +78,7 @@ namespace CleanestHud.HudChanges
             ColorSkillAndEquipmentSlots();
             ColorCurrenciesPanel();
             ColorInspectionPanel(Helpers.GetContainerFromScoreboardPanel(ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel")));
-            return;
+            OnHudColorEditsFinished?.Invoke();
         }
         private static void ColorXpBar(Transform xpBarRoot)
         {
@@ -90,42 +93,21 @@ namespace CleanestHud.HudChanges
         }
         private static void ColorSkillAndEquipmentSlots()
         {
-            GameObject isReadyPanel1 = MyHud.skillIcons[0].isReadyPanelObject;
-            GameObject isReadyPanel2 = MyHud.skillIcons[1].isReadyPanelObject;
-            GameObject isReadyPanel3 = MyHud.skillIcons[2].isReadyPanelObject;
-            GameObject isReadyPanel4 = MyHud.skillIcons[3].isReadyPanelObject;
+            foreach (SkillIcon skillIcon in MyHud.skillIcons)
+            {
+                GameObject isReadyPanel = skillIcon.isReadyPanelObject;
+                Image isReadyPanelImage = isReadyPanel.GetComponent<Image>();
+                isReadyPanelImage.color = SurvivorColor;
+            }
+            foreach (EquipmentIcon equipmentIcon in MyHud.equipmentIcons)
+            {
+                Image equipmentIsReadyPanelImage = equipmentIcon.isReadyPanelObject.GetComponent<Image>();
+                equipmentIsReadyPanelImage.color = SurvivorColor;
 
-            EquipmentIcon equipment1 = MyHud.equipmentIcons[0];
-            Transform equipment1DisplayRoot = equipment1.displayRoot.transform;
-            Transform equipmentIsReadyPanel1 = equipment1DisplayRoot.Find("IsReadyPanel");
-            Transform equipment1BGPanel = equipment1DisplayRoot.Find("BGPanel");
-
-            EquipmentIcon equipment2 = MyHud.equipmentIcons[1];
-            Transform equipment2DisplayRoot = equipment2.displayRoot.transform;
-            Transform equipmentIsReadyPanel2 = equipment2DisplayRoot.Find("IsReadyPanel");
-            Transform equipment2BGPanel = equipment2DisplayRoot.Find("BGPanel");
-
-
-
-            Image isReadyPanelImage1 = isReadyPanel1.GetComponent<Image>();
-            isReadyPanelImage1.color = SurvivorColor;
-            Image isReadyPanelImage2 = isReadyPanel2.GetComponent<Image>();
-            isReadyPanelImage2.color = SurvivorColor;
-            Image isReadyPanelImage3 = isReadyPanel3.GetComponent<Image>();
-            isReadyPanelImage3.color = SurvivorColor;
-            Image isReadyPanelImage4 = isReadyPanel4.GetComponent<Image>();
-            isReadyPanelImage4.color = SurvivorColor;
-
-            Image equipmentIsReadyPanel1Image = equipmentIsReadyPanel1.GetComponent<Image>();
-            equipmentIsReadyPanel1Image.color = SurvivorColor;
-            Image equipment1BGPanelImage = equipment1BGPanel.GetComponent<Image>();
-            equipment1BGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
-
-            Image equipmentIsReadyPanel2Image = equipmentIsReadyPanel2.GetComponent<Image>();
-            equipmentIsReadyPanel2Image.color = SurvivorColor;
-            Image equipment2BGPanelImage = equipment2BGPanel.GetComponent<Image>();
-            equipment2BGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
-
+                Transform equipmentBGPanel = equipmentIcon.displayRoot.transform.Find("BGPanel");
+                Image equipmentBGPanelImage = equipmentBGPanel.GetComponent<Image>();
+                equipmentBGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
+            }
             if (ModSupport.Starstorm2.ModIsRunning)
             {
                 MyHud.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayColorInjectorSlots());

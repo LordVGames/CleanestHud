@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using RoR2.UI;
+using static CleanestHud.Main;
 using static CleanestHud.HudResources;
+using static CleanestHud.HudChanges.HudColor;
 
 namespace CleanestHud.HudChanges
 {

@@ -4,14 +4,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Object;
+using static CleanestHud.Main;
 using static CleanestHud.HudResources;
-using System.Collections.Generic;
 
 namespace CleanestHud.HudChanges
 {
-    internal class HudStructure
+    public class HudStructure
     {
-        internal const float SkillSlotSpacing = 105;
+        public const float SkillSlotSpacing = 105;
+        public static event Action OnHudStructureEditsFinished;
+
+
 
         internal static class AssetEdits
         {
@@ -40,9 +43,10 @@ namespace CleanestHud.HudChanges
         }
 
 
+
         internal static void EditHudStructure()
         {
-            if (Main.IsGameModeSimulacrum)
+            if (IsGameModeSimulacrum)
             {
                 // the wave panel along with a few other things are within the whole wave ui transform
                 EditSimulacrumDefaultWaveUI();
@@ -66,9 +70,7 @@ namespace CleanestHud.HudChanges
             EditNotificationArea();
             EditScoreboardPanel();
             RepositionSprintAndInventoryReminders();
-
-            CanvasGroup wholeHudCanvasGroup = Main.MyHud.GetComponent<CanvasGroup>() ?? Main.MyHud.gameObject.AddComponent<CanvasGroup>();
-            wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
+            OnHudStructureEditsFinished?.Invoke();
         }
         private static void EditSimulacrumDefaultWaveUI()
         {
@@ -144,13 +146,13 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("EditBarRoots", "BarRoots", "HudStructure");
                 return;
             }
-            if (!Main.MyHudLocator.FindChild("BottomCenterCluster"))
+            if (!MyHudLocator.FindChild("BottomCenterCluster"))
             {
                 Main.Helpers.LogMissingHudVariable("EditBarRoots", "BottomCenterCluster");
                 return;
             }
 
-            ImportantHudTransforms.BarRoots.SetParent(Main.MyHudLocator.FindChild("BottomCenterCluster"));
+            ImportantHudTransforms.BarRoots.SetParent(MyHudLocator.FindChild("BottomCenterCluster"));
             Destroy(ImportantHudTransforms.BarRoots.GetComponent<VerticalLayoutGroup>());
             RectTransform barRootsRect = ImportantHudTransforms.BarRoots.GetComponent<RectTransform>();
             barRootsRect.rotation = Quaternion.identity;
@@ -242,29 +244,29 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomRightCluster", "HudStructure");
                 return;
             }
-            if (!Main.MyHudLocator.FindChild("BottomCenterCluster"))
+            if (!MyHudLocator.FindChild("BottomCenterCluster"))
             {
                 Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomCenterCluster");
                 return;
             }
 
-            Transform spectatorLabel = Main.MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
+            Transform spectatorLabel = MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
             RectTransform spectatorLabelRect = spectatorLabel.GetComponent<RectTransform>();
             spectatorLabelRect.anchoredPosition = new Vector2(0f, 150f);
 
             GraphicRaycaster bottomRightGraphicRaycaster = ImportantHudTransforms.BottomRightCluster.GetComponent<GraphicRaycaster>();
-            GraphicRaycaster bottomCenterGraphicRaycaster = Main.MyHudLocator.FindChild("BottomCenterCluster").gameObject.AddComponent<GraphicRaycaster>();
+            GraphicRaycaster bottomCenterGraphicRaycaster = MyHudLocator.FindChild("BottomCenterCluster").gameObject.AddComponent<GraphicRaycaster>();
             bottomCenterGraphicRaycaster.blockingObjects = bottomRightGraphicRaycaster.blockingObjects;
             bottomCenterGraphicRaycaster.ignoreReversedGraphics = bottomRightGraphicRaycaster.ignoreReversedGraphics;
             bottomCenterGraphicRaycaster.useGUILayout = bottomRightGraphicRaycaster.useGUILayout;
         }
         private static void EditSkillSlots()
         {
-            // not doing normal for loop so i don't have "Main.MyHud.skillIcons[i]" everywhere
+            // not doing normal for loop so i don't have "MyHud.skillIcons[i]" everywhere
             Vector3 newSkillPosition = Vector3.zero;
             int i = 0;
-            Vector3 centerSkillIconLocalPosition = Main.MyHud.skillIcons[2].transform.localPosition;
-            foreach (SkillIcon skillIcon in Main.MyHud.skillIcons)
+            Vector3 centerSkillIconLocalPosition = MyHud.skillIcons[2].transform.localPosition;
+            foreach (SkillIcon skillIcon in MyHud.skillIcons)
             {
                 newSkillPosition = skillIcon.transform.localPosition;
                 switch(i)
@@ -316,7 +318,7 @@ namespace CleanestHud.HudChanges
         }
         private static void EditEquipmentSlots()
         {
-            for (int i = 0; i < Main.MyHud.equipmentIcons.Length; i++)
+            for (int i = 0; i < MyHud.equipmentIcons.Length; i++)
             {
                 Vector3 equipmentDisplayRootRectLocalPosition = Vector3.zero;
                 float equipmentSlotScaleFactor = 1;
@@ -335,7 +337,7 @@ namespace CleanestHud.HudChanges
 
 
 
-                EquipmentIcon equipment = Main.MyHud.equipmentIcons[i];
+                EquipmentIcon equipment = MyHud.equipmentIcons[i];
                 Transform equipmentDisplayRoot = equipment.displayRoot.transform;
 
                 RectTransform equipmentDisplayRootRect = equipmentDisplayRoot.GetComponent<RectTransform>();
@@ -360,7 +362,7 @@ namespace CleanestHud.HudChanges
             // which means we need to modify ALL composite injector equipment slots
             if (ModSupport.Starstorm2.ModIsRunning)
             {
-                Main.MyHud.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayEditInjectorSlots());
+                MyHud.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayEditInjectorSlots());
             }
         }
         // A tiny bit of scaling still happens even when the scaleFactor is just 1
@@ -380,7 +382,7 @@ namespace CleanestHud.HudChanges
         }
         internal static void RepositionSkillScaler()
         {
-            ImportantHudTransforms.SkillsScaler.SetParent(Main.MyHudLocator.FindChild("BottomCenterCluster"));
+            ImportantHudTransforms.SkillsScaler.SetParent(MyHudLocator.FindChild("BottomCenterCluster"));
 
             RectTransform scalerRect = ImportantHudTransforms.SkillsScaler.GetComponent<RectTransform>();
             scalerRect.rotation = Quaternion.identity;
@@ -391,7 +393,7 @@ namespace CleanestHud.HudChanges
         }
         private static void EditCurrenciesSection()
         {
-            Transform upperLeftCluster = Main.MyHud.moneyText.transform.parent;
+            Transform upperLeftCluster = MyHud.moneyText.transform.parent;
 
             Image upperLeftClusterImage = upperLeftCluster.GetComponent<Image>();
             upperLeftClusterImage.enabled = false;
@@ -401,12 +403,12 @@ namespace CleanestHud.HudChanges
 
 
 
-            // Main.MyHud.moneyText.transform is also moneyRoot
-            Transform valueText = Main.MyHud.moneyText.transform.Find("ValueText");
+            // MyHud.moneyText.transform is also moneyRoot
+            Transform valueText = MyHud.moneyText.transform.Find("ValueText");
             HGTextMeshProUGUI valueTextMesh = valueText.GetComponent<HGTextMeshProUGUI>();
             valueTextMesh.color = Color.white;
 
-            Transform dollarSign = Main.MyHud.moneyText.transform.Find("DollarSign");
+            Transform dollarSign = MyHud.moneyText.transform.Find("DollarSign");
             HGTextMeshProUGUI dollarSignMesh = dollarSign.GetComponent<HGTextMeshProUGUI>();
             dollarSignMesh.color = Color.white;
 
@@ -437,7 +439,7 @@ namespace CleanestHud.HudChanges
         }
         private static void EditItemInventoryDisplay()
         {
-            Transform itemInventoryDisplayRoot = Main.MyHud.itemInventoryDisplay.transform.parent;
+            Transform itemInventoryDisplayRoot = MyHud.itemInventoryDisplay.transform.parent;
             RectTransform itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
             // make it a lil smaller since it goes to the edges of the hud on ultrawide otherwise
             itemInventoryDisplayRootRect.sizeDelta = new Vector2(itemInventoryDisplayRootRect.sizeDelta.x * 0.75f, itemInventoryDisplayRootRect.sizeDelta.y);
@@ -603,11 +605,11 @@ namespace CleanestHud.HudChanges
 
         internal static void MoveSpectatorLabel()
         {
-            if (!Main.IsHudEditable)
+            if (!IsHudEditable)
             {
                 return;
             }
-            Transform spectatorLabel = Main.MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
+            Transform spectatorLabel = MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
             if (spectatorLabel == null)
             {
                 return;
@@ -620,12 +622,12 @@ namespace CleanestHud.HudChanges
 
         internal static void RepositionHudElementsBasedOnWidth()
         {
-            if (!Main.IsHudEditable)
+            if (!IsHudEditable)
             {
                 return;
             }
 
-            Transform itemInventoryDisplayRoot = Main.MyHud.itemInventoryDisplay.transform.parent;
+            Transform itemInventoryDisplayRoot = MyHud.itemInventoryDisplay.transform.parent;
             RectTransform itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
             itemInventoryDisplayRootRect.localPosition = new Vector3(
                 // 0 is always at the center of the whole screen, and the inventory's left edge is placed at 0
@@ -662,6 +664,18 @@ namespace CleanestHud.HudChanges
             );
 
             RepositionSprintAndInventoryReminders();
+        }
+
+
+
+        internal static void DestroyDriverWeaponSlot()
+        {
+            if (!IsHudEditable)
+            {
+                return;
+            }
+
+            Destroy(MyHud.equipmentIcons[0].gameObject.transform.parent.Find("WeaponSlot").gameObject);
         }
     }
 }

@@ -15,7 +15,7 @@ using static CleanestHud.HudResources;
 
 namespace CleanestHud
 {
-    internal static class Main
+    public static class Main
     {
         internal static HUD MyHud = null;
         internal static ChildLocator MyHudLocator = null;
@@ -29,6 +29,7 @@ namespace CleanestHud
                 return IsHudFinishedLoading && !IsHudUserBlacklisted && MyHudLocator != null;
             }
         }
+        internal static List<Color> LastKnownScoreboardBodyColors = [];
         internal static CharacterBody HudTargetBody
         {
             get
@@ -44,8 +45,8 @@ namespace CleanestHud
                 return MyHud.targetBodyObject.GetComponent<CharacterBody>();
             }
         }
-
-
+        internal static bool AllowDriverWeaponSlotCreation = false;
+        internal static bool IsCameraTargetDriver = false;
         internal static bool IsGameModeSimulacrum
         {
             get
@@ -65,7 +66,7 @@ namespace CleanestHud
                 return false;
             }
         }
-        internal static List<Color> LastKnownScoreboardBodyColors = [];
+        public static event Action OnAllHudEditsFinished;
 
 
 
@@ -98,6 +99,9 @@ namespace CleanestHud
             }
             private static void BeginLiveHudChanges()
             {
+                CanvasGroup wholeHudCanvasGroup = MyHud.GetComponent<CanvasGroup>() ?? MyHud.gameObject.AddComponent<CanvasGroup>();
+                wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
+
                 // storing HudTargetBody to prevent doing extra GetComponent calls from getting HudTargetBody
                 CharacterBody targetBody = HudTargetBody;
 
@@ -123,6 +127,8 @@ namespace CleanestHud
                 IsHudFinishedLoading = false;
                 IsHudUserBlacklisted = false;
                 IsColorChangeCoroutineWaiting = false;
+                AllowDriverWeaponSlotCreation = false;
+                IsCameraTargetDriver = false;
                 HudColor.SurvivorColor = Color.clear;
             }
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
@@ -154,6 +160,15 @@ namespace CleanestHud
                     yield break;
                 }
                 HudStructure.MoveSpectatorLabel();
+                if (cameraRigController.targetBody.baseNameToken == "ROB_DRIVER_BODY_NAME")
+                {
+                    IsCameraTargetDriver = true;
+                }
+                else
+                {
+                    IsCameraTargetDriver = false;
+                    HudStructure.DestroyDriverWeaponSlot();
+                }
 
                 // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
                 // so we're gonna set the color like normal then wait a tiny bit then get the color again
@@ -177,12 +192,14 @@ namespace CleanestHud
             }
             private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
             {
-                Log.Debug($"targetCharacterBody.baseNameToken is {targetCharacterBody.baseNameToken}");
                 if (!IsHudEditable)
                 {
                     Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
                     return;
                 }
+
+
+
                 switch (targetCharacterBody.baseNameToken)
                 {
                     case "VOIDSURVIVOR_BODY_NAME":
@@ -192,6 +209,7 @@ namespace CleanestHud
                         SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
                         break;
                 }
+                OnAllHudEditsFinished?.Invoke();
             }
             #endregion
 

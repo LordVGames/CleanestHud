@@ -2,6 +2,7 @@ using System;
 using BepInEx;
 using RoR2;
 using R2API.Utils;
+using HarmonyLib;
 
 namespace CleanestHud
 {
@@ -10,6 +11,7 @@ namespace CleanestHud
     [BepInDependency(MiscFixes.MiscFixesPlugin.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(LookingGlass.PluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(SS2.SS2Main.GUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(RobDriver.DriverPlugin.MODUID, BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static PluginInfo PluginInfo { get; private set; }
@@ -54,9 +56,17 @@ namespace CleanestHud
             Run.onRunStartGlobal += Main.Events.Run_onRunStartGlobal;
             RunArtifactManager.onArtifactEnabledGlobal += Main.Events.RunArtifactManager_onArtifactEnabledGlobal;
 
+            HudChanges.HudDetails.OnHudDetailEditsFinished += ModSupport.LookingGlassMod.OnHudDetailEditsFinished;
+            HudChanges.HudColor.OnHudColorEditsFinished += ModSupport.DriverMod.OnHudColorEditsFinished;
+
             if (ModSupport.Starstorm2.ModIsRunning)
             {
                 CharacterBody.onBodyInventoryChangedGlobal += ModSupport.Starstorm2.CharacterBody_onBodyInventoryChangedGlobal;
+            }
+            if (ModSupport.DriverMod.ModIsRunning)
+            {
+                Harmony harmony = new(PluginGUID);
+                harmony.CreateClassProcessor(typeof(ModSupport.DriverMod.HarmonyPatches)).Patch();
             }
         }
     }

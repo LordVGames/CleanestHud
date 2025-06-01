@@ -7,11 +7,14 @@ using BepInEx;
 using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
+using HarmonyLib;
 using RoR2;
+using RoR2.UI;
 using RiskOfOptions;
 using RiskOfOptions.Options;
 using RiskOfOptions.OptionConfigs;
 using SS2;
+using static CleanestHud.Main;
 
 namespace CleanestHud
 {
@@ -139,6 +142,108 @@ namespace CleanestHud
             }
         }
 
+        internal static class LookingGlassMod
+        {
+            private static bool? _modexists;
+            internal static bool ModIsRunning
+            {
+                get
+                {
+                    _modexists ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(LookingGlass.PluginInfo.PLUGIN_GUID);
+                    return (bool)_modexists;
+                }
+            }
+            internal static bool ItemCountersConfigValue
+            {
+                [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+                get
+                {
+                    if (ModIsRunning)
+                    {
+                        return LookingGlass.ItemCounters.ItemCounter.itemCounters.Value;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+
+
+            internal static bool StatsPanelConfigValue
+            {
+                [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+                get
+                {
+                    if (ModIsRunning)
+                    {
+                        return LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.Value;
+                    }
+                    return false;
+                }
+            }
+            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+            internal static void HookStatsPanelConfig_SettingChanged()
+            {
+                if (LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay != null)
+                {
+                    LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.SettingChanged += ModSupport.LookingGlassMod.StatsPanelConfig_SettingChanged;
+                }
+            }
+            internal static void StatsPanelConfig_SettingChanged(object sender, EventArgs e)
+            {
+                if (!IsHudEditable)
+                {
+                    return;
+                }
+
+                if (StatsPanelConfigValue)
+                {
+                    MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
+                }
+            }
+
+
+
+            internal static IEnumerator DelayRemoveLookingGlassStatsPanelBackground()
+            {
+                yield return null;
+                Transform upperRightCluster = MyHud.gameModeUiRoot.transform;
+                Transform runInfoHudPanel = upperRightCluster.GetChild(0);
+                Transform rightInfoBar = runInfoHudPanel.Find("RightInfoBar");
+                Transform playerStats = null;
+
+                while (!rightInfoBar.Find("PlayerStats"))
+                {
+                    Log.Debug("Couldn't find LookingGlass PlayerStats, waiting a lil bit");
+                    yield return null;
+                }
+                playerStats = rightInfoBar.Find("PlayerStats");
+                while (!playerStats.TryGetComponent<RoR2.UI.SkinControllers.PanelSkinController>(out _))
+                {
+                    Log.Debug("Couldn't find LookingGlass PlayerStats PanelSkinController, waiting a lil bit");
+                    yield return null;
+                }
+                RemoveLookingGlassStatsPanelBackground(playerStats);
+            }
+            private static void RemoveLookingGlassStatsPanelBackground(Transform playerStats)
+            {
+                UnityEngine.Object.Destroy(playerStats.GetComponent<RoR2.UI.SkinControllers.PanelSkinController>());
+                UnityEngine.Object.Destroy(playerStats.GetComponent<Image>());
+            }
+
+
+
+            internal static void OnHudDetailEditsFinished()
+            {
+                if (ModIsRunning && StatsPanelConfigValue)
+                {
+                    MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
+                }
+            }
+        }
+
         internal static class Starstorm2
         {
             private static bool? _modexists;
@@ -146,10 +251,7 @@ namespace CleanestHud
             {
                 get
                 {
-                    if (_modexists == null)
-                    {
-                        _modexists = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(SS2Main.GUID);
-                    }
+                    _modexists ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(SS2Main.GUID);
                     return (bool)_modexists;
                 }
             }
@@ -157,7 +259,7 @@ namespace CleanestHud
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
             internal static void CharacterBody_onBodyInventoryChangedGlobal(CharacterBody characterBody)
             {
-                if (!Main.IsHudFinishedLoading)
+                if (!IsHudFinishedLoading)
                 {
                     Log.Debug("onBodyInventoryChangedGlobal happened while the HUD was not done loading, returning");
                     return;
@@ -167,8 +269,8 @@ namespace CleanestHud
                 if (currentInjectorItemCount != CompositeInjectorSupport.KnownInjectorSlotCount)
                 {
                     CompositeInjectorSupport.KnownInjectorSlotCount = currentInjectorItemCount;
-                    Main.MyHud.StartCoroutine(CompositeInjectorSupport.DelayEditInjectorSlots());
-                    Main.MyHud.StartCoroutine(CompositeInjectorSupport.DelayColorInjectorSlots());
+                    MyHud.StartCoroutine(CompositeInjectorSupport.DelayEditInjectorSlots());
+                    MyHud.StartCoroutine(CompositeInjectorSupport.DelayColorInjectorSlots());
                 }
             }
 
@@ -184,12 +286,12 @@ namespace CleanestHud
                 [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
                 internal static void EditInjectorSlots()
                 {
-                    if (!ModIsRunning || !Main.IsHudFinishedLoading)
+                    if (!ModIsRunning || !IsHudFinishedLoading)
                     {
                         return;
                     }
                     SS2.Items.CompositeInjector.IconHolder ss2EquipmentIconHolder;
-                    bool compositeInjectorExists = Main.MyHud.gameObject.TryGetComponent<SS2.Items.CompositeInjector.IconHolder>(out ss2EquipmentIconHolder);
+                    bool compositeInjectorExists = MyHud.gameObject.TryGetComponent<SS2.Items.CompositeInjector.IconHolder>(out ss2EquipmentIconHolder);
                     if (!compositeInjectorExists)
                     {
                         return;
@@ -209,7 +311,7 @@ namespace CleanestHud
                         //ss2EquipmentIconHolder.icons[i].transform.position = new Vector3(4.5f, -5.2f, 12.8f);
 
                         // set localposition of injector icon displayroot to the mul-t alt equipment icon displayroot
-                        ss2EquipmentIconHolder.icons[i].transform.GetChild(0).position = Main.MyHud.equipmentIcons[1].transform.GetChild(0).position;
+                        ss2EquipmentIconHolder.icons[i].transform.GetChild(0).position = MyHud.equipmentIcons[1].transform.GetChild(0).position;
                         RectTransform displayRootRect = ss2EquipmentIconHolder.icons[i].transform.GetChild(0).GetComponent<RectTransform>();
                         Vector3 localPositionChange = Vector3.zero;
                         localPositionChange.x = displayRootRect.rect.width * 3;
@@ -248,12 +350,12 @@ namespace CleanestHud
                 [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
                 internal static void ColorInjectorSlots()
                 {
-                    if (!ModIsRunning || !Main.IsHudFinishedLoading)
+                    if (!ModIsRunning || !IsHudFinishedLoading)
                     {
                         return;
                     }
                     SS2.Items.CompositeInjector.IconHolder ss2EquipmentIconHolder;
-                    bool compositeInjectorExists = Main.MyHud.gameObject.TryGetComponent<SS2.Items.CompositeInjector.IconHolder>(out ss2EquipmentIconHolder);
+                    bool compositeInjectorExists = MyHud.gameObject.TryGetComponent<SS2.Items.CompositeInjector.IconHolder>(out ss2EquipmentIconHolder);
                     if (!compositeInjectorExists)
                     {
                         return;
@@ -271,105 +373,93 @@ namespace CleanestHud
 
                         Transform injectorSlotIsReadyPanel = injectorSlotDisplayRoot.GetChild(0);
                         Image injectorSlotEquipmentIsReadyPanelImage = injectorSlotIsReadyPanel.GetComponent<Image>();
-                        injectorSlotEquipmentIsReadyPanelImage.color = Main.Helpers.GetAdjustedColor(HudChanges.HudColor.SurvivorColor, colorIntensityMultiplier: HudChanges.HudColor.DefaultHudColorIntensity);
+                        injectorSlotEquipmentIsReadyPanelImage.color = Helpers.GetAdjustedColor(HudChanges.HudColor.SurvivorColor, colorIntensityMultiplier: HudChanges.HudColor.DefaultHudColorIntensity);
 
                         Transform injectorSlotBGPanel = injectorSlotDisplayRoot.Find("BGPanel");
                         Image injectorSlotBGPanelImage = injectorSlotBGPanel.GetComponent<Image>();
-                        injectorSlotBGPanelImage.color = Main.Helpers.GetAdjustedColor(HudChanges.HudColor.SurvivorColor, colorIntensityMultiplier: HudChanges.HudColor.DefaultHudColorIntensity);
+                        injectorSlotBGPanelImage.color = Helpers.GetAdjustedColor(HudChanges.HudColor.SurvivorColor, colorIntensityMultiplier: HudChanges.HudColor.DefaultHudColorIntensity);
                     }
                 }
             }
         }
 
-        internal static class LookingGlassMod
+        internal static class DriverMod
         {
             private static bool? _modexists;
             internal static bool ModIsRunning
             {
                 get
                 {
-                    if (_modexists == null)
-                    {
-                        _modexists = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(LookingGlass.PluginInfo.PLUGIN_GUID);
-                    }
+                    _modexists ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(RobDriver.DriverPlugin.MODUID);
                     return (bool)_modexists;
                 }
             }
-
-            internal static bool ItemCountersConfigValue
+            internal static Transform DriverWeaponSlot
             {
-                [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
                 get
                 {
-                    if (ModIsRunning)
+                    if (!IsHudEditable)
                     {
-                        return LookingGlass.ItemCounters.ItemCounter.itemCounters.Value;
+                        return null;
                     }
-                    else
-                    {
-                        return false;
-                    }
+
+                    return MyHud.equipmentIcons[0].gameObject.transform.parent.Find("WeaponSlot");
                 }
             }
 
-            internal static bool StatsPanelConfigValue
+
+
+            [HarmonyPatch]
+            internal static class HarmonyPatches
             {
-                [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-                get
+                [HarmonyPatch(typeof(RobDriver.Modules.Misc.DriverHooks), nameof(RobDriver.Modules.Misc.DriverHooks.NormalHudSetup))]
+                [HarmonyPrefix]
+                internal static bool ShouldAllowWeaponSlotCreation()
                 {
-                    if (ModIsRunning)
-                    {
-                        return LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.Value;
-                    }
-                    return false;
+                    return AllowDriverWeaponSlotCreation;
                 }
             }
-            [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-            internal static void HookStatsPanelConfig_SettingChanged()
+
+
+
+            internal static void EditWeaponSlotStructure()
             {
-                if (LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay != null)
-                {
-                    LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.SettingChanged += ModSupport.LookingGlassMod.StatsPanelConfig_SettingChanged;
-                }
-            }
-            internal static void StatsPanelConfig_SettingChanged(object sender, EventArgs e)
-            {
-                if (!Main.IsHudEditable)
+                if (!IsHudEditable)
                 {
                     return;
                 }
-
-                if (StatsPanelConfigValue)
+                Transform driverWeaponSlot = DriverWeaponSlot;
+                if (driverWeaponSlot == null)
                 {
-                    Main.MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
+                    return;
                 }
+                Transform firstSkillSlotTextPanel = MyHud.skillIcons[0].transform.GetChild(5);
+                Transform weaponSlotTextPanel = driverWeaponSlot.GetChild(6);
+                Transform weaponChargeBar = driverWeaponSlot.GetChild(10);
+
+                weaponSlotTextPanel.position = new Vector3(weaponSlotTextPanel.position.x, firstSkillSlotTextPanel.position.y, weaponSlotTextPanel.position.z);
+                weaponChargeBar.localScale = new Vector3(0.6f, weaponChargeBar.localScale.y, weaponChargeBar.localScale.z);
+                weaponChargeBar.localPosition = new Vector3(weaponChargeBar.localPosition.x, -6, weaponChargeBar.localPosition.z);
             }
 
-            internal static IEnumerator DelayRemoveLookingGlassStatsPanelBackground()
-            {
-                yield return null;
-                Transform upperRightCluster = Main.MyHud.gameModeUiRoot.transform;
-                Transform runInfoHudPanel = upperRightCluster.GetChild(0);
-                Transform rightInfoBar = runInfoHudPanel.Find("RightInfoBar");
-                Transform playerStats = null;
 
-                while (!rightInfoBar.Find("PlayerStats"))
-                {
-                    Log.Debug("Couldn't find LookingGlass PlayerStats, waiting a lil bit");
-                    yield return null;
-                }
-                playerStats = rightInfoBar.Find("PlayerStats");
-                while (!playerStats.TryGetComponent<RoR2.UI.SkinControllers.PanelSkinController>(out _))
-                {
-                    Log.Debug("Couldn't find LookingGlass PlayerStats PanelSkinController, waiting a lil bit");
-                    yield return null;
-                }
-                RemoveLookingGlassStatsPanelBackground(playerStats);
-            }
-            private static void RemoveLookingGlassStatsPanelBackground(Transform playerStats)
+
+            internal static void OnHudColorEditsFinished()
             {
-                UnityEngine.Object.Destroy(playerStats.GetComponent<RoR2.UI.SkinControllers.PanelSkinController>());
-                UnityEngine.Object.Destroy(playerStats.GetComponent<Image>());
+                // once OnHudColorEditsFinished happens if the weapon slot is created it'll copy what we've edited and everything will be good
+                AllowDriverWeaponSlotCreation = true;
+                if (IsCameraTargetDriver)
+                {
+                    try
+                    {
+                        RobDriver.Modules.Misc.DriverHooks.NormalHudSetup(MyHud);
+                    }
+                    catch
+                    {
+
+                    }
+                    EditWeaponSlotStructure();
+                }
             }
         }
     }

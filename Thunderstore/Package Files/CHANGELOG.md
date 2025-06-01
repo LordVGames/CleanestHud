@@ -1,23 +1,25 @@
 ## 1.0.0
 
-I've fixed the last few bugs I know of, which I'd say is good enough for a full release!
-- The last few are fixed in this version
+Added support for special HUD elements from the following mod characters:
+- Driver
+- Myst
+Feel free to suggest or make a github issue if a character you like isn't supported!
 
-Fixed consistent difficulty bar coloring not working
-
-Fixed Seeker's lotus being slightly off center
-
-Fixed scoreboard/inventory strips for dead players & every player below them not being styled
-- Part of support for [RestoreScoreboard](https://thunderstore.io/c/riskofrain2/p/itsschwer/RestoreScoreboard/)
+I've also fixed the last few bugs with the HUD itself I know of:
+- Fixed consistent difficulty bar coloring not working
+- Fixed Seeker's lotus being slightly off center
+- Fixed scoreboard/inventory strips for dead players & every player below them not being styled
+- - Part of support for [RestoreScoreboard](https://thunderstore.io/c/riskofrain2/p/itsschwer/RestoreScoreboard/)
+- Fixed the panel showing monsters' items having it's background removed when playing as a character that was set as blacklisted from the hud
+- Fixed the suppressed items panel not being styled correctly
+- - It still jitters a bit if you click on an item but I don't know if there's anything else I can do about that
 
 Added a note about not being able to move when hovering over something in the TAB menu if the inventory auto highlight option is disabled
 
-Fixed the panel showing monsters' items having it's background removed when playing as a character that was set as blacklisted from the hud
-
-Fixed the suppressed items panel not being styled correctly
-- It still jitters a bit if you click on an item but I don't know of anything I can do about that
-
 Mod now depends on [MiscFixes](https://thunderstore.io/package/score/MiscFixes/) because it makes more sections of the HUD easy to navigate to
+
+Added code events in the mod for other devs to know when each stage of CleanestHud's edits are finished
+- Useful for if a modded HUD element copies off of a vanilla HUD element that gets edited
 
 ## 0.11.6
 
