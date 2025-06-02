@@ -5,6 +5,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine;
 using RoR2.UI;
 using UnityEngine.UI;
+using static CleanestHud.Main;
 
 namespace CleanestHud
 {
@@ -49,54 +50,34 @@ namespace CleanestHud
 
         internal static class ImportantHudTransforms
         {
-            internal static Transform MainUIArea = null;
-            internal static Transform MainContainer = null;
-
             // in simulacrum the RunInfoHudPanel is InfiniteTowerUI(Clone)
             // in normal runs it's ClassicRunInfoHudPanel(Clone)
             internal static Transform RunInfoHudPanel = null;
             internal static Transform RightInfoBar = null;
-
             internal static Transform SpringCanvas = null;
-            internal static Transform TopCenterCluster = null;
-            internal static Transform BottomLeftCluster = null;
-            internal static Transform BottomRightCluster = null;
-            internal static Transform RightCluster = null;
-
             internal static Transform BarRoots = null;
-            internal static Transform SkillsScaler = null;
+
 
             internal static Transform InspectPanelArea
             {
                 get
                 {
-                    if (!Main.IsHudFinishedLoading)
+                    if (!IsHudFinishedLoading)
                     {
                         return null;
                     }
 
-                    Transform scoreboardPanel = SpringCanvas.Find("ScoreboardPanel");
-                    Transform container = HudChanges.Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
+                    Transform container = HudChanges.Helpers.GetContainerFromScoreboardPanel(MyHudLocator.FindChild("ScoreboardPanel"));
                     Transform inspectPanel = container.GetChild(2);
                     return inspectPanel.GetChild(0);
                 }
             }
             internal static void FindImportantHudTransforms()
             {
-                MainUIArea = Main.MyHud.mainUIPanel.transform;
-                MainContainer = Main.MyHud.mainContainer.transform;
-
-                RunInfoHudPanel = Main.MyHudLocator.FindChild("UpperRightCluster").GetChild(0);
+                RunInfoHudPanel = MyHudLocator.FindChild("UpperRightCluster").GetChild(0);
                 RightInfoBar = RunInfoHudPanel.Find("RightInfoBar");
-
-                SpringCanvas = MainUIArea.Find("SpringCanvas");
-                TopCenterCluster = SpringCanvas.Find("TopCenterCluster");
-                BottomLeftCluster = SpringCanvas.Find("BottomLeftCluster");
-                BottomRightCluster = SpringCanvas.Find("BottomRightCluster");
-                RightCluster = SpringCanvas.Find("RightCluster");
-
-                BarRoots = BottomLeftCluster.Find("BarRoots");
-                SkillsScaler = BottomRightCluster.Find("Scaler");
+                SpringCanvas = MyHud.mainUIPanel.transform.Find("SpringCanvas");
+                BarRoots = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots");
             }
         }
     }

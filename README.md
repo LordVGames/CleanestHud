@@ -8,12 +8,11 @@ This is a revival & continuation of HIFU's CleanerHud mod, with permission. (pro
 - Bugs from the original CleanerHud mod are fixed.
 - Uses your survivor's color throughout the hud.
 - - This doesn't just include the one you're playing as, but any survivor you're spectating.
-- Supports modded UI from many mods, including:
+- Supports modded UI from many mods, including (but not limited to):
 - - [Starstorm 2](https://thunderstore.io/package/TeamMoonstorm/Starstorm2/)
 - - [LookingGlass](https://thunderstore.io/package/DropPod/LookingGlass/)
 - - [Driver](https://thunderstore.io/package/public_ParticleSystem/Driver/)
 - - [Myst](https://thunderstore.io/package/JavAngle/Myst/)
-- - [HudNumbahs](https://thunderstore.io/c/riskofrain2/p/DestroyedClone/HudNumbahs/)
 - Many parts of the hud are configurable.
 - - You can use [Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options/) to configure these settings in-game.
 - If a survivor you want to play with doesn't work well with the hud, there's a blacklist you can add them to to prevent the hud from doing changes

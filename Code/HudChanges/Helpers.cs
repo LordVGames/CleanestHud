@@ -14,7 +14,7 @@ namespace CleanestHud.HudChanges
             if (container.name == "CommandQueueScoreboardWrapper")
             {
                 // commandqueue puts the entire scoreboard container in a new transform
-                // and it needs to be accounted for or else we can NRE
+                // and it needs to be accounted for or else it causes an NRE
                 container = container.GetChild(0);
             }
             return container;
@@ -26,7 +26,7 @@ namespace CleanestHud.HudChanges
             if (scoreboardPanel.name == "CommandQueueScoreboardWrapper")
             {
                 // commandqueue puts the entire scoreboard container in a new transform
-                // and it needs to be accounted for or else we can NRE
+                // and it needs to be accounted for or else it causes an NRE
                 scoreboardPanel = scoreboardPanel.parent;
             }
             return scoreboardPanel;
@@ -46,7 +46,7 @@ namespace CleanestHud.HudChanges
             }
             catch
             {
-                Log.Info("levelDisplayCluster could not be found, not coloring hud\nthis can mean something messed up, but more than likely everthing is fine");
+                Log.Info("levelDisplayCluster could not be found\nthis can mean something messed up, but more than likely everthing is fine");
                 return false;
             }
             return true;

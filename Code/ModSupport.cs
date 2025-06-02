@@ -204,7 +204,7 @@ namespace CleanestHud
 
                 if (StatsPanelConfigValue)
                 {
-                    MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
+                    MyHud?.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
                 }
             }
 
@@ -213,9 +213,7 @@ namespace CleanestHud
             internal static IEnumerator DelayRemoveLookingGlassStatsPanelBackground()
             {
                 yield return null;
-                Transform upperRightCluster = MyHud.gameModeUiRoot.transform;
-                Transform runInfoHudPanel = upperRightCluster.GetChild(0);
-                Transform rightInfoBar = runInfoHudPanel.Find("RightInfoBar");
+                Transform rightInfoBar = HudResources.ImportantHudTransforms.RunInfoHudPanel.Find("RightInfoBar");
                 Transform playerStats = null;
 
                 while (!rightInfoBar.Find("PlayerStats"))
@@ -243,7 +241,7 @@ namespace CleanestHud
             {
                 if (ModIsRunning && StatsPanelConfigValue)
                 {
-                    MyHud.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
+                    MyHud?.StartCoroutine(DelayRemoveLookingGlassStatsPanelBackground());
                 }
             }
         }
@@ -273,8 +271,8 @@ namespace CleanestHud
                 if (currentInjectorItemCount != CompositeInjectorSupport.KnownInjectorSlotCount)
                 {
                     CompositeInjectorSupport.KnownInjectorSlotCount = currentInjectorItemCount;
-                    MyHud.StartCoroutine(CompositeInjectorSupport.DelayEditInjectorSlots());
-                    MyHud.StartCoroutine(CompositeInjectorSupport.DelayColorInjectorSlots());
+                    MyHud?.StartCoroutine(CompositeInjectorSupport.DelayEditInjectorSlots());
+                    MyHud?.StartCoroutine(CompositeInjectorSupport.DelayColorInjectorSlots());
                 }
             }
 
@@ -499,16 +497,20 @@ namespace CleanestHud
                 catch{}
                 if (!IsHudUserBlacklisted)
                 {
-                    MyHud?.StartCoroutine(DelayEditWeaponSlotStructure());
+                    MyHud?.StartCoroutine(DelayEditSkillsStuff());
                 }
             }
 
 
 
-            private static IEnumerator DelayEditWeaponSlotStructure()
+            private static IEnumerator DelayEditSkillsStuff()
             {
                 yield return null;
                 EditWeaponSlotStructure();
+                if (DriverWeaponSlot != null)
+                {
+                    HudStructure.RepositionSkillScaler();
+                }
             }
             private static void EditWeaponSlotStructure()
             {

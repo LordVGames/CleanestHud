@@ -127,7 +127,7 @@ namespace CleanestHud
                 return;
             }
 
-            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            Transform scoreboardPanel = Main.MyHudLocator.FindChild("ScoreboardPanel");
             HudChanges.HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardPanel);
         }
 
@@ -140,7 +140,7 @@ namespace CleanestHud
                 return;
             }
 
-            ScoreboardController scoreboardController = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel").GetComponent<ScoreboardController>();
+            ScoreboardController scoreboardController = Main.MyHudLocator.FindChild("ScoreboardPanel").GetComponent<ScoreboardController>();
             for (int i = 0; i < scoreboardController.stripAllocator.elements.Count; i++)
             {
                 Color colorToUse;
@@ -154,7 +154,7 @@ namespace CleanestHud
                 {
                     colorToUse = scoreboardController.stripAllocator.elements[i].userBody.bodyColor;
                 }
-                Main.MyHud.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i], colorToUse));
+                Main.MyHud?.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i], colorToUse));
             }
         }
 

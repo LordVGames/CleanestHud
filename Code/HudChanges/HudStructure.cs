@@ -64,12 +64,12 @@ namespace CleanestHud.HudChanges
             EditSpectatorLabel();
             EditSkillSlots();
             EditEquipmentSlots();
-            RepositionSkillScaler();
             EditCurrenciesSection();
             EditItemInventoryDisplay();
             EditBossHpBarAndText();
             EditNotificationArea();
             EditScoreboardPanel();
+            EditSkillsScaler();
             RepositionSprintAndInventoryReminders();
             OnHudStructureEditsFinished?.Invoke();
         }
@@ -190,8 +190,7 @@ namespace CleanestHud.HudChanges
         }
         private static void EditBuffDisplay(Transform levelDisplayCluster)
         {
-            // levelDisplayCluster.GetChild(2)
-            Transform buffDisplayRoot = levelDisplayCluster.Find("BuffDisplayRoot");
+            Transform buffDisplayRoot = MyHudLocator.FindChild("BuffDisplayRoot");
 
             Destroy(buffDisplayRoot.GetComponent<HorizontalLayoutGroup>());
             buffDisplayRoot.SetParent(ImportantHudTransforms.BarRoots);
@@ -240,23 +239,25 @@ namespace CleanestHud.HudChanges
         }
         private static void EditSpectatorLabel()
         {
-            if (!ImportantHudTransforms.BottomRightCluster)
+            Transform bottomRightCluster = MyHudLocator.FindChild("BottomRightCluster");
+            Transform bottomCenterCluster = MyHudLocator.FindChild("BottomCenterCluster");
+            if (bottomRightCluster == null)
             {
-                Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomRightCluster", "HudStructure");
+                Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomRightCluster");
                 return;
             }
-            if (!MyHudLocator.FindChild("BottomCenterCluster"))
+            if (bottomCenterCluster == null)
             {
                 Main.Helpers.LogMissingHudVariable("EditSpectatorLabel", "BottomCenterCluster");
                 return;
             }
 
-            Transform spectatorLabel = MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
+            Transform spectatorLabel = bottomCenterCluster.Find("SpectatorLabel");
             RectTransform spectatorLabelRect = spectatorLabel.GetComponent<RectTransform>();
             spectatorLabelRect.anchoredPosition = new Vector2(0f, 150f);
 
-            GraphicRaycaster bottomRightGraphicRaycaster = ImportantHudTransforms.BottomRightCluster.GetComponent<GraphicRaycaster>();
-            GraphicRaycaster bottomCenterGraphicRaycaster = MyHudLocator.FindChild("BottomCenterCluster").gameObject.AddComponent<GraphicRaycaster>();
+            GraphicRaycaster bottomRightGraphicRaycaster = bottomRightCluster.GetComponent<GraphicRaycaster>();
+            GraphicRaycaster bottomCenterGraphicRaycaster = bottomCenterCluster.gameObject.AddComponent<GraphicRaycaster>();
             bottomCenterGraphicRaycaster.blockingObjects = bottomRightGraphicRaycaster.blockingObjects;
             bottomCenterGraphicRaycaster.ignoreReversedGraphics = bottomRightGraphicRaycaster.ignoreReversedGraphics;
             bottomCenterGraphicRaycaster.useGUILayout = bottomRightGraphicRaycaster.useGUILayout;
@@ -327,7 +328,7 @@ namespace CleanestHud.HudChanges
                 {
                     case 0:
                         equipmentDisplayRootRectLocalPosition = new Vector3(-20.75f, 17.25f, 0f);
-                        equipmentSlotScaleFactor = 0.924f;
+                        equipmentSlotScaleFactor = 0.928f;
                         break;
                     case 1:
                         equipmentDisplayRootRectLocalPosition = new Vector3(-20, -5f, 0f);
@@ -350,20 +351,24 @@ namespace CleanestHud.HudChanges
 
                 ScaleEquipmentSlot(equipmentDisplayRoot, equipmentSlotScaleFactor);
 
-                // the equipment keybind text below all the skill keybind texts because ?????
-                // so it needs to be re-aligned manually
-                GameObject equipmentTextBackgroundPanel = equipmentDisplayRoot.Find("EquipmentTextBackgroundPanel").gameObject;
-                RectTransform equipmentTextBackgroundPanelRect = equipmentTextBackgroundPanel.GetComponent<RectTransform>();
-                equipmentTextBackgroundPanelRect.localPosition = new Vector3(0, -31, 0);
-                equipmentTextBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
             }
+
+            RectTransform firstSkillIconTextBackgroundPanelRect = MyHud.skillIcons[0].transform.Find("SkillBackgroundPanel").GetComponent<RectTransform>();
+            GameObject equipmentTextBackgroundPanel = MyHud.equipmentIcons[0].displayRoot.transform.Find("EquipmentTextBackgroundPanel").gameObject;
+            RectTransform equipmentTextBackgroundPanelRect = equipmentTextBackgroundPanel.GetComponent<RectTransform>();
+            equipmentTextBackgroundPanelRect.position = new Vector3(
+                equipmentTextBackgroundPanelRect.position.x,
+                firstSkillIconTextBackgroundPanelRect.position.y,
+                equipmentTextBackgroundPanelRect.position.z
+            );
+            equipmentTextBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
 
             // ss2 doesn't copy our styled alt equipment slot for some reason
             // i think it's because ss2 copies the equipment slot immediately while we wait a lil bit before doing our changes
             // which means we need to modify ALL composite injector equipment slots
             if (ModSupport.Starstorm2.ModIsRunning)
             {
-                MyHud.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayEditInjectorSlots());
+                MyHud?.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayEditInjectorSlots());
             }
         }
         // A tiny bit of scaling still happens even when the scaleFactor is just 1
@@ -381,16 +386,15 @@ namespace CleanestHud.HudChanges
             equipmentIconPanelRect.localScale *= scaleFactor;
             equipmentIsReadyPanel.localScale *= scaleFactor;
         }
-        internal static void RepositionSkillScaler()
+        private static void EditSkillsScaler()
         {
-            ImportantHudTransforms.SkillsScaler.SetParent(MyHudLocator.FindChild("BottomCenterCluster"));
-
-            RectTransform scalerRect = ImportantHudTransforms.SkillsScaler.GetComponent<RectTransform>();
+            Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
+            scaler.SetParent(MyHudLocator.FindChild("BottomCenterCluster"));
+            RectTransform scalerRect = scaler.GetComponent<RectTransform>();
             scalerRect.rotation = Quaternion.identity;
             scalerRect.pivot = new Vector2(0.0875f, 0);
             scalerRect.sizeDelta = new Vector2(scalerRect.sizeDelta.x, -234f);
-            float skillsHudYPos = ConfigOptions.ShowSkillKeybinds.Value ? 125f : 98f;
-            scalerRect.localPosition = new Vector2(0, skillsHudYPos);
+            scalerRect.localPosition = SkillsScalerLocalPosition;
         }
         private static void EditCurrenciesSection()
         {
@@ -447,9 +451,10 @@ namespace CleanestHud.HudChanges
         }
         private static void EditBossHpBarAndText()
         {
-            Destroy(ImportantHudTransforms.TopCenterCluster.GetComponent<VerticalLayoutGroup>());
+            // TopCenterCluster
+            Destroy(MyHudLocator.FindChild(0).GetComponent<VerticalLayoutGroup>());
 
-            Transform bossHealthBarRoot = ImportantHudTransforms.TopCenterCluster.Find("BossHealthBarRoot");
+            Transform bossHealthBarRoot = MyHudLocator.FindChild(0).Find("BossHealthBarRoot");
             Transform bossHealthBarRootRect = bossHealthBarRoot.GetComponent<RectTransform>();
             bossHealthBarRootRect.localPosition = new Vector3(0f, -160, -3.8f);
             Destroy(bossHealthBarRoot.GetComponent<VerticalLayoutGroup>());
@@ -502,7 +507,7 @@ namespace CleanestHud.HudChanges
         }
         private static void EditNotificationArea()
         {
-            Transform notificationArea = ImportantHudTransforms.MainContainer.Find("NotificationArea");
+            Transform notificationArea = MyHudLocator.FindChild("NotificationArea");
             RectTransform notificationAreaRect = notificationArea.GetComponent<RectTransform>();
             notificationAreaRect.localEulerAngles = new Vector3(0f, 6f, 0f);
             // local position in game is boosted by +576.2813 X and +54 Y, Z is unaffected
@@ -512,7 +517,7 @@ namespace CleanestHud.HudChanges
         }
         private static void EditScoreboardPanel()
         {
-            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
             Transform stripContainer = container.GetChild(1);
 
@@ -535,9 +540,10 @@ namespace CleanestHud.HudChanges
 
         internal static void RepositionSprintAndInventoryReminders()
         {
-            Transform sprintCluster = ImportantHudTransforms.SkillsScaler.Find("SprintCluster");
+            Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
+            Transform sprintCluster = scaler.Find("SprintCluster");
             RectTransform sprintClusterRect = sprintCluster.GetComponent<RectTransform>();
-            Transform inventoryCluster = ImportantHudTransforms.SkillsScaler.Find("InventoryCluster");
+            Transform inventoryCluster = scaler.Find("InventoryCluster");
             RectTransform inventoryClusterRect = inventoryCluster.GetComponent<RectTransform>();
             Transform hpBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
 
@@ -574,7 +580,6 @@ namespace CleanestHud.HudChanges
                 0
             );
         }
-
 
 
         internal static void EditScoreboardStrip(ScoreboardStrip scoreboardStrip)
@@ -664,6 +669,14 @@ namespace CleanestHud.HudChanges
             );
 
             RepositionSprintAndInventoryReminders();
+        }
+
+
+
+        internal static void RepositionSkillScaler()
+        {
+            RectTransform scalerRect = MyHudLocator.FindChild("SkillDisplayRoot").GetComponent<RectTransform>();
+            scalerRect.localPosition = SkillsScalerLocalPosition;
         }
     }
 }

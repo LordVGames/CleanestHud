@@ -47,6 +47,13 @@ namespace CleanestHud
                 return MyHud.cameraRigController.targetBody;
             }
         }
+        internal static Vector2 SkillsScalerLocalPosition
+        {
+            get
+            {
+                return new Vector2(ModSupport.DriverMod.DriverWeaponSlot == null ? 0 : 35, ConfigOptions.ShowSkillKeybinds.Value ? 125f : 98f);
+            }
+        }
         internal static bool IsGameModeSimulacrum
         {
             get
@@ -94,8 +101,8 @@ namespace CleanestHud
 
                 // for SOME reason the hp bar's sub bars don't exist on AWAKE????
                 // so we need to wait and keep checking until they do exist, THEN and ONLY THEN can we safely do all our hud changes
-                Transform hpBarShrunkenRoot = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").Find("ShrunkenRoot");
-                MyHud.StartCoroutine(WaitForHpBarToFinishLoading(hpBarShrunkenRoot));
+                Transform hpBarShrunkenRoot = ImportantHudTransforms.BarRoots.Find("HealthbarRoot").Find("ShrunkenRoot");
+                MyHud?.StartCoroutine(WaitForHpBarToFinishLoading(hpBarShrunkenRoot));
             }
             private static IEnumerator WaitForHpBarToFinishLoading(Transform hpBarShrunkenRoot)
             {
@@ -169,7 +176,7 @@ namespace CleanestHud
                 }
                 if (MyHud != null)
                 {
-                    MyHud.StartCoroutine(DelayOnCameraChange(cameraRigController));
+                    MyHud?.StartCoroutine(DelayOnCameraChange(cameraRigController));
                 }
                 else
                 {
@@ -189,7 +196,7 @@ namespace CleanestHud
                 }
                 HudStructure.MoveSpectatorLabel();
                 EditSurvivorSpecificUI(cameraRigController.targetBody);
-                MyHud.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
+                MyHud?.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
             }
             private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
             {
@@ -199,6 +206,7 @@ namespace CleanestHud
                     {
                         case "VOIDSURVIVOR_BODY_NAME":
                             SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
+                            MyHud?.StartCoroutine(SurvivorSpecific.VoidFiend.DelayEditVoidFiendCorruptionUI());
                             break;
                         case "SEEKER_BODY_NAME":
                             SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
@@ -240,7 +248,7 @@ namespace CleanestHud
 
                 // icons go out of the background when there's not a lot of allies so they need to be changed a lil bit
                 Transform portrait = self.transform.GetChild(0);
-                MyHud.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
+                MyHud?.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
                 if (!ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
                     Image background = self.GetComponent<Image>();
@@ -345,7 +353,7 @@ namespace CleanestHud
                     return;
                 }
 
-                MyHud.StartCoroutine(HudDetails.DelayRemoveNotificationBackground());
+                MyHud?.StartCoroutine(HudDetails.DelayRemoveNotificationBackground());
             }
 
 
@@ -359,7 +367,7 @@ namespace CleanestHud
 
                 HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardController.transform);
                 orig(scoreboardController);
-                MyHud.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
+                MyHud?.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
             }
             private static IEnumerator DelayScoreboardController_Rebuild(ScoreboardController scoreboardController)
             {
@@ -521,7 +529,7 @@ namespace CleanestHud
                     // also i swear this was working without needing to delay it but now i have to?????
                     if (buffDisplay.buffIconDisplayData[0].buffIconComponent != null)
                     {
-                        MyHud.StartCoroutine(DelayFixFirstBuffRotation(buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform));
+                        MyHud?.StartCoroutine(DelayFixFirstBuffRotation(buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform));
                     }
                     if (!IsHudUserBlacklisted)
                     {
@@ -646,8 +654,8 @@ namespace CleanestHud
                     return;
                 }
 
-                MyHud.StartCoroutine(HudDetails.DelayRemoveSimulacrumWavePopUpPanelDetails());
-                MyHud.StartCoroutine(HudDetails.DelayRemoveTimeUntilNextWaveBackground());
+                MyHud?.StartCoroutine(HudDetails.DelayRemoveSimulacrumWavePopUpPanelDetails());
+                MyHud?.StartCoroutine(HudDetails.DelayRemoveTimeUntilNextWaveBackground());
             }
 
             internal static void Run_onRunStartGlobal(Run obj)
@@ -662,7 +670,7 @@ namespace CleanestHud
             {
                 if (artifactDef.cachedName == "MonsterTeamGainsItems" && runArtifactManager.IsArtifactEnabled(artifactDef) && IsHudEditable)
                 {
-                    MyHud.StartCoroutine(HudDetails.DelayRemoveMonstersItemsPanelDetails());
+                    MyHud?.StartCoroutine(HudDetails.DelayRemoveMonstersItemsPanelDetails());
                 }
             }
         }

@@ -109,7 +109,7 @@ namespace CleanestHud.HudChanges
             ColorXpBar(ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster").Find("ExpBarRoot"));
             ColorSkillAndEquipmentSlots();
             ColorCurrenciesPanel();
-            ColorInspectionPanel(Helpers.GetContainerFromScoreboardPanel(ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel")));
+            ColorInspectionPanel(Helpers.GetContainerFromScoreboardPanel(MyHudLocator.FindChild("ScoreboardPanel")));
             MyHud?.StartCoroutine(DelayInvokeOnHudColorUpdate());
         }
         private static IEnumerator DelayInvokeOnHudColorUpdate()
@@ -147,7 +147,7 @@ namespace CleanestHud.HudChanges
             }
             if (ModSupport.Starstorm2.ModIsRunning)
             {
-                MyHud.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayColorInjectorSlots());
+                MyHud?.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayColorInjectorSlots());
             }
         }
         private static void ColorCurrenciesPanel()
@@ -216,7 +216,7 @@ namespace CleanestHud.HudChanges
                 coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
             }
             // coloring the backdrop needs to happen as it fades in or else it gets overridden
-            MyHud.StartCoroutine(ColorBackdropImageOverFadeIn(backdrop));
+            MyHud?.StartCoroutine(ColorBackdropImageOverFadeIn(backdrop));
         }
         private static IEnumerator ColorBackdropImageOverFadeIn(Transform backdrop)
         {

@@ -56,17 +56,19 @@ namespace CleanestHud
             Run.onRunStartGlobal += Main.Events.Run_onRunStartGlobal;
             RunArtifactManager.onArtifactEnabledGlobal += Main.Events.RunArtifactManager_onArtifactEnabledGlobal;
 
-            HudChanges.HudDetails.OnHudDetailEditsFinished += ModSupport.LookingGlassMod.OnHudDetailEditsFinished;
-            HudChanges.HudColor.OnHudColorUpdate += ModSupport.DriverMod.OnHudColorUpdate;
-
             if (ModSupport.Starstorm2.ModIsRunning)
             {
                 CharacterBody.onBodyInventoryChangedGlobal += ModSupport.Starstorm2.CharacterBody_onBodyInventoryChangedGlobal;
+            }
+            if (ModSupport.LookingGlassMod.ModIsRunning)
+            {
+                HudChanges.HudDetails.OnHudDetailEditsFinished += ModSupport.LookingGlassMod.OnHudDetailEditsFinished;
             }
             if (ModSupport.DriverMod.ModIsRunning)
             {
                 Harmony harmony = new(PluginGUID);
                 harmony.CreateClassProcessor(typeof(ModSupport.DriverMod.HarmonyPatches)).Patch();
+                HudChanges.HudColor.OnHudColorUpdate += ModSupport.DriverMod.OnHudColorUpdate;
             }
         }
     }

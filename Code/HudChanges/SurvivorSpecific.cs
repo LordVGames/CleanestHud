@@ -17,12 +17,9 @@ namespace CleanestHud.HudChanges
         {
             internal static void SetVoidFiendMeterAnimatorStatus()
             {
-                Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
-                Transform crosshairCanvas = mainUIArea.GetChild(1);
-                Transform crosshairExtras = crosshairCanvas.GetChild(0);
                 try
                 {
-                    Transform voidFiendMeterUi = crosshairExtras.Find("VoidSurvivorCorruptionUISimplified(Clone)");
+                    Transform voidFiendMeterUi = MyHudLocator.FindChild("CrosshairExtras").Find("VoidSurvivorCorruptionUISimplified(Clone)");
                     Animator voidFiendMeterAnimator = voidFiendMeterUi.GetComponent<Animator>();
                     voidFiendMeterAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
                     // no clue if this'll fix the ui getting stuck mid-squish if the animator is disabled mid-squish.
@@ -42,9 +39,7 @@ namespace CleanestHud.HudChanges
             }
             internal static void EditVoidFiendCorruptionUI()
             {
-                Transform crosshairCanvas = ImportantHudTransforms.MainUIArea.Find("CrosshairCanvas");
-                Transform crosshairExtras = crosshairCanvas.GetChild(0);
-                Transform voidFiendCorruptionUI = crosshairExtras.Find("VoidSurvivorCorruptionUISimplified(Clone)");
+                Transform voidFiendCorruptionUI = MyHudLocator.FindChild("CrosshairExtras").Find("VoidSurvivorCorruptionUISimplified(Clone)");
 
                 voidFiendCorruptionUI.localPosition = new Vector3(1, 0.5f, 0f);
                 voidFiendCorruptionUI.localScale = Vector3.one * 1.2f;
@@ -67,9 +62,7 @@ namespace CleanestHud.HudChanges
         {
             internal static void RepositionSeekerLotusUI()
             {
-                Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
-                Transform springCanvas = mainUIArea.GetChild(2);
-                Transform bottomCenterCluster = springCanvas.GetChild(4);
+                Transform bottomCenterCluster = MyHudLocator.FindChild("BottomCenterCluster");
                 Transform bottomCenterClusterScaler = bottomCenterCluster.GetChild(2);
                 Transform utilityArea = bottomCenterClusterScaler.GetChild(1);
                 Transform utilityAreaDisplayRoot = utilityArea.GetChild(0);
@@ -96,12 +89,9 @@ namespace CleanestHud.HudChanges
 
             internal static void RepositionSeekerMeditationUI()
             {
-                Transform mainUIArea = Main.MyHud.mainUIPanel.transform;
-                Transform crosshairCanvas = mainUIArea.GetChild(1);
-                Transform crosshairExtras = crosshairCanvas.GetChild(0);
                 try
                 {
-                    Transform seekerMeditateUi = crosshairExtras.Find("SeekerMeditateUI(Clone)");
+                    Transform seekerMeditateUi = MyHudLocator.FindChild("CrosshairExtras").Find("SeekerMeditateUI(Clone)");
                     switch (ConfigOptions.SeekerMeditateHudPosition.Value)
                     {
                         case ConfigOptions.SpecialConfig.SeekerMeditateHudPosition.AboveHealthBar:

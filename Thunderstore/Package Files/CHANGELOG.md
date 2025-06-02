@@ -2,7 +2,6 @@
 
 Added support for special HUD elements from the following mod characters:
 - Driver
-- - A HUD element for Driver might be broken currently, but an update for better CleanestHud support should happen on Driver's end eventually`TM`
 - Myst
 Feel free to suggest or make a github issue if a character you like isn't supported!
 
@@ -14,8 +13,12 @@ I've also fixed the last few bugs with the HUD itself I know of:
 - Fixed the panel showing monsters' items having it's background removed when playing as a character that was blacklisted from the hud
 - Fixed the suppressed items panel not being styled correctly
 - - It still jitters a bit if you click on an item but I don't know if there's anything I can do about that
-- Fixed item icons in the TAB menu still getting outline changes while playing a character who is blacklisted
+- Fixed item icons in the TAB menu still getting full outline changes while playing a character who is blacklisted
+- - It's still changed slightly but there's nothing I can do about it since I have to edit the item icon asset
 - Fixed HP bars sometimes being too light-green
+- Fixed MUL-T's other equipment slot getting it's own little key prompt
+- Fixed the position of some HUD elements that were slightly off
+- Fixed me forgetting to make the void fiend corruption meter changes happen
 
 Added a note about not being able to move when hovering over something in the TAB menu if the inventory auto highlight option is disabled
 

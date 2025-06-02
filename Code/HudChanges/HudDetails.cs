@@ -274,7 +274,7 @@ namespace CleanestHud.HudChanges
                 DisableDifficultyBarWormgear();
             }
             HideItemInventoryOutline();
-            DisableInteractionContextBackground();
+            RemoveContextNotificationDetails();
             EditBossBarDetails();
             DisableScoreboardStripContainerOutline();
             DisableInspectionPanelItemIconDetails();
@@ -286,7 +286,6 @@ namespace CleanestHud.HudChanges
             SetSprintAndInventoryKeybindsStatus();
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
-            RemoveInspectInteractionBakground();
             SetSkillOutlinesStatus();
             OnHudDetailEditsFinished?.Invoke();
         }
@@ -392,15 +391,16 @@ namespace CleanestHud.HudChanges
         }
         internal static void SetSprintAndInventoryKeybindsStatus()
         {
-            if (!ImportantHudTransforms.SkillsScaler)
+            Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
+            if (!scaler)
             {
-                Main.Helpers.LogMissingHudVariable("SetSprintAndInventoryKeybindsStatus", "SkillsScaler");
+                Main.Helpers.LogMissingHudVariable("SetSprintAndInventoryKeybindsStatus", "SkillDisplayRoot");
             }
 
-            GameObject sprintCluster = ImportantHudTransforms.SkillsScaler.Find("SprintCluster").gameObject;
+            GameObject sprintCluster = scaler.Find("SprintCluster").gameObject;
             sprintCluster.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
 
-            GameObject inventoryCluster = ImportantHudTransforms.SkillsScaler.Find("InventoryCluster").gameObject;
+            GameObject inventoryCluster = scaler.Find("InventoryCluster").gameObject;
             inventoryCluster.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
         }
         private static void HideItemInventoryOutline()
@@ -408,31 +408,32 @@ namespace CleanestHud.HudChanges
             Image itemInventoryDisplayImage = MyHud.itemInventoryDisplay.GetComponent<Image>();
             itemInventoryDisplayImage.color = Color.clear;
         }
-        private static void DisableInteractionContextBackground()
+        private static void RemoveContextNotificationDetails()
         {
-            Transform contextNotification = ImportantHudTransforms.RightCluster.Find("ContextNotification");
+            Transform contextNotification = MyHudLocator.FindChild("RightCluster").Find("ContextNotification");
             Transform contextDisplay = contextNotification.Find("ContextDisplay");
             RawImage contextDisplayImage = contextDisplay.GetComponent<RawImage>();
             contextDisplayImage.enabled = false;
+
+            Transform inspectDisplay = contextNotification.GetChild(2);
+            RawImage inspectDisplayBackground = inspectDisplay.GetComponent<RawImage>();
+            inspectDisplayBackground.enabled = false;
         }
         private static void EditBossBarDetails()
         {
-            Transform bossHealthBarRoot = ImportantHudTransforms.TopCenterCluster.Find("BossHealthBarRoot");
-            Transform bossContainer = bossHealthBarRoot.Find("Container");
-            Transform bossHealthBarContainer = bossContainer.Find("BossHealthBarContainer");
+            Transform bossHealthBarContainer = MyHudLocator.FindChild("BossHealthBar").parent.parent;
+            Image bossHealthBarContainerImage = bossHealthBarContainer.GetComponent<Image>();
+            bossHealthBarContainerImage.enabled = false;
+
 
             Transform bossBackgroundPanel = bossHealthBarContainer.Find("BackgroundPanel");
             Image bossBackgroundPanelImage = bossBackgroundPanel.GetComponent<Image>();
             // this is set to true on purpose to enable dark background for missing boss hp
-            // so config would be inverse value here
             bossBackgroundPanelImage.enabled = true;
-
-            Image bossHealthBarContainerImage = bossHealthBarContainer.GetComponent<Image>();
-            bossHealthBarContainerImage.enabled = false;
         }
         private static void DisableScoreboardStripContainerOutline()
         {
-            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
             Transform stripContainer = container.Find("StripContainer");
 
@@ -441,7 +442,7 @@ namespace CleanestHud.HudChanges
         }
         private static void DisableInspectionPanelItemIconDetails()
         {
-            Transform scoreboardPanel = ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel");
+            Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
             Transform inspectPanelArea = container.Find("InspectPanel").Find("InspectPanelArea");
             Transform inspectionPanel = inspectPanelArea.Find("InspectionPanel");
@@ -484,19 +485,21 @@ namespace CleanestHud.HudChanges
         }
         private static void ColorMapNameTextWhite()
         {
-            Transform mapNameCluster = ImportantHudTransforms.MainContainer.Find("MapNameCluster");
+            Transform mapNameCluster = MyHud.mainContainer.transform.Find("MapNameCluster");
             Transform subtext = mapNameCluster.Find("Subtext");
             HGTextMeshProUGUI subtextMesh = subtext.GetComponent<HGTextMeshProUGUI>();
             subtextMesh.color = Color.white;
         }
         private static void RemoveSprintAndInventoryReminderTextBackgrounds()
         {
-            Transform sprintCluster = ImportantHudTransforms.SkillsScaler.Find("SprintCluster");
+            Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
+
+            Transform sprintCluster = scaler.Find("SprintCluster");
             Transform keyBackgroundPanel = sprintCluster.GetChild(1);
             Image keyBackgroundPanelImage = keyBackgroundPanel.GetComponent<Image>();
             keyBackgroundPanelImage.enabled = false;
 
-            Transform inventoryCluster = ImportantHudTransforms.SkillsScaler.Find("InventoryCluster");
+            Transform inventoryCluster = scaler.Find("InventoryCluster");
             Transform skillBackgroundPanel = inventoryCluster.Find("SkillBackgroundPanel");
             Image skillBackgroundPanelBackgroundImage = skillBackgroundPanel.GetComponent<Image>();
             skillBackgroundPanelBackgroundImage.enabled = false;
@@ -513,13 +516,6 @@ namespace CleanestHud.HudChanges
             Transform equipmentTextBackgroundPanel = equipmentDisplayRoot.GetChild(6);
             Image equipmentTextBackgroundPanelImage = equipmentTextBackgroundPanel.GetComponent<Image>();
             equipmentTextBackgroundPanelImage.enabled = false;
-        }
-        private static void RemoveInspectInteractionBakground()
-        {
-            Transform contextNotification = ImportantHudTransforms.RightCluster.Find("ContextNotification");
-            Transform inspectDisplay = contextNotification.GetChild(2);
-            RawImage inspectDisplayBackground = inspectDisplay.GetComponent<RawImage>();
-            inspectDisplayBackground.enabled = false;
         }
 
 
@@ -563,8 +559,7 @@ namespace CleanestHud.HudChanges
         }
         private static void RemoveNotificationBackground()
         {
-            Transform mainContainer = MyHud.mainContainer.transform;
-            Transform notificationArea = mainContainer.Find("NotificationArea");
+            Transform notificationArea = MyHudLocator.FindChild("NotificationArea");
             if (notificationArea.childCount == 0)
             {
                 Log.Debug("Notification area had no children, returning");
@@ -653,7 +648,7 @@ namespace CleanestHud.HudChanges
             backdropImage.sprite = segmentTemplate.GetComponent<Image>().sprite;
             Color noMoreTransparency = HudColor.SurvivorColor;
             noMoreTransparency.a = 1;
-            MyHud.StartCoroutine(TempComponentBackgroundImage(backdropImage, noMoreTransparency));
+            MyHud?.StartCoroutine(TempComponentBackgroundImage(backdropImage, noMoreTransparency));
         }
         private static IEnumerator TempComponentBackgroundImage(Image backdropImage, Color newColor)
         {
@@ -682,13 +677,11 @@ namespace CleanestHud.HudChanges
 
         internal static void SetSimulacrumWaveBarAnimatorStatus()
         {
-            if (!Main.IsGameModeSimulacrum)
+            if (!IsGameModeSimulacrum)
             {
                 return;
             }
-            Transform upperRightCluster = MyHud.gameModeUiRoot.transform;
-            Transform runInfoHudPanel = upperRightCluster.GetChild(0);
-            Transform simulacrumWaveUIClone = runInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
+            Transform simulacrumWaveUIClone = ImportantHudTransforms.RunInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
             if (!simulacrumWaveUIClone)
             {
                 return;
@@ -728,8 +721,7 @@ namespace CleanestHud.HudChanges
         {
             // panel usually doesn't appear on the first frame
             yield return null;
-            Transform mainUIArea = MyHud.mainUIPanel.transform;
-            Transform crosshairExtras = mainUIArea.Find("CrosshairCanvas").Find("CrosshairExtras");
+            Transform crosshairExtras = MyHudLocator.FindChild("CrosshairExtras");
             Transform simulacrumWavePopUp;
             while (!TryGetSimulacrumWavePopUpTransform(crosshairExtras, out simulacrumWavePopUp))
             {
@@ -752,8 +744,7 @@ namespace CleanestHud.HudChanges
 
         internal static IEnumerator DelayRemoveTimeUntilNextWaveBackground()
         {
-            Transform mainUIArea = MyHud.mainUIPanel.transform;
-            Transform crosshairExtras = mainUIArea.Find("CrosshairCanvas").Find("CrosshairExtras");
+            Transform crosshairExtras = MyHudLocator.FindChild("CrosshairExtras");
             while (!crosshairExtras.Find("InfiniteTowerNextWaveUI(Clone)"))
             {
                 Log.Debug("Couldn't find InfiniteTowerNextWaveUI(Clone), waiting a lil bit");
@@ -786,7 +777,7 @@ namespace CleanestHud.HudChanges
                 Image background = allyCard.GetComponent<Image>();
                 background.enabled = ConfigOptions.AllowAllyCardBackgrounds.Value;
                 // portrait edits get reset after enabling/disabling the background
-                MyHud.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
+                MyHud?.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
             }
         }
         internal static IEnumerator DelayEditAllyCardPortrait(Transform portrait)
@@ -838,7 +829,7 @@ namespace CleanestHud.HudChanges
 
         internal static void RemoveBadHealthSubBarFromPersonalHealthBar()
         {
-            Image badHpBarImage = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").GetChild(0).GetChild(1).GetComponent<Image>();
+            Image badHpBarImage = ImportantHudTransforms.BarRoots.Find("HealthbarRoot").GetChild(0).GetChild(1).GetComponent<Image>();
             if (badHpBarImage != null)
             {
                 badHpBarImage.enabled = false;
