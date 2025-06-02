@@ -54,7 +54,6 @@ namespace CleanestHud
             // in normal runs it's ClassicRunInfoHudPanel(Clone)
             internal static Transform RunInfoHudPanel = null;
             internal static Transform RightInfoBar = null;
-            internal static Transform SpringCanvas = null;
             internal static Transform BarRoots = null;
 
 
@@ -76,7 +75,6 @@ namespace CleanestHud
             {
                 RunInfoHudPanel = MyHudLocator.FindChild("UpperRightCluster").GetChild(0);
                 RightInfoBar = RunInfoHudPanel.Find("RightInfoBar");
-                SpringCanvas = MyHud.mainUIPanel.transform.Find("SpringCanvas");
                 BarRoots = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots");
             }
         }

@@ -753,7 +753,6 @@ namespace CleanestHud.HudChanges
             // passing in the UI as a parameter to safe on doing a few more ".Find" calls
             // as if we haven't done enough already with the while loop & my FindWithPartialMatch extension
             RemoveTimeUntilNextWaveBackground(crosshairExtras.Find("InfiniteTowerNextWaveUI(Clone)"));
-            yield return null;
         }
         private static void RemoveTimeUntilNextWaveBackground(Transform timeUntilNextWaveUI)
         {
@@ -769,8 +768,7 @@ namespace CleanestHud.HudChanges
 
         internal static void SetAllyCardBackgroundsStatus()
         {
-            Transform leftCluster = ImportantHudTransforms.SpringCanvas.Find("LeftCluster");
-            Transform allyCardContainer = leftCluster.GetChild(0);
+            Transform allyCardContainer = MyHudLocator.FindChild("LeftCluster").Find("AllyCardContainer");
             for (int i = 0; i < allyCardContainer.childCount; i++)
             {
                 Transform allyCard = allyCardContainer.GetChild(i);

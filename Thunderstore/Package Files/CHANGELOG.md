@@ -18,7 +18,7 @@ I've also fixed the last few bugs with the HUD itself I know of:
 - Fixed HP bars sometimes being too light-green
 - Fixed MUL-T's other equipment slot getting it's own little key prompt
 - Fixed the position of some HUD elements that were slightly off
-- Fixed me forgetting to make the void fiend corruption meter changes happen
+- Fixed equipment slots looking a little weird
 
 Added a note about not being able to move when hovering over something in the TAB menu if the inventory auto highlight option is disabled
 

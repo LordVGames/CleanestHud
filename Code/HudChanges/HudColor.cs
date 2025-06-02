@@ -266,8 +266,7 @@ namespace CleanestHud.HudChanges
         }
         internal static void ColorAllAllyCardBackgrounds()
         {
-            Transform leftCluster = ImportantHudTransforms.SpringCanvas.Find("LeftCluster");
-            Transform allyCardContainer = leftCluster.GetChild(0);
+            Transform allyCardContainer = MyHudLocator.FindChild("LeftCluster").GetChild(0);
             for (int i = 0; i < allyCardContainer.childCount; i++)
             {
                 Transform allyCard = allyCardContainer.GetChild(i);

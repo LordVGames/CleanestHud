@@ -327,7 +327,7 @@ namespace CleanestHud.HudChanges
                 switch (i)
                 {
                     case 0:
-                        equipmentDisplayRootRectLocalPosition = new Vector3(-20.75f, 17.25f, 0f);
+                        equipmentDisplayRootRectLocalPosition = new Vector3(-20.75f, 16.95f, 0f);
                         equipmentSlotScaleFactor = 0.928f;
                         break;
                     case 1:
@@ -374,6 +374,7 @@ namespace CleanestHud.HudChanges
         // A tiny bit of scaling still happens even when the scaleFactor is just 1
         internal static void ScaleEquipmentSlot(Transform equipmentDisplayRoot, float scaleFactor)
         {
+            float extraFactor = 0.0448f;
             RectTransform equipmentDisplayRootRect = equipmentDisplayRoot.GetComponent<RectTransform>();
             Transform equipmentBGPanel = equipmentDisplayRoot.Find("BGPanel");
             RectTransform equipmentBGPanelRect = equipmentBGPanel.GetComponent<RectTransform>();
@@ -382,7 +383,9 @@ namespace CleanestHud.HudChanges
             Transform equipmentIsReadyPanel = equipmentDisplayRoot.Find("IsReadyPanel");
 
             equipmentDisplayRootRect.localScale = (new Vector3(1f, 0.98f, 1f) * scaleFactor);
-            equipmentBGPanelRect.localScale *= scaleFactor;
+            equipmentBGPanelRect.localScale  = new Vector3(scaleFactor + extraFactor, scaleFactor + extraFactor, scaleFactor);
+            // why is the bg panel moved slightly? now we gotta move it back
+            equipmentBGPanel.localPosition = Vector3.zero;
             equipmentIconPanelRect.localScale *= scaleFactor;
             equipmentIsReadyPanel.localScale *= scaleFactor;
         }
