@@ -460,12 +460,10 @@ namespace CleanestHud
                 {
                     if (IsHudUserBlacklisted)
                     {
-                        Log.Warning("GGGGGGGGGGGG");
                         return true;
                     }
                     else
                     {
-                        Log.Warning("HHHHHHHHH");
                         return AllowDriverWeaponSlotCreation;
                     }
                 }

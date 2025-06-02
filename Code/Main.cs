@@ -116,7 +116,6 @@ namespace CleanestHud
                 CharacterBody targetBody = HudTargetBody;
 
 
-
                 // substring is to remove "(Clone)" from the end of the name
                 string properBodyName = targetBody.name.Substring(0, targetBody.name.Length - 7);
                 if (ConfigOptions.BodyNameBlacklist_Array.Contains(properBodyName))
@@ -131,18 +130,11 @@ namespace CleanestHud
                     IsHudUserBlacklisted = false;
                 }
 
-
                 // sometimes an extra sub bar gets perma enabled??? it makes the healthbar a very light green and i don't want that
-                // this is done before the blacklist check because this can happen even though a chaaracter is blacklisted?????????
-                Image badHpBarImage = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").GetChild(0).GetChild(1).GetComponent<Image>();
-                if (badHpBarImage != null)
-                {
-                    badHpBarImage.enabled = false;
-                }
-                else
-                {
-                    Log.Info("Couldn't find bad HP bar image. There's a chance an HP bar may appear more light-green than usual.");
-                }
+                HudDetails.RemoveBadHealthSubBarFromPersonalHealthBar();
+                // this can also happen to all allycards, but it won't be handled in AllyCardController_Awake for already existing allycards when loading in because IsHudUserBlacklisted isn't changed to false yet
+                // so they have to manually be changed now
+                MyHud?.StartCoroutine(HudDetails.DelayRemoveBadHealthSubBarFromAllAllyCards());
 
 
                 CanvasGroup wholeHudCanvasGroup = MyHud.GetComponent<CanvasGroup>() ?? MyHud.gameObject.AddComponent<CanvasGroup>();
@@ -226,7 +218,6 @@ namespace CleanestHud
             #endregion
 
 
-
             internal static void BaseConVar_AttemptSetString(On.RoR2.ConVar.BaseConVar.orig_AttemptSetString orig, RoR2.ConVar.BaseConVar self, string newValue)
             {
                 orig(self, newValue);
@@ -238,7 +229,6 @@ namespace CleanestHud
             }
 
 
-            // removes the slight transparent background image from each ally on the list on the left
             internal static void AllyCardController_Awake(On.RoR2.UI.AllyCardController.orig_Awake orig, AllyCardController self)
             {
                 orig(self);
@@ -251,11 +241,25 @@ namespace CleanestHud
                 // icons go out of the background when there's not a lot of allies so they need to be changed a lil bit
                 Transform portrait = self.transform.GetChild(0);
                 MyHud.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
-
                 if (!ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
                     Image background = self.GetComponent<Image>();
                     background.enabled = false;
+                }
+
+
+                // healthbar > BackgroundPanel
+                Transform backgroundPanel = self.healthBar?.transform.GetChild(0);
+                MyHud?.StartCoroutine(DelayRemoveBadHealthSubBar(backgroundPanel));
+            }
+            private static IEnumerator DelayRemoveBadHealthSubBar(Transform backgroundPanel)
+            {
+                yield return null;
+                // BackgroundPanel > HealthBarSubBar(Clone) #2
+                Transform badHealthSubBar = backgroundPanel.GetChild(2);
+                if (badHealthSubBar != null)
+                {
+                    badHealthSubBar.GetComponent<Image>().enabled = false;
                 }
             }
 
@@ -513,7 +517,6 @@ namespace CleanestHud
                         return;
                     }
 
-                    Log.Warning($"IsHudUserBlacklisted is {IsHudUserBlacklisted}");
                     // the first buff always has +6 rotation on Y because ?????????? so it needs to be reset to 0
                     // also i swear this was working without needing to delay it but now i have to?????
                     if (buffDisplay.buffIconDisplayData[0].buffIconComponent != null)

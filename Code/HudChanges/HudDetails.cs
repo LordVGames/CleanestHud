@@ -802,6 +802,55 @@ namespace CleanestHud.HudChanges
 
 
 
+        internal static IEnumerator DelayRemoveBadHealthSubBarFromAllAllyCards()
+        {
+            yield return null;
+            RemoveBadHealthSubBarFromAllAllyCards();
+        }
+        private static void RemoveBadHealthSubBarFromAllAllyCards()
+        {
+            if (!IsHudEditable)
+            {
+                return;
+            }
+            AllyCardManager allyCardManager = MyHudLocator.FindChild("LeftCluster").Find("AllyCardContainer").GetComponent<AllyCardManager>();
+            if (allyCardManager.cardAllocator.elements.Count == 0)
+            {
+                return;
+            }
+
+
+            foreach (AllyCardController allyCard in allyCardManager.cardAllocator.elements)
+            {
+                // HealthBar > BackgroundPanel > HealthBarSubBar(Clone) #2
+                Transform backgroundPanel = allyCard.healthBar.transform.GetChild(0);
+                Transform badHealthBar = backgroundPanel.GetChild(2);
+                if (badHealthBar == null)
+                {
+                    return;
+                }
+                Image badHealthBarImage = badHealthBar.GetComponent<Image>();
+                badHealthBarImage.enabled = false;
+            }
+        }
+
+
+
+        internal static void RemoveBadHealthSubBarFromPersonalHealthBar()
+        {
+            Image badHpBarImage = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").GetChild(0).GetChild(1).GetComponent<Image>();
+            if (badHpBarImage != null)
+            {
+                badHpBarImage.enabled = false;
+            }
+            else
+            {
+                Log.Info("Couldn't find bad HP bar image. There's a chance an HP bar may appear more light-green than usual.");
+            }
+        }
+
+
+
         internal static void SetScoreboardLabelsActiveOrNot(Transform scoreboardPanel)
         {
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
