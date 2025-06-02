@@ -11,6 +11,7 @@ using RoR2.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudChanges.HudEditorComponents;
+using System.Threading;
 
 namespace CleanestHud.HudChanges
 {
@@ -260,6 +261,7 @@ namespace CleanestHud.HudChanges
 
         internal static void EditHudDetails()
         {
+            Log.Debug("EditHudDetails");
             EditDifficultyHudDetails();
             if (IsGameModeSimulacrum)
             {

@@ -2,12 +2,18 @@
 
 This is a revival & continuation of HIFU's CleanerHud mod, with permission. (proof at bottom of readme)
 
+
 ## Info
 - Pretty much everything about the hud has been edited in some way.
 - Bugs from the original CleanerHud mod are fixed.
-- Utilizes your survivor's color throughout the hud.
+- Uses your survivor's color throughout the hud.
 - - This doesn't just include the one you're playing as, but any survivor you're spectating.
-- Supports modded UI from [Starstorm 2](https://thunderstore.io/package/TeamMoonstorm/Starstorm2/) and [LookingGlass](https://thunderstore.io/package/DropPod/LookingGlass/).
+- Supports modded UI from many mods, including:
+- - [Starstorm 2](https://thunderstore.io/package/TeamMoonstorm/Starstorm2/)
+- - [LookingGlass](https://thunderstore.io/package/DropPod/LookingGlass/)
+- - [Driver](https://thunderstore.io/package/public_ParticleSystem/Driver/)
+- - [Myst](https://thunderstore.io/package/JavAngle/Myst/)
+- - [HudNumbahs](https://thunderstore.io/c/riskofrain2/p/DestroyedClone/HudNumbahs/)
 - Many parts of the hud are configurable.
 - - You can use [Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options/) to configure these settings in-game.
 - If a survivor you want to play with doesn't work well with the hud, there's a blacklist you can add them to to prevent the hud from doing changes
@@ -16,6 +22,7 @@ This is a revival & continuation of HIFU's CleanerHud mod, with permission. (pro
 Many elements of the hud are also configurable Most are for the hud in general, but some are for the survivor specific hud elements that seeker and void fiend have!
 
 <sub><sup>also this isn't a finished release since i know there's still a few things that don't fully work, I just wanted to get this out since everything's like 90% working</sup></sub>
+
 
 ## Showcase
 
@@ -30,21 +37,28 @@ Many elements of the hud are also configurable Most are for the hud in general, 
 ![20250314025430_1](https://github.com/user-attachments/assets/1e033eb2-0d17-4006-9376-fbc0b6437be1)
 
 
-
 ## Bugs/Suggestions
 This isn't a finished release, so there's likely bugs that I've either already found or haven't yet found. If you do find a bug, or have a suggestion for the hud, either make a github issue here or ping me (lordvgames) in the RoR2 modding discord server.
 
+
 ## Known Issues
-- Some hud elements are still edited when a survivor is added to the mod's blacklist
 - Changing resolutions mid-stage doesn't re-scale the hud
-- - Kind of a vanilla issue, especially when going from a big resolution to a small one, but I feel it should still be mentioned
+- - Kind of a vanilla issue, especially when going from a big resolution to a small OnInitialHudColorEditsFinishedone, but I feel it should still be mentioned
 - Having the "auto highlight when opening the inventory menu" setting disabled causes movement to stop when hovering over a player's inventory
-- - This can be fixed by re-enabling the option, or it can be worked around by first clicking on an item icon
+- - Another vanilla issue that's caused immediately by that new option. This can be fixed by re-enabling the option, or it can be worked around by first clicking on an item icon
 - Having the [HealthbarImmune](https://thunderstore.io/c/riskofrain2/p/DestroyedClone/HealthbarImmune/) mod causes the hp bar text to disappear
 - - May or may not be an issue from HealthbarImmune itself. In any case, installing [NoMoreMath](https://thunderstore.io/package/Goorakh/NoMoreMath/) seems to fix it, even with the "effective health" setting off
 
 
+## For mod developers
+The mod includes some events you can subscribe to that correlate to when certain stages of the HUD editing process are done. These are, in order of completion:
+- `HudChanges.HudStructure.OnHudStructureEditsFinished`
+- `HudChanges.HudDetails.OnHudDetailEditsFinished`
+- `Main.OnSurvivorSpecificHudEditsFinished` (repeatable)
+- `HudChanges.HudColor.OnHudColorUpdate` (repeatable)
+The repeatable events happen when the camera/HUD's target changes, so any changes that depend on a specific survivor should go in either.
 
-## <sub><sup>and yes, i did get permission to continue the mod</sup></sub>
+
+## <sub><sup>yes, i did get permission to continue the mod</sup></sub>
 
 ![image](https://github.com/user-attachments/assets/131bd210-4f3b-42ea-a0cf-ebf7ae7db98f)

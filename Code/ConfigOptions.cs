@@ -335,7 +335,7 @@ namespace CleanestHud
                 "HUD Settings - Survivor Specific",
                 "Survivor Blacklist",
                 "",
-                "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the mod's hud changes when playing that survivor. Each body name needs separated by a comma and NO spaces."
+                "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the majority of the mod's hud changes when playing that survivor. Each body name needs separated by a comma and NO spaces."
             );
             BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
 

@@ -57,7 +57,7 @@ namespace CleanestHud
             RunArtifactManager.onArtifactEnabledGlobal += Main.Events.RunArtifactManager_onArtifactEnabledGlobal;
 
             HudChanges.HudDetails.OnHudDetailEditsFinished += ModSupport.LookingGlassMod.OnHudDetailEditsFinished;
-            HudChanges.HudColor.OnHudColorEditsFinished += ModSupport.DriverMod.OnHudColorEditsFinished;
+            HudChanges.HudColor.OnHudColorUpdate += ModSupport.DriverMod.OnHudColorUpdate;
 
             if (ModSupport.Starstorm2.ModIsRunning)
             {

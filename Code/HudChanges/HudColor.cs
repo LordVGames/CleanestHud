@@ -1,19 +1,23 @@
-﻿using RoR2;
-using RoR2.UI;
+﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using RoR2;
+using RoR2.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
-using System.Linq;
-using System;
 
 namespace CleanestHud.HudChanges
 {
     public class HudColor
     {
+        public const float DefaultHudColorIntensity = 0.643f;
+        public const float DefaultSurvivorColorMultiplier = 0.85f;
+
+
         public static Color SurvivorColor
         {
             get { return _survivorColor; }
@@ -44,10 +48,38 @@ namespace CleanestHud.HudChanges
         }
         private static Color _survivorColor;
 
-        public const float DefaultHudColorIntensity = 0.643f;
-        public const float DefaultSurvivorColorMultiplier = 0.85f;
 
-        public static event Action OnHudColorEditsFinished;
+        /// <summary>
+        /// Happens after <see cref="UpdateHudColor"/> fully colors the HUD. Will not run if <see cref="SurvivorColor"/> is set to a new color but the HUD's current color is the same.
+        /// </summary>
+        /// <remarks>
+        /// In multiplayer, this may successfully run twice during the coloring process, as a second coloring is attempted 0.15 seconds after the first to fix the game sometimes grabbing the wrong player's body color in the first coloring.
+        /// </remarks>
+        public static event Action OnHudColorUpdate;
+
+
+        internal static IEnumerator SetSurvivorColorFromTargetBody(CharacterBody targetCharacterBody)
+        {
+            // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
+            // so we're gonna set the color like normal then wait a tiny bit then get the color again
+            // basically doesn't do anything in singleplayer and it's not really noticeable in multiplayer since everything is fading in while this happens
+            SurvivorColor = Main.Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
+            if (IsColorChangeCoroutineWaiting)
+            {
+                yield break;
+            }
+            yield return new WaitForSeconds(0.15f);
+            IsColorChangeCoroutineWaiting = true;
+            if (targetCharacterBody == null)
+            {
+                Log.Error("targetCharacterBody WAS NULL IN SetSurvivorColorFromTargetBody! NO HUD COLOR CHANGES WILL OCCUR!");
+                yield break;
+            }
+            Log.Debug($"targetCharacterBody.baseNameToken after dumbass delay is {targetCharacterBody.baseNameToken}");
+            SurvivorColor = Main.Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
+            IsColorChangeCoroutineWaiting = false;
+        }
+
 
         public static void UpdateHudColor()
         {
@@ -61,7 +93,7 @@ namespace CleanestHud.HudChanges
             {
                 return;
             }
-            Log.Debug($"SurvivorColor is {SurvivorColor}");
+            Log.Debug($"Now updating the HUD's color, SurvivorColor is {SurvivorColor}");
 
 
 
@@ -78,7 +110,12 @@ namespace CleanestHud.HudChanges
             ColorSkillAndEquipmentSlots();
             ColorCurrenciesPanel();
             ColorInspectionPanel(Helpers.GetContainerFromScoreboardPanel(ImportantHudTransforms.SpringCanvas.Find("ScoreboardPanel")));
-            OnHudColorEditsFinished?.Invoke();
+            MyHud?.StartCoroutine(DelayInvokeOnHudColorUpdate());
+        }
+        private static IEnumerator DelayInvokeOnHudColorUpdate()
+        {
+            yield return null;
+            OnHudColorUpdate?.Invoke();
         }
         private static void ColorXpBar(Transform xpBarRoot)
         {
@@ -274,6 +311,11 @@ namespace CleanestHud.HudChanges
         }
         internal static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip, Color newColor)
         {
+            if (!IsHudEditable)
+            {
+                return;
+            }
+
             Color colorToUse;
             if (ConfigOptions.AllowScoreboardItemHighlightColoring.Value)
             {
@@ -298,6 +340,10 @@ namespace CleanestHud.HudChanges
         }
         internal static void ColorSingleItemIconHighlight(ItemIcon itemIcon)
         {
+            if (!IsHudEditable)
+            {
+                return;
+            }
             if (itemIcon == null || itemIcon.glowImage == null)
             {
                 Log.Debug("Item icon or it's image was null, not coloring it.");

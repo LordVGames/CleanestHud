@@ -7,6 +7,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Object;
 using HarmonyLib;
 using RoR2;
 using RoR2.UI;
@@ -15,6 +16,9 @@ using RiskOfOptions.Options;
 using RiskOfOptions.OptionConfigs;
 using SS2;
 using static CleanestHud.Main;
+using CleanestHud.HudChanges;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace CleanestHud
 {
@@ -188,7 +192,7 @@ namespace CleanestHud
             {
                 if (LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay != null)
                 {
-                    LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.SettingChanged += ModSupport.LookingGlassMod.StatsPanelConfig_SettingChanged;
+                    LookingGlass.StatsDisplay.StatsDisplayClass.statsDisplay.SettingChanged += StatsPanelConfig_SettingChanged;
                 }
             }
             internal static void StatsPanelConfig_SettingChanged(object sender, EventArgs e)
@@ -337,7 +341,7 @@ namespace CleanestHud
                         Vector3 alreadyScaled = new(1.1f, 1.1f, 1.1f);
                         if (injectorSlotIsReadyPanel.localScale != alreadyScaled)
                         {
-                            HudChanges.HudStructure.ScaleEquipmentSlot(injectorSlotDisplayRoot, 1.1f);
+                            HudStructure.ScaleEquipmentSlot(injectorSlotDisplayRoot, 1.1f);
                         }
                     }
                 }
@@ -373,11 +377,11 @@ namespace CleanestHud
 
                         Transform injectorSlotIsReadyPanel = injectorSlotDisplayRoot.GetChild(0);
                         Image injectorSlotEquipmentIsReadyPanelImage = injectorSlotIsReadyPanel.GetComponent<Image>();
-                        injectorSlotEquipmentIsReadyPanelImage.color = Helpers.GetAdjustedColor(HudChanges.HudColor.SurvivorColor, colorIntensityMultiplier: HudChanges.HudColor.DefaultHudColorIntensity);
+                        injectorSlotEquipmentIsReadyPanelImage.color = Main.Helpers.GetAdjustedColor(HudColor.SurvivorColor, colorIntensityMultiplier: HudColor.DefaultHudColorIntensity);
 
                         Transform injectorSlotBGPanel = injectorSlotDisplayRoot.Find("BGPanel");
                         Image injectorSlotBGPanelImage = injectorSlotBGPanel.GetComponent<Image>();
-                        injectorSlotBGPanelImage.color = Helpers.GetAdjustedColor(HudChanges.HudColor.SurvivorColor, colorIntensityMultiplier: HudChanges.HudColor.DefaultHudColorIntensity);
+                        injectorSlotBGPanelImage.color = Main.Helpers.GetAdjustedColor(HudColor.SurvivorColor, colorIntensityMultiplier: HudColor.DefaultHudColorIntensity);
                     }
                 }
             }
@@ -394,6 +398,7 @@ namespace CleanestHud
                     return (bool)_modexists;
                 }
             }
+            internal static bool AllowDriverWeaponSlotCreation = false;
             internal static Transform DriverWeaponSlot
             {
                 get
@@ -413,53 +418,130 @@ namespace CleanestHud
             internal static class HarmonyPatches
             {
                 [HarmonyPatch(typeof(RobDriver.Modules.Misc.DriverHooks), nameof(RobDriver.Modules.Misc.DriverHooks.NormalHudSetup))]
+                [HarmonyILManipulator]
+                internal static void TakeActionRegardingThatIndividual(ILContext il)
+                {
+                    // relax i'll handle it
+                    ILCursor c = new(il);
+                    // I AM THE IL CURSOR
+                    ILLabel skipSprintAndInventoryReminders = c.DefineLabel();
+
+
+
+                    if (!c.TryGotoNext(MoveType.AfterLabel,
+                        x => x.MatchLdloc(0),
+                        x => x.MatchLdstr("SprintCluster")
+                    ))
+                    {
+                        Log.Error($"COULD NOT IL HOOK {il.Method.Name} PART 1");
+                        Log.Warning($"il is {il}");
+                    }
+                    c.EmitDelegate<Func<bool>>(() => { return IsHudUserBlacklisted; });
+                    c.Emit(OpCodes.Brfalse, skipSprintAndInventoryReminders);
+
+
+
+                    if (!c.TryGotoNext(MoveType.After,
+                        x => x.MatchLdloc(0),
+                        x => x.MatchLdstr("InventoryCluster")
+                    ))
+                    {
+                        Log.Error($"COULD NOT IL HOOK {il.Method.Name} PART 2");
+                        Log.Warning($"il is {il}");
+                    }
+                    c.Index += 4; // go after the line
+                    c.MarkLabel(skipSprintAndInventoryReminders);
+                }
+
+
+                [HarmonyPatch(typeof(RobDriver.Modules.Misc.DriverHooks), nameof(RobDriver.Modules.Misc.DriverHooks.NormalHudSetup))]
                 [HarmonyPrefix]
                 internal static bool ShouldAllowWeaponSlotCreation()
                 {
-                    return AllowDriverWeaponSlotCreation;
+                    if (IsHudUserBlacklisted)
+                    {
+                        Log.Warning("GGGGGGGGGGGG");
+                        return true;
+                    }
+                    else
+                    {
+                        Log.Warning("HHHHHHHHH");
+                        return AllowDriverWeaponSlotCreation;
+                    }
                 }
             }
 
 
 
-            internal static void EditWeaponSlotStructure()
+            internal static void OnSurvivorSpecificHudEditsFinished()
+            {
+                if (HudTargetBody?.baseNameToken != "ROB_DRIVER_BODY_NAME")
+                {
+                    TryDestroyDriverWeaponSlot();
+                }
+            }
+
+            // once OnHudColorUpdate happens if the weapon slot is created it'll copy what we've edited and (almost) everything will be good
+            // doing it in OnHudColorUpdate though since i want it to be a survivor specific thing that happens regardless if driver is blacklisted or not
+            internal static void OnHudColorUpdate()
+            {
+                if (HudTargetBody == null || HudTargetBody.baseNameToken != "ROB_DRIVER_BODY_NAME")
+                {
+                    return;
+                }
+
+
+                AllowDriverWeaponSlotCreation = true;
+                // HACK: try/catch block is here to hide an NRE from Driver's NormalHudSetup until it gets fixed on DriverMod's end
+                // it also allows EditWeaponSlotStructure to happen through what would be an NRE
+                try
+                {
+                    RobDriver.Modules.Misc.DriverHooks.NormalHudSetup(MyHud);
+                }
+                catch{}
+                if (!IsHudUserBlacklisted)
+                {
+                    MyHud?.StartCoroutine(DelayEditWeaponSlotStructure());
+                }
+            }
+
+
+
+            private static IEnumerator DelayEditWeaponSlotStructure()
+            {
+                yield return null;
+                EditWeaponSlotStructure();
+            }
+            private static void EditWeaponSlotStructure()
             {
                 if (!IsHudEditable)
                 {
                     return;
                 }
+                Transform firstSkillSlotTextPanel = MyHud.skillIcons[0].transform.GetChild(5);
                 Transform driverWeaponSlot = DriverWeaponSlot;
                 if (driverWeaponSlot == null)
                 {
+                    Log.Debug("Driver weapon slot was null in EditWeaponSlotStructure");
                     return;
                 }
-                Transform firstSkillSlotTextPanel = MyHud.skillIcons[0].transform.GetChild(5);
-                Transform weaponSlotTextPanel = driverWeaponSlot.GetChild(6);
-                Transform weaponChargeBar = driverWeaponSlot.GetChild(10);
+                Transform displayRoot = DriverWeaponSlot.GetChild(1);
+                Transform weaponSlotTextPanel = displayRoot.GetChild(6);
+                Transform weaponChargeBar = displayRoot.GetChild(10);
 
                 weaponSlotTextPanel.position = new Vector3(weaponSlotTextPanel.position.x, firstSkillSlotTextPanel.position.y, weaponSlotTextPanel.position.z);
-                weaponChargeBar.localScale = new Vector3(0.6f, weaponChargeBar.localScale.y, weaponChargeBar.localScale.z);
-                weaponChargeBar.localPosition = new Vector3(weaponChargeBar.localPosition.x, -6, weaponChargeBar.localPosition.z);
+                weaponChargeBar.localScale = new Vector3(0.44f, weaponChargeBar.localScale.y, weaponChargeBar.localScale.z);
+                weaponChargeBar.localPosition = new Vector3(weaponChargeBar.localPosition.x, -0.5f, weaponChargeBar.localPosition.z);
             }
 
-
-
-            internal static void OnHudColorEditsFinished()
+            internal static void TryDestroyDriverWeaponSlot()
             {
-                // once OnHudColorEditsFinished happens if the weapon slot is created it'll copy what we've edited and everything will be good
-                AllowDriverWeaponSlotCreation = true;
-                if (IsCameraTargetDriver)
+                Log.Debug("TryDestroyDriverWeaponSlot");
+                try
                 {
-                    try
-                    {
-                        RobDriver.Modules.Misc.DriverHooks.NormalHudSetup(MyHud);
-                    }
-                    catch
-                    {
-
-                    }
-                    EditWeaponSlotStructure();
+                    Destroy(MyHud.equipmentIcons[0].gameObject.transform.parent.Find("WeaponSlot").gameObject);
                 }
+                catch{};
             }
         }
     }

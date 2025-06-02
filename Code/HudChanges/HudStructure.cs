@@ -18,7 +18,7 @@ namespace CleanestHud.HudChanges
 
         internal static class AssetEdits
         {
-            internal static void EditHudElementPrefabs()
+            internal static void LiveEditHudElementPrefabs()
             {
                 EditScoreboardStripAsset();
             }
@@ -46,6 +46,7 @@ namespace CleanestHud.HudChanges
 
         internal static void EditHudStructure()
         {
+            Log.Debug("EditHudStructure");
             if (IsGameModeSimulacrum)
             {
                 // the wave panel along with a few other things are within the whole wave ui transform
@@ -585,7 +586,6 @@ namespace CleanestHud.HudChanges
         }
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {
-            Transform longBackground = scoreboardStripTransform.GetChild(0);
             HudEditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<HudEditorComponents.ScoreboardStripEditor>();
 
             // ClassBackground's local position is handled by the component
@@ -664,18 +664,6 @@ namespace CleanestHud.HudChanges
             );
 
             RepositionSprintAndInventoryReminders();
-        }
-
-
-
-        internal static void DestroyDriverWeaponSlot()
-        {
-            if (!IsHudEditable)
-            {
-                return;
-            }
-
-            Destroy(MyHud.equipmentIcons[0].gameObject.transform.parent.Find("WeaponSlot").gameObject);
         }
     }
 }

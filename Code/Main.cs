@@ -17,18 +17,18 @@ namespace CleanestHud
 {
     public static class Main
     {
-        internal static HUD MyHud = null;
-        internal static ChildLocator MyHudLocator = null;
-        internal static bool IsHudFinishedLoading = false;
-        internal static bool IsHudUserBlacklisted = false;
-        internal static bool IsColorChangeCoroutineWaiting = false;
-        internal static bool IsHudEditable
+        public static HUD MyHud = null;
+        public static ChildLocator MyHudLocator = null;
+        public static bool IsHudFinishedLoading = false;
+        public static bool IsHudUserBlacklisted = true;
+        public static bool IsHudEditable
         {
             get
             {
                 return IsHudFinishedLoading && !IsHudUserBlacklisted && MyHudLocator != null;
             }
         }
+        internal static bool IsColorChangeCoroutineWaiting = false;
         internal static List<Color> LastKnownScoreboardBodyColors = [];
         internal static CharacterBody HudTargetBody
         {
@@ -37,16 +37,16 @@ namespace CleanestHud
                 if (!MyHud)
                 {
                     Log.Error("HUD did not exist when trying to get HudTargetBody!");
+                    return null;
                 }
                 if (!MyHud.targetBodyObject)
                 {
                     Log.Error("HUD did not have a valid targetBodyObject!");
+                    return null;
                 }
-                return MyHud.targetBodyObject.GetComponent<CharacterBody>();
+                return MyHud.cameraRigController.targetBody;
             }
         }
-        internal static bool AllowDriverWeaponSlotCreation = false;
-        internal static bool IsCameraTargetDriver = false;
         internal static bool IsGameModeSimulacrum
         {
             get
@@ -66,7 +66,17 @@ namespace CleanestHud
                 return false;
             }
         }
-        public static event Action OnAllHudEditsFinished;
+
+
+
+        /// <summary>
+        /// Happens after HUD structure edits, HUD detail edits, and survivor-specific HUD elements have all been edited, but not HUD coloring.
+        /// </summary>
+        /// <remarks>
+        /// Can happen multiple times after the HUD is created due to happening a frame after a camera target change.
+        /// </remarks>
+        public static event Action OnSurvivorSpecificHudEditsFinished;
+        private static bool HasSurvivorSpecificHudEditsEventBeenRaised = false;
 
 
 
@@ -79,7 +89,7 @@ namespace CleanestHud
                 Log.Debug("HUD_Awake");
                 MyHud = hud;
                 MyHudLocator = MyHud.GetComponent<ChildLocator>();
-                HudStructure.AssetEdits.EditHudElementPrefabs();
+                HudStructure.AssetEdits.LiveEditHudElementPrefabs();
                 ImportantHudTransforms.FindImportantHudTransforms();
 
                 // for SOME reason the hp bar's sub bars don't exist on AWAKE????
@@ -99,19 +109,45 @@ namespace CleanestHud
             }
             private static void BeginLiveHudChanges()
             {
-                CanvasGroup wholeHudCanvasGroup = MyHud.GetComponent<CanvasGroup>() ?? MyHud.gameObject.AddComponent<CanvasGroup>();
-                wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
+                IsHudFinishedLoading = true;
+
 
                 // storing HudTargetBody to prevent doing extra GetComponent calls from getting HudTargetBody
                 CharacterBody targetBody = HudTargetBody;
 
-                IsHudFinishedLoading = true;
+
+
                 // substring is to remove "(Clone)" from the end of the name
-                if (ConfigOptions.BodyNameBlacklist_Array.Contains(targetBody.name.Substring(0, targetBody.name.Length - 7)))
+                string properBodyName = targetBody.name.Substring(0, targetBody.name.Length - 7);
+                if (ConfigOptions.BodyNameBlacklist_Array.Contains(properBodyName))
                 {
+                    Log.Info($"Character body {properBodyName} is blacklisted from the HUD! 99% of HUD changes will not occur.");
                     IsHudUserBlacklisted = true;
                     return;
                 }
+                else
+                {
+                    Log.Debug($"Character body {properBodyName} is NOT blacklisted from the HUD!");
+                    IsHudUserBlacklisted = false;
+                }
+
+
+                // sometimes an extra sub bar gets perma enabled??? it makes the healthbar a very light green and i don't want that
+                // this is done before the blacklist check because this can happen even though a chaaracter is blacklisted?????????
+                Image badHpBarImage = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots").Find("HealthbarRoot").GetChild(0).GetChild(1).GetComponent<Image>();
+                if (badHpBarImage != null)
+                {
+                    badHpBarImage.enabled = false;
+                }
+                else
+                {
+                    Log.Info("Couldn't find bad HP bar image. There's a chance an HP bar may appear more light-green than usual.");
+                }
+
+
+                CanvasGroup wholeHudCanvasGroup = MyHud.GetComponent<CanvasGroup>() ?? MyHud.gameObject.AddComponent<CanvasGroup>();
+                wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
+
 
                 HudStructure.EditHudStructure();
                 HudStructure.RepositionHudElementsBasedOnWidth();
@@ -125,10 +161,10 @@ namespace CleanestHud
             {
                 orig(self);
                 IsHudFinishedLoading = false;
-                IsHudUserBlacklisted = false;
+                IsHudUserBlacklisted = true;
                 IsColorChangeCoroutineWaiting = false;
-                AllowDriverWeaponSlotCreation = false;
-                IsCameraTargetDriver = false;
+                HasSurvivorSpecificHudEditsEventBeenRaised = false;
+                ModSupport.DriverMod.AllowDriverWeaponSlotCreation = false;
                 HudColor.SurvivorColor = Color.clear;
             }
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
@@ -153,63 +189,39 @@ namespace CleanestHud
             {
                 // delay a frame to make sure everything that needs to be changed/setup has been (i.e. survivor specific ui)
                 yield return null;
-                Log.Debug("OnCameraChange");
+                Log.Debug("DelayOnCameraChange");
                 if (cameraRigController.targetBody == null)
                 {
-                    Log.Error("targetCharacterBody WAS NULL IN OnCameraChange PART 1! NO HUD CHANGES WILL OCCUR!");
+                    Log.Error("targetCharacterBody WAS NULL IN DelayOnCameraChange! NO HUD CHANGES WILL OCCUR!");
                     yield break;
                 }
                 HudStructure.MoveSpectatorLabel();
-                if (cameraRigController.targetBody.baseNameToken == "ROB_DRIVER_BODY_NAME")
-                {
-                    IsCameraTargetDriver = true;
-                }
-                else
-                {
-                    IsCameraTargetDriver = false;
-                    HudStructure.DestroyDriverWeaponSlot();
-                }
-
-                // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
-                // so we're gonna set the color like normal then wait a tiny bit then get the color again
-                // not noticeable in singleplayer and not really noticeable in multiplayer since everything is fading in while this happens
-                HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudColor.DefaultSurvivorColorMultiplier, HudColor.DefaultSurvivorColorMultiplier);
-                if (IsColorChangeCoroutineWaiting)
-                {
-                    yield break;
-                }
-                IsColorChangeCoroutineWaiting = true;
-                yield return new WaitForSeconds(0.15f);
-                if (cameraRigController.targetBody == null)
-                {
-                    Log.Error("targetCharacterBody WAS NULL IN OnCameraChange PART 2! NO HUD COLOR CHANGES WILL OCCUR!");
-                    yield break;
-                }
-                Log.Debug($"cameraRigController.targetBody after dumbass delay is {cameraRigController.targetBody.baseNameToken}");
                 EditSurvivorSpecificUI(cameraRigController.targetBody);
-                HudColor.SurvivorColor = Helpers.GetAdjustedColor(cameraRigController.targetBody.bodyColor, HudColor.DefaultSurvivorColorMultiplier, HudColor.DefaultSurvivorColorMultiplier);
-                IsColorChangeCoroutineWaiting = false;
+                MyHud.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
             }
             private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
             {
-                if (!IsHudEditable)
+                if (IsHudEditable)
+                {
+                    switch (targetCharacterBody.baseNameToken)
+                    {
+                        case "VOIDSURVIVOR_BODY_NAME":
+                            SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
+                            break;
+                        case "SEEKER_BODY_NAME":
+                            SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
+                            break;
+                    }
+                }
+                else
                 {
                     Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
-                    return;
                 }
-
-
-
-                switch (targetCharacterBody.baseNameToken)
+                if (!HasSurvivorSpecificHudEditsEventBeenRaised)
                 {
-                    case "VOIDSURVIVOR_BODY_NAME":
-                        SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
-                        break;
-                    case "SEEKER_BODY_NAME":
-                        SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
-                        break;
+                    OnSurvivorSpecificHudEditsFinished?.Invoke();
+                    HasSurvivorSpecificHudEditsEventBeenRaised = true;
                 }
-                OnAllHudEditsFinished?.Invoke();
             }
             #endregion
 
@@ -235,6 +247,7 @@ namespace CleanestHud
                     return;
                 }
 
+
                 // icons go out of the background when there's not a lot of allies so they need to be changed a lil bit
                 Transform portrait = self.transform.GetChild(0);
                 MyHud.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
@@ -255,6 +268,7 @@ namespace CleanestHud
                     return;
                 }
 
+
                 if (ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
                     HudColor.ColorAllyCardControllerBackground(self);
@@ -270,8 +284,10 @@ namespace CleanestHud
                     orig(self);
                     return;
                 }
-
                 Log.Debug("HealthBar_InitializeHealthBar");
+
+
+
                 // sots added a new way of showing the hp bar's text which is sadly lower quality than the original
                 // luckily we can just disable the new way and it will fall back to the old higher quality way
                 self.spriteAsNumberManager = null;
@@ -294,12 +310,8 @@ namespace CleanestHud
                 {
                     Log.Error("Couldn't find \"Slash\" on the HP bar! Another mod may have already disabled/removed it. This means the improved HP bar text will not be shown, and no text will be shown if \"managedSpriteHP\" was successfully set to inactive. Report this on github!");
                 }
-                // sometimes an extra sub bar gets perma enabled??? it makes the healthbar a very light green and i don't want that
-                Image badHpBarImage = HudResources.ImportantHudTransforms.BarRoots.Find("HealthbarRoot").GetChild(2).GetComponent<Image>();
-                if (badHpBarImage)
-                {
-                    badHpBarImage.enabled = false;
-                }
+
+
 
                 orig(self);
             }
@@ -341,19 +353,20 @@ namespace CleanestHud
                     return;
                 }
 
-                //asset edit was here???
                 HudDetails.SetScoreboardLabelsActiveOrNot(scoreboardController.transform);
                 orig(scoreboardController);
-                //SetupSuppressedItemsStripEditor(scoreboardController);
                 MyHud.StartCoroutine(DelayScoreboardController_Rebuild(scoreboardController));
             }
             private static IEnumerator DelayScoreboardController_Rebuild(ScoreboardController scoreboardController)
             {
+                if (!IsHudEditable)
+                {
+                    yield break;
+                }
+
                 // wait a frame first to make scoreboard strips added by other mods work
                 yield return null;
                 EditScoreboardStripsIfApplicable(scoreboardController);
-                //yield return new WaitForSeconds(1);
-                //HudDetails.EditSuppressedItemsStrip();
                 SetupSuppressedItemsStripEditor(scoreboardController);
             }
             private static void EditScoreboardStripsIfApplicable(ScoreboardController scoreboardController)
@@ -369,7 +382,7 @@ namespace CleanestHud
 
                     Transform longBackground = scoreboardStripTransform.GetChild(0);
                     Image longBackgroundImage = longBackground.GetComponent<Image>();
-                    if (scoreboardStrip.userBody != null && !Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, scoreboardStrip.userBody.bodyColor))
+                    if (IsHudEditable && scoreboardStrip.userBody != null && !Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, scoreboardStrip.userBody.bodyColor))
                     {
                         HudColor.ColorAllOfScoreboardStrip(scoreboardStrip, scoreboardStrip.userBody.bodyColor);
                     }
@@ -500,13 +513,14 @@ namespace CleanestHud
                         return;
                     }
 
+                    Log.Warning($"IsHudUserBlacklisted is {IsHudUserBlacklisted}");
                     // the first buff always has +6 rotation on Y because ?????????? so it needs to be reset to 0
                     // also i swear this was working without needing to delay it but now i have to?????
                     if (buffDisplay.buffIconDisplayData[0].buffIconComponent != null)
                     {
                         MyHud.StartCoroutine(DelayFixFirstBuffRotation(buffDisplay.buffIconDisplayData[0].buffIconComponent.rectTransform));
                     }
-                    if (IsHudEditable)
+                    if (!IsHudUserBlacklisted)
                     {
                         buffDisplay.rectTranform.localPosition = new Vector3(-24 * buffDisplay.buffIconDisplayData.Count, -45, 0);
                     }
@@ -516,7 +530,10 @@ namespace CleanestHud
             private static IEnumerator DelayFixFirstBuffRotation(RectTransform rectTransform)
             {
                 yield return null;
-                rectTransform.rotation = Quaternion.identity;
+                if (IsHudFinishedLoading)
+                {
+                    rectTransform.rotation = Quaternion.identity;
+                }
             }
 
 
@@ -544,13 +561,18 @@ namespace CleanestHud
                     c.Emit(OpCodes.Ldarg_0);
                     c.EmitDelegate<Action<ItemIcon>>((itemIcon) =>
                     {
+                        if (IsHudUserBlacklisted)
+                        {
+                            return;
+                        }
                         if (itemIcon.image.name != "ItemIconScoreboard_InGame(Clone)")
                         {
                             return;
                         }
 
+
                         // doing this doesn't actually cause that much lag and only happens for whatever icons are added/updated
-                        // it also makes future mass glowimage coloring super good on performance
+                        // it also makes future mass glowimage coloring better on performance
                         itemIcon.glowImage = itemIcon.transform.GetChild(1).GetComponent<RawImage>();
                         HudColor.ColorSingleItemIconHighlight(itemIcon);
                     });
