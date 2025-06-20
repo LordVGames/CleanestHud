@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CleanestHud
 {
     internal static class Extensions
     {
-        public static Transform FindWithPartialMatch(this Transform thisTransform, string partialName)
+        internal static Transform FindWithPartialMatch(this Transform thisTransform, string partialName)
         {
             if (thisTransform.childCount == 0)
             {
@@ -25,7 +26,7 @@ namespace CleanestHud
             return null;
         }
 
-        public static List<Transform> FindListOfPartialMatches(this Transform thisTransform, string partialName)
+        internal static List<Transform> FindListOfPartialMatches(this Transform thisTransform, string partialName)
         {
             List<Transform> list = new List<Transform>();
             if (thisTransform.childCount == 0)
@@ -41,6 +42,30 @@ namespace CleanestHud
                 }
             }
             return list;
+        }
+
+        internal static void DisableImageComponent(this Transform transform)
+        {
+            if (transform.TryGetComponent<Image>(out Image imageComponent))
+            {
+                imageComponent.enabled = false;
+            }
+            else
+            {
+                Log.Error($"Could not find image component in transform {transform.name}");
+            }
+        }
+
+        internal static void DisableImageComponent(this GameObject gameObject)
+        {
+            if (gameObject.TryGetComponent<Image>(out Image imageComponent))
+            {
+                imageComponent.enabled = false;
+            }
+            else
+            {
+                Log.Error($"Could not find image component in gameObject {gameObject.name}");
+            }
         }
     }
 }

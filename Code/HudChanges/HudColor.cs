@@ -9,6 +9,7 @@ using RoR2;
 using RoR2.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
+using MiscFixes.Modules;
 
 namespace CleanestHud.HudChanges
 {
@@ -26,7 +27,6 @@ namespace CleanestHud.HudChanges
                 Log.Debug("SurvivorColor has changed!");
                 Log.Debug($"New newColor will be {value}");
                 Log.Debug($"_survivorColor is {_survivorColor}");
-                // i hate this
                 if (MyHud && MyHud.skillIcons.Length > 0)
                 {
                     if (MyHud.skillIcons[0].isReadyPanelObject.GetComponent<Image>().color == value)
@@ -106,7 +106,7 @@ namespace CleanestHud.HudChanges
             {
                 ColorDifficultyBar();
             }
-            ColorXpBar(ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster").Find("ExpBarRoot"));
+            ColorXpBar(ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster/ExpBarRoot"));
             ColorSkillAndEquipmentSlots();
             ColorCurrenciesPanel();
             ColorInspectionPanel(Helpers.GetContainerFromScoreboardPanel(MyHudLocator.FindChild("ScoreboardPanel")));
@@ -119,12 +119,9 @@ namespace CleanestHud.HudChanges
         }
         private static void ColorXpBar(Transform xpBarRoot)
         {
-            Transform shrunkenExpBarRoot = xpBarRoot.Find("ShrunkenRoot");
-            Transform fillPanel = shrunkenExpBarRoot.Find("FillPanel");
-            Image fillPanelImage = fillPanel.GetComponent<Image>();
-
             Color tempSurvivorColor = SurvivorColor;
             tempSurvivorColor.a = 0.72f;
+            Image fillPanelImage = xpBarRoot.Find("ShrunkenRoot/FillPanel").GetComponent<Image>();
             fillPanelImage.color = tempSurvivorColor;
 
         }
@@ -141,8 +138,7 @@ namespace CleanestHud.HudChanges
                 Image equipmentIsReadyPanelImage = equipmentIcon.isReadyPanelObject.GetComponent<Image>();
                 equipmentIsReadyPanelImage.color = SurvivorColor;
 
-                Transform equipmentBGPanel = equipmentIcon.displayRoot.transform.Find("BGPanel");
-                Image equipmentBGPanelImage = equipmentBGPanel.GetComponent<Image>();
+                Image equipmentBGPanelImage = equipmentIcon.displayRoot.transform.Find("BGPanel").GetComponent<Image>();
                 equipmentBGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
             }
             if (ModSupport.Starstorm2.ModIsRunning)
@@ -152,38 +148,42 @@ namespace CleanestHud.HudChanges
         }
         private static void ColorCurrenciesPanel()
         {
-            Transform moneyRoot = MyHud.moneyText.transform;
-            Transform moneyBackgroundPanel = moneyRoot.Find("BackgroundPanel");
-            Transform upperLeftCluster = moneyRoot.parent;
-            Transform lunarCoinRoot = upperLeftCluster.Find("LunarCoinRoot");
-            Transform lunarCoinBackgroundPanel = lunarCoinRoot.Find("BackgroundPanel");
-            // void coins aren't used in vanilla, but wolfo's simulacrum mod makes use of them
-            Transform voidCoinRoot = upperLeftCluster.Find("VoidCoinRoot");
-            Transform voidCoinBackgroundPanel = voidCoinRoot.Find("BackgroundPanel");
-
+            Transform upperLeftCluster = MyHudLocator.FindChild("UpperLeftCluster");
             Color colorToUse = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
-            RawImage moneyBackgroundPanelImage = moneyBackgroundPanel.GetComponent<RawImage>();
+
+
+
+            RawImage moneyBackgroundPanelImage = MyHud.moneyText.transform.Find("BackgroundPanel").GetComponent<RawImage>();
             moneyBackgroundPanelImage.color = colorToUse;
+
+
+
+            Transform lunarCoinBackgroundPanel = upperLeftCluster.Find("LunarCoinRoot/BackgroundPanel");
             RawImage lunarCoinBackgroundPanelImage = lunarCoinBackgroundPanel.GetComponent<RawImage>();
             lunarCoinBackgroundPanelImage.color = colorToUse;
+
+
+
+            // void coins aren't used in vanilla, but wolfo's simulacrum mod makes use of them
+            Transform voidCoinBackgroundPanel = upperLeftCluster.Find("VoidCoinRoot/BackgroundPanel");
             RawImage voidCoinBackgroundPanelImage = voidCoinBackgroundPanel.GetComponent<RawImage>();
             voidCoinBackgroundPanelImage.color = colorToUse;
         }
         private static void ColorInspectionPanel(Transform container)
         {
-            Transform inspectionPanel = container.Find("InspectPanel").GetChild(0).GetChild(0);
-            Image inspectionPanelImage = inspectionPanel.GetComponent<Image>();
+            Image inspectionPanelImage = container.Find("InspectPanel").GetChild(0).GetChild(0).GetComponent<Image>();
             inspectionPanelImage.sprite = HudAssets.WhiteSprite;
             inspectionPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, transparencyMultiplier: 0.15f);
         }
         internal static void ColorDifficultyBar()
         {
             Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
-            Transform scrollView = difficultyBar.Find("Scroll View");
-            Transform backdrop = scrollView.Find("Backdrop");
+            Transform backdrop = difficultyBar.Find("Scroll View/Backdrop");
+
+
 
             Color[] difficultyBarSegmentColors = [];
-            if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
+            if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value)
             {
                 difficultyBarSegmentColors = [.. Enumerable.Repeat(SurvivorColor, 9)];
             }
@@ -203,6 +203,8 @@ namespace CleanestHud.HudChanges
                 ];
             }
 
+
+
             DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
             // this changes the newColor flash when the next difficulty BackgroundImage is reached
             for (int i = 0; i < difficultyBarController.segmentDefs.Length; i++)
@@ -212,7 +214,7 @@ namespace CleanestHud.HudChanges
             // this actually changes the colors of the difficulty segments
             for (int i = 0; i < difficultyBarController.images.Length; i++)
             {
-                HudEditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].gameObject.GetComponent<HudEditorComponents.DifficultyScalingBarColorChanger>() ?? difficultyBarController.images[i].gameObject.AddComponent<HudEditorComponents.DifficultyScalingBarColorChanger>();
+                HudEditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].GetOrAddComponent<HudEditorComponents.DifficultyScalingBarColorChanger>();
                 coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
             }
             // coloring the backdrop needs to happen as it fades in or else it gets overridden
@@ -245,7 +247,7 @@ namespace CleanestHud.HudChanges
 
             Transform fillBar = fillBarRoot.GetChild(3);
             Image fillBarImage = fillBar.GetComponent<Image>();
-            HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetComponent<HudEditorComponents.SimulacrumBarColorChanger>() ?? fillBarImage.gameObject.AddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
+            HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetOrAddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
             barImageColorChanger.newFillBarColor = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
         }
 

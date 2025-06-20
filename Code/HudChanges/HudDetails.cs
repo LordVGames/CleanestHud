@@ -11,7 +11,7 @@ using RoR2.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudChanges.HudEditorComponents;
-using System.Threading;
+using MiscFixes.Modules;
 
 namespace CleanestHud.HudChanges
 {
@@ -29,8 +29,8 @@ namespace CleanestHud.HudChanges
                 RemoveGameEndPanelDetails();
                 RemoveScoreboardStripAssetDetails();
                 RemoveMoonDetonationPanelDetails();
-                RemoveStatStripTemplateImage();
                 RemoveChatBoxDetails();
+                HudAssets.StatStripTemplate.DisableImageComponent();
             }
             private static void EditItemIcon()
             {
@@ -54,110 +54,69 @@ namespace CleanestHud.HudChanges
             private static void RemoveGameEndPanelDetails()
             {
                 Transform safeAreaJUICEDLMAO = HudAssets.GameEndReportPanel.transform.Find("SafeArea (JUICED)");
-                Transform headerArea = safeAreaJUICEDLMAO.Find("HeaderArea");
-                Transform deathFlavorText = headerArea.Find("DeathFlavorText");
-                Transform resultArea = headerArea.Find("ResultArea");
-                Transform resultLabel = resultArea.Find("ResultLabel");
+                Transform bodyArea = safeAreaJUICEDLMAO.Find("BodyArea");
 
-                HGTextMeshProUGUI deathFlavorTextMesh = deathFlavorText.GetComponent<HGTextMeshProUGUI>();
+
+
+                Transform headerArea = safeAreaJUICEDLMAO.Find("HeaderArea");
+
+                HGTextMeshProUGUI deathFlavorTextMesh = headerArea.Find("DeathFlavorText").GetComponent<HGTextMeshProUGUI>();
                 deathFlavorTextMesh.fontStyle = FontStyles.Normal;
                 deathFlavorTextMesh.fontSizeMax = 30f;
 
-                HGTextMeshProUGUI resultLabelMesh = resultLabel.GetComponent<HGTextMeshProUGUI>();
+                HGTextMeshProUGUI resultLabelMesh = headerArea.Find("ResultArea/ResultLabel").GetComponent<HGTextMeshProUGUI>();
                 resultLabelMesh.material = HudAssets.FontMaterial;
 
-                Transform bodyArea = safeAreaJUICEDLMAO.Find("BodyArea");
+
+
                 Transform statsAndChatArea = bodyArea.Find("StatsAndChatArea");
-                Transform statsContainer = statsAndChatArea.Find("StatsContainer");
-                GameObject borderImage = statsContainer.Find("BorderImage").gameObject;
-                borderImage.SetActive(false);
-
-                Transform statsAndPlayerNav = statsContainer.Find("Stats And Player Nav");
-                Transform statsHeader = statsAndPlayerNav.Find("Stats Header");
-                Image statsHeaderImage = statsHeader.GetComponent<Image>();
-                statsHeaderImage.enabled = false;
-
-                Transform statsBody = statsContainer.Find("Stats Body");
-                Image statsBodyImage = statsBody.GetComponent<Image>();
-                statsBodyImage.enabled = false;
-
-                Transform scrollView = statsBody.Find("ScrollView");
-                Transform viewport = scrollView.Find("Viewport");
-                Transform content = viewport.Find("Content");
-                Transform selectedDifficultyStrip = content.Find("SelectedDifficultyStrip");
-                Image selectedDifficultyStripImage = selectedDifficultyStrip.GetComponent<Image>();
-                selectedDifficultyStripImage.enabled = false;
-
-                Transform enabledArtifactsStrip = content.Find("EnabledArtifactsStrip");
-                Image enabledArtifactsStripImage = enabledArtifactsStrip.GetComponent<Image>();
-                enabledArtifactsStripImage.enabled = false;
-
-                Transform scrollbarVertical = scrollView.Find("Scrollbar Vertical");
-                Image scrollbarVerticalImage = scrollbarVertical.GetComponent<Image>();
-                scrollbarVerticalImage.enabled = false;
-
-                Transform slidingArea = scrollbarVertical.Find("Sliding Area");
-                Transform handle = slidingArea.Find("Handle");
-                Image handleImage = handle.GetComponent<Image>();
-                handleImage.enabled = false;
-
-                Transform rightArea = bodyArea.Find("RightArea");
-                Transform infoArea = rightArea.Find("InfoArea");
-                Transform infoAreaBorderImage = infoArea.Find("BorderImage");
-                Image infoAreaBorderImageImage = infoAreaBorderImage.GetComponent<Image>();
-                infoAreaBorderImageImage.enabled = false;
-
-                Transform infoHeader = infoArea.Find("Info Header");
-                Image infoHeaderImage = infoHeader.GetComponent<Image>();
-                infoHeaderImage.enabled = false;
-
-                Transform infoBody = infoArea.Find("Info Body");
-                Transform itemArea = infoBody.Find("ItemArea");
-                Transform itemHeader = itemArea.Find("Item Header");
-                Image itemHeaderImage = itemHeader.GetComponent<Image>();
-                itemHeaderImage.enabled = false;
-
-                Transform itemAreaScrollView = itemArea.Find("ScrollView");
-                Image itemAreaScrollViewImage = itemAreaScrollView.GetComponent<Image>();
-                itemAreaScrollViewImage.enabled = false;
-
-                Transform itemAreaScrollbarVertical = itemAreaScrollView.Find("Scrollbar Vertical");
-                Image itemAreaScrollbarVerticalImage = itemAreaScrollbarVertical.GetComponent<Image>();
-                itemAreaScrollbarVerticalImage.enabled = false;
-
-                Transform unlockArea = infoBody.Find("UnlockArea");
-                Transform unlockedHeader = unlockArea.Find("Unlocked Header");
-                Image unlockedHeaderImage = unlockedHeader.GetComponent<Image>();
-                unlockedHeaderImage.enabled = false;
-
-                Transform unlockAreaScrollView = unlockArea.Find("ScrollView");
-                Image unlockAreaScrollViewImage = unlockAreaScrollView.GetComponent<Image>();
-                unlockAreaScrollViewImage.enabled = false;
-
-                Transform unlockAreaScrollbarVertical = unlockAreaScrollView.Find("Scrollbar Vertical");
-                Image unlockAreaScrollbarVerticalImage = unlockAreaScrollbarVertical.GetComponent<Image>();
-                unlockAreaScrollbarVerticalImage.enabled = false;
-
                 Transform chatArea = statsAndChatArea.Find("ChatArea");
-                Image chatAreaImage = chatArea.GetComponent<Image>();
-                chatAreaImage.enabled = false;
-
                 Transform chatBox = chatArea.GetChild(0);
-                Transform permanentBg = chatBox.GetChild(0);
-                Image permanentBgImage = permanentBg.GetComponent<Image>();
-                permanentBgImage.enabled = false;
-
                 Transform standardRect = chatBox.GetChild(2);
                 Transform standardRectScrollView = standardRect.GetChild(0);
-                Transform standardRectScrollViewBackground = standardRectScrollView.GetChild(1);
-                standardRectScrollViewBackground.gameObject.SetActive(false);
-                Transform standardRectScrollViewBorderImage = standardRectScrollView.GetChild(2);
-                standardRectScrollViewBorderImage.gameObject.SetActive(false);
+                Transform statsContainer = statsAndChatArea.Find("StatsContainer");
+                Transform statsBody = statsContainer.Find("Stats Body");
+                Transform statsBodyScrollview = statsBody.Find("ScrollView");
+                Transform statsBodyScrollviewViewportContent = statsBodyScrollview.Find("Viewport/Content");
+                Transform scrollbarVertical = statsBodyScrollview.Find("Scrollbar Vertical");
+
+                chatArea.DisableImageComponent();
+                // GetChild(0) is to get to "PermanentBg"
+                chatBox.GetChild(0).DisableImageComponent();
+                // GetChild(1) is to get to "StandardRectScrollViewBackground"
+                standardRectScrollView.GetChild(1).gameObject.SetActive(false);
+                // GetChild(2) is to get to "StandardRectScrollViewBorderImage"
+                standardRectScrollView.GetChild(2).gameObject.SetActive(false);
+                statsContainer.Find("BorderImage").gameObject.SetActive(false);
+                statsContainer.Find("Stats And Player Nav/Stats Header").DisableImageComponent();
+                statsBody.DisableImageComponent();
+                statsBodyScrollviewViewportContent.Find("SelectedDifficultyStrip").DisableImageComponent();
+                statsBodyScrollviewViewportContent.Find("EnabledArtifactsStrip").DisableImageComponent();
+                scrollbarVertical.DisableImageComponent();
+                scrollbarVertical.Find("Sliding Area/Handle").DisableImageComponent();
 
                 RectTransform chatAreaRect = chatArea.GetComponent<RectTransform>();
                 chatAreaRect.sizeDelta = new Vector2(817f, 200f);
                 chatAreaRect.localPosition = new Vector3(441.5f, -311.666666666f, 0f);
                 //chatAreaRect.localEulerAngles = new Vector3(0f, 357f, 0f); // TODO this fucks things up
+
+
+
+                Transform infoArea = bodyArea.Find("RightArea/InfoArea");
+                Transform infoBody = infoArea.Find("Info Body");
+                Transform itemArea = infoBody.Find("ItemArea");
+                Transform itemAreaScrollView = itemArea.Find("ScrollView");
+                Transform unlockArea = infoBody.Find("UnlockArea");
+                Transform unlockAreaScrollView = unlockArea.Find("ScrollView");
+
+                infoArea.Find("BorderImage").DisableImageComponent();
+                infoArea.Find("Info Header").DisableImageComponent();
+                itemArea.Find("Item Header").DisableImageComponent();
+                itemAreaScrollView.DisableImageComponent();
+                itemAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
+                unlockArea.Find("Unlocked Header").DisableImageComponent();
+                unlockAreaScrollView.DisableImageComponent();
+                unlockAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
             }
 
 
@@ -165,27 +124,21 @@ namespace CleanestHud.HudChanges
             {
                 RawImage scoreboardStripRawImageBackground = HudAssets.ScoreboardStrip.gameObject.GetComponent<RawImage>();
                 scoreboardStripRawImageBackground.texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
+                
+
 
                 Transform longBackground = HudAssets.ScoreboardStrip.transform.GetChild(0);
 
-                Transform classBackground = longBackground.Find("ClassBackground");
-                Image classBackgroundImage = classBackground.GetComponent<Image>();
-                classBackgroundImage.enabled = false;
-
+                longBackground.Find("ClassBackground").DisableImageComponent();
                 // DO NOT remove the items background image here
                 // if we do it will break the automatic scaling of the hud at ultrawide resolutions
                 // the ScoreboardStripEditor component makes the background image invisible instead
                 // same effect with better functionality
-
-                Transform equipmentBackground = longBackground.Find("EquipmentBackground");
-                Image equipmentBackgroundImage = equipmentBackground.GetComponent<Image>();
-                equipmentBackgroundImage.enabled = false;
+                longBackground.Find("EquipmentBackground").DisableImageComponent();
 
                 Transform nameLabel = longBackground.Find("NameLabel");
-                Transform nameFocusHighlight = nameLabel.Find("NameFocusHighlight");
-                Image nameFocusHighlightImage = nameFocusHighlight.GetComponent<Image>();
                 // im pretty sure its fine to disable the backgroud image here since it doesn't scale with resolution
-                nameFocusHighlightImage.enabled = false;
+                nameLabel.Find("NameFocusHighlight").DisableImageComponent();
             }
 
 
@@ -195,15 +148,12 @@ namespace CleanestHud.HudChanges
                 // panel's x position is pushed -576.4219 ingame
                 hudCountdownPanelRect.localPosition = new Vector3(576.4219f, -200f, 0f);
 
-                Transform juice = HudAssets.MoonDetonationPanel.transform.Find("Juice");
-                Transform container = juice.Find("Container");
-                Transform backdrop = container.Find("Backdrop");
-                Image backdropImage = backdrop.GetComponent<Image>();
-                backdropImage.enabled = false;
 
-                Transform border = container.Find("Border");
-                Image containerBorderImage = border.GetComponent<Image>();
-                containerBorderImage.enabled = false;
+
+                Transform container = HudAssets.MoonDetonationPanel.transform.Find("Juice").Find("Container");
+
+                container.Find("Backdrop").DisableImageComponent();
+                container.Find("Border").DisableImageComponent();
 
                 Transform countdownTitleLabel = container.Find("CountdownTitleLabel");
                 HGTextMeshProUGUI countdownTitleLabelMesh = countdownTitleLabel.GetComponent<HGTextMeshProUGUI>();
@@ -217,19 +167,14 @@ namespace CleanestHud.HudChanges
             }
 
 
-            private static void RemoveStatStripTemplateImage()
-            {
-                Image statStripTemplateImage = HudAssets.StatStripTemplate.GetComponent<Image>();
-                statStripTemplateImage.enabled = false;
-            }
-
-
             private static void RemoveChatBoxDetails()
             {
-                Image chatBoxImage = HudAssets.ChatBox.GetComponent<Image>();
-                chatBoxImage.enabled = false;
+                HudAssets.ChatBox.DisableImageComponent();
+
+
 
                 Transform permanentBG = HudAssets.ChatBox.transform.Find("PermanentBG");
+
                 Image permanentBGImage = permanentBG.GetComponent<Image>();
                 permanentBGImage.sprite = HudAssets.WhiteSprite;
                 permanentBGImage.color = new Color32(0, 0, 0, 212);
@@ -243,15 +188,12 @@ namespace CleanestHud.HudChanges
                 permanentBGRect.localPosition = new Vector3(0f, 1f, 0f);
                 permanentBGRect.sizeDelta = new Vector2(0f, 48f);
 
-                Transform standardRect = HudAssets.ChatBox.transform.Find("StandardRect");
-                Transform chatBoxScrollView = standardRect.Find("Scroll View");
-                Transform chatBoxBackground = chatBoxScrollView.Find("Background");
-                Image chatBoxBackgroundImage = chatBoxBackground.GetComponent<Image>();
-                chatBoxBackgroundImage.enabled = false;
 
-                Transform chatBoxBorderImage = chatBoxScrollView.Find("BorderImage");
-                Image chatBoxBorderImageImage = chatBoxBorderImage.GetComponent<Image>();
-                chatBoxBorderImageImage.enabled = false;
+
+                Transform chatBoxScrollView = HudAssets.ChatBox.transform.Find("StandardRect/Scroll View");
+
+                chatBoxScrollView.Find("Background").DisableImageComponent();
+                chatBoxScrollView.Find("BorderImage").DisableImageComponent();
 
                 Transform chatBoxScrollbarVertical = chatBoxScrollView.Find("Scrollbar Vertical");
                 Scrollbar chatBoxScrollbarVerticalScrollbar = chatBoxScrollbarVertical.GetComponent<Scrollbar>();
@@ -302,40 +244,24 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            #region Finding transforms
+
+
             Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
-            Transform markerBackdrop = difficultyBar.Find("Marker, Backdrop");
-            Transform scrollView = difficultyBar.Find("Scroll View");
-
-            Transform objectivePanel = ImportantHudTransforms.RightInfoBar.Find("ObjectivePanel");
-
             Transform setDifficultyPanel = ImportantHudTransforms.RunInfoHudPanel.Find("SetDifficultyPanel");
-            Transform difficultyIcon = setDifficultyPanel.Find("DifficultyIcon");
-            #endregion
 
-            Image setDifficultyPanelImage = setDifficultyPanel.GetComponent<Image>();
-            setDifficultyPanelImage.enabled = false;
+            difficultyBar.DisableImageComponent();
+            difficultyBar.Find("Marker, Backdrop").DisableImageComponent();
+            difficultyBar.Find("Scroll View").DisableImageComponent();
+            setDifficultyPanel.DisableImageComponent();
 
-            RectTransform difficultyIconRect = difficultyIcon.GetComponent<RectTransform>();
+            RectTransform difficultyIconRect = setDifficultyPanel.Find("DifficultyIcon").GetComponent<RectTransform>();
             difficultyIconRect.localPosition = new Vector3(20f, 0f, -0.5f);
 
-            Image difficultyBarImage = difficultyBar.GetComponent<Image>();
-            difficultyBarImage.enabled = false;
+            ImportantHudTransforms.RunInfoHudPanel.Find("OutlineImage").gameObject.SetActive(false);
 
-            Image scrollViewImage = scrollView.GetComponent<Image>();
-            scrollViewImage.enabled = false;
-
-            Image markerBackdropImage = markerBackdrop.GetComponent<Image>();
-            markerBackdropImage.enabled = false;
-
-            GameObject outline = ImportantHudTransforms.RunInfoHudPanel.Find("OutlineImage").gameObject;
-            outline.SetActive(false);
-
-            Image objectivePanelImage = objectivePanel.GetComponent<Image>();
-            objectivePanelImage.enabled = false;
-
-            GameObject objectiveLabel2 = objectivePanel.Find("Label").gameObject;
-            objectiveLabel2.SetActive(false);
+            Transform objectivePanel = ImportantHudTransforms.RightInfoBar.Find("ObjectivePanel");
+            objectivePanel.DisableImageComponent();
+            objectivePanel.Find("Label").gameObject.SetActive(false);
         }
         private static void EditSimulacrumDefaultWaveUI()
         {
@@ -444,7 +370,7 @@ namespace CleanestHud.HudChanges
         {
             Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
             Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
-            Transform inspectPanelArea = container.Find("InspectPanel").Find("InspectPanelArea");
+            Transform inspectPanelArea = container.Find("InspectPanel/InspectPanelArea");
             Transform inspectionPanel = inspectPanelArea.Find("InspectionPanel");
             Transform horizontalBox = inspectionPanel.GetChild(0);
 
@@ -627,8 +553,8 @@ namespace CleanestHud.HudChanges
             Transform backdrop = scrollView.GetChild(0);
 
 
-            Log.Debug($"ConfigOptions.AllowConsistentDifficultyBarColor.Value is {ConfigOptions.AllowConsistentDifficultyBarColor.Value}");
-            if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
+            Log.Debug($"ConfigOptions.EnableConsistentDifficultyBarBrightness.Value is {ConfigOptions.EnableConsistentDifficultyBarBrightness.Value}");
+            if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value)
             {
                 SetupFakeInfiniteDifficultySegment(backdrop, segmentTemplate);
             }
@@ -653,7 +579,7 @@ namespace CleanestHud.HudChanges
         private static IEnumerator TempComponentBackgroundImage(Image backdropImage, Color newColor)
         {
             // this is stupid
-            DifficultyBarBackgroundTransparencyRemover transparencyRemover = backdropImage.transform.gameObject.GetComponent<DifficultyBarBackgroundTransparencyRemover>() ?? backdropImage.transform.gameObject.AddComponent<DifficultyBarBackgroundTransparencyRemover>();
+            DifficultyBarBackgroundTransparencyRemover transparencyRemover = backdropImage.GetOrAddComponent<DifficultyBarBackgroundTransparencyRemover>();
             transparencyRemover.survivorColorNoTransparency = newColor;
             transparencyRemover.enabled = true;
             yield return new WaitForSeconds(2f);
@@ -867,28 +793,24 @@ namespace CleanestHud.HudChanges
         }
         private static void RemoveMonstersItemsPanelDetails()
         {
-            Transform enemyInfoPanel = ImportantHudTransforms.RunInfoHudPanel.Find("RightInfoBar").Find("EnemyInfoPanel(Clone)");
+            Transform enemyInfoPanel = ImportantHudTransforms.RunInfoHudPanel.Find("RightInfoBar/EnemyInfoPanel(Clone)");
             if (enemyInfoPanel == null)
             {
                 return;
             }
+            Transform innerFrame = enemyInfoPanel.transform.Find("InnerFrame");
 
 
             Image enemyInfoPanelImage = enemyInfoPanel.GetComponent<Image>();
             enemyInfoPanelImage.enabled = false;
 
-            Transform innerFrame = enemyInfoPanel.transform.Find("InnerFrame");
             Image innerFrameImage = innerFrame.GetComponent<Image>();
             innerFrameImage.enabled = false;
 
-            Transform monsterBodiesContainer = innerFrame.Find("MonsterBodiesContainer");
-            Transform monsterBodyIconContainer = monsterBodiesContainer.Find("MonsterBodyIconContainer");
-            Image monsterBodyIconContainerImage = monsterBodyIconContainer.GetComponent<Image>();
+            Image monsterBodyIconContainerImage = innerFrame.Find("MonsterBodiesContainer/MonsterBodyIconContainer").GetComponent<Image>();
             monsterBodyIconContainerImage.enabled = false;
 
-            Transform inventoryContainer = innerFrame.Find("InventoryContainer");
-            Transform inventoryDisplay = inventoryContainer.Find("InventoryDisplay");
-            Image inventoryDisplayImage = inventoryDisplay.GetComponent<Image>();
+            Image inventoryDisplayImage = innerFrame.Find("InventoryContainer/InventoryDisplay").GetComponent<Image>();
             inventoryDisplayImage.enabled = false;
         }
     }

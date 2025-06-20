@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using static UnityEngine.Object;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
+using MiscFixes.Modules;
 
 namespace CleanestHud.HudChanges
 {
@@ -25,14 +26,11 @@ namespace CleanestHud.HudChanges
             internal static void EditScoreboardStripAsset()
             {
                 Transform scoreboardStrip = HudAssets.ScoreboardStrip.transform;
-
                 Transform longBackground = scoreboardStrip.GetChild(0);
                 Image longBackgroundImage = longBackground.GetComponent<Image>();
                 longBackgroundImage.sprite = HudAssets.WhiteSprite;
 
-                Transform totalTextContainer = longBackground.Find("TotalTextContainer");
-                Transform moneyText = totalTextContainer.Find("MoneyText");
-                HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
+                HGTextMeshProUGUI moneyTextMesh = longBackground.Find("TotalTextContainer/MoneyText").GetComponent<HGTextMeshProUGUI>();
                 moneyTextMesh.color = Color.white;
 
                 Transform nameLabel = longBackground.GetChild(2);
@@ -82,18 +80,16 @@ namespace CleanestHud.HudChanges
                 return;
             }
             Transform defaultFillBarRoot = defaultWaveUI.Find("FillBarRoot");
+            Transform defaultRemainingEnemies = defaultWaveUI.Find("RemainingEnemiesRoot");
 
-            HudEditorComponents.SimulacrumBarEditor defaultFillBarRootBarPositioner = defaultFillBarRoot.gameObject.AddComponent<HudEditorComponents.SimulacrumBarEditor>();
+            HudEditorComponents.SimulacrumBarEditor defaultFillBarRootBarPositioner = defaultFillBarRoot.GetOrAddComponent<HudEditorComponents.SimulacrumBarEditor>();
             defaultFillBarRootBarPositioner.idealLocalPosition = new Vector3(-120f, -21.15f, 0f);
             defaultFillBarRootBarPositioner.idealLocalScale = new Vector3(0.725f, 1f, 1f); ;
 
-            Transform defaultRemainingEnemies = defaultWaveUI.Find("RemainingEnemiesRoot");
-            Transform defaultRemainingEnemiesTitle = defaultRemainingEnemies.Find("RemainingEnemiesTitle");
-            TextMeshProUGUI defaultRemainingEnemiesTitleMesh = defaultRemainingEnemiesTitle.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI defaultRemainingEnemiesTitleMesh = defaultRemainingEnemies.Find("RemainingEnemiesTitle").GetComponent<TextMeshProUGUI>();
             defaultRemainingEnemiesTitleMesh.color = Color.white;
 
-            Transform defaultRemainingEnemiesCounter = defaultRemainingEnemies.Find("RemainingEnemiesCounter");
-            TextMeshProUGUI defaultRemainingEnemiesCounterMesh = defaultRemainingEnemiesCounter.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI defaultRemainingEnemiesCounterMesh = defaultRemainingEnemies.Find("RemainingEnemiesCounter").GetComponent<TextMeshProUGUI>();
             defaultRemainingEnemiesCounterMesh.color = Color.white;
         }
         private static void EditSimulacrumWavePanel()
@@ -105,8 +101,7 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            Transform waveText = wavePanel.Find("WaveText");
-            HGTextMeshProUGUI waveTextMesh = waveText.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI waveTextMesh = wavePanel.Find("WaveText").GetComponent<HGTextMeshProUGUI>();
             waveTextMesh.color = Color.white;
         }
         private static void EditTimerPanel()
@@ -118,16 +113,12 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            Transform timerText = timerPanel.Find("TimerText");
-            HGTextMeshProUGUI timerTextMesh = timerText.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI timerTextMesh = timerPanel.Find("TimerText").GetComponent<HGTextMeshProUGUI>();
             timerTextMesh.color = Color.white;
         }
         private static void EditDifficultyBarSegments()
         {
-            Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
-            Transform scrollView = difficultyBar.Find("Scroll View");
-            Transform viewport = scrollView.Find("Viewport");
-            Transform content = viewport.Find("Content");
+            Transform content = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar/Scroll View/Viewport/Content");
 
             for (int i = 0; i < content.childCount; i++)
             {
@@ -154,7 +145,7 @@ namespace CleanestHud.HudChanges
             }
 
             ImportantHudTransforms.BarRoots.SetParent(MyHudLocator.FindChild("BottomCenterCluster"));
-            Destroy(ImportantHudTransforms.BarRoots.GetComponent<VerticalLayoutGroup>());
+            ImportantHudTransforms.BarRoots.TryDestroyComponent<VerticalLayoutGroup>();
             RectTransform barRootsRect = ImportantHudTransforms.BarRoots.GetComponent<RectTransform>();
             barRootsRect.rotation = Quaternion.identity;
             barRootsRect.pivot = new Vector2(0.5f, 0.25f);
@@ -181,18 +172,14 @@ namespace CleanestHud.HudChanges
         }
         private static void EditLevelDisplayRoot(Transform levelDisplayCluster)
         {
-            // levelDisplayCluster.GetChild(0)
-            Transform levelDisplayRoot = levelDisplayCluster.Find("LevelDisplayRoot");
-
-            RectTransform levelDisplayRootRect = levelDisplayRoot.GetComponent<RectTransform>();
+            RectTransform levelDisplayRootRect = levelDisplayCluster.Find("LevelDisplayRoot").GetComponent<RectTransform>();
             levelDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
             levelDisplayRootRect.localPosition = new Vector3(311, -27f, 0);
         }
         private static void EditBuffDisplay(Transform levelDisplayCluster)
         {
             Transform buffDisplayRoot = MyHudLocator.FindChild("BuffDisplayRoot");
-
-            Destroy(buffDisplayRoot.GetComponent<HorizontalLayoutGroup>());
+            buffDisplayRoot.TryDestroyComponent<HorizontalLayoutGroup>();
             buffDisplayRoot.SetParent(ImportantHudTransforms.BarRoots);
 
             RectTransform buffDisplayRootRect = buffDisplayRoot.GetComponent<RectTransform>();
@@ -203,6 +190,8 @@ namespace CleanestHud.HudChanges
         {
             Transform expBarRoot = levelDisplayCluster.Find("ExpBarRoot");
 
+
+
             Image expBarRootImage = expBarRoot.GetComponent<Image>();
             expBarRootImage.sprite = HudAssets.WhiteSprite;
             expBarRootImage.color = Color.clear;
@@ -212,8 +201,7 @@ namespace CleanestHud.HudChanges
             expBarRootRect.sizeDelta = new Vector2(0, expBarRootRect.sizeDelta.y);
             expBarRootRect.localScale = new Vector3(1.002f, 1, 1);
 
-            Transform shrunkenExpBarRoot = expBarRoot.GetChild(0);
-            RectTransform shrunkenExpBarRootRect = shrunkenExpBarRoot.GetComponent<RectTransform>();
+            RectTransform shrunkenExpBarRootRect = expBarRoot.GetChild(0).GetComponent<RectTransform>();
             shrunkenExpBarRootRect.localScale = new Vector3(1f, 1.66f, 1f);
         }
         private static void EditHealthBar()
@@ -224,6 +212,8 @@ namespace CleanestHud.HudChanges
                 return;
             }
             Transform healthBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
+
+
 
             Image healthBarRootImage = healthBarRoot.GetComponent<Image>();
             healthBarRootImage.sprite = HudAssets.WhiteSprite;
@@ -252,15 +242,10 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            Transform spectatorLabel = bottomCenterCluster.Find("SpectatorLabel");
-            RectTransform spectatorLabelRect = spectatorLabel.GetComponent<RectTransform>();
+            RectTransform spectatorLabelRect = bottomCenterCluster.Find("SpectatorLabel").GetComponent<RectTransform>();
             spectatorLabelRect.anchoredPosition = new Vector2(0f, 150f);
 
-            GraphicRaycaster bottomRightGraphicRaycaster = bottomRightCluster.GetComponent<GraphicRaycaster>();
-            GraphicRaycaster bottomCenterGraphicRaycaster = bottomCenterCluster.gameObject.AddComponent<GraphicRaycaster>();
-            bottomCenterGraphicRaycaster.blockingObjects = bottomRightGraphicRaycaster.blockingObjects;
-            bottomCenterGraphicRaycaster.ignoreReversedGraphics = bottomRightGraphicRaycaster.ignoreReversedGraphics;
-            bottomCenterGraphicRaycaster.useGUILayout = bottomRightGraphicRaycaster.useGUILayout;
+            bottomCenterCluster.gameObject.CloneComponent<GraphicRaycaster>(bottomRightCluster.GetComponent<GraphicRaycaster>());
         }
         private static void EditSkillSlots()
         {
@@ -288,11 +273,10 @@ namespace CleanestHud.HudChanges
                 skillIcon.transform.localPosition = newSkillPosition;
                 i++;
 
-
                 skillIcon.cooldownRemapPanel = null;
+                skillIcon.transform.Find("CooldownPanel").gameObject.SetActive(false);
 
-                GameObject cooldownPanel = skillIcon.transform.Find("CooldownPanel").gameObject;
-                cooldownPanel.SetActive(false);
+
 
                 Transform cooldownText = skillIcon.transform.Find("CooldownText");
 
@@ -302,18 +286,17 @@ namespace CleanestHud.HudChanges
                 HGTextMeshProUGUI cooldownTextMesh = cooldownText.GetComponent<HGTextMeshProUGUI>();
                 cooldownTextMesh.color = Color.white;
 
-                Image iconPanel = skillIcon.iconImage;
-                RectTransform iconPanelRect = iconPanel.GetComponent<RectTransform>();
-                iconPanelRect.localScale = Vector3.one * 1.1f;
+
+
+                RectTransform iconImageRect = skillIcon.iconImage.GetComponent<RectTransform>();
+                iconImageRect.localScale = Vector3.one * 1.1f;
 
                 RectTransform isReadyPanelRect = skillIcon.isReadyPanelObject.GetComponent<RectTransform>();
                 isReadyPanelRect.localScale *= 1.1f;
 
-                GameObject skillBackgroundPanel = skillIcon.transform.Find("SkillBackgroundPanel").gameObject;
-                skillBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+                skillIcon.transform.Find("SkillBackgroundPanel").gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
 
-                Transform skillStockRoot = skillIcon.transform.Find($"Skill{i}StockRoot");
-                Transform skillStockRootText = skillStockRoot.Find("StockText");
+                Transform skillStockRootText = skillIcon.transform.Find($"Skill{i}StockRoot/StockText");
                 HGTextMeshProUGUI skillStockRootTextMesh = skillStockRootText.GetComponent<HGTextMeshProUGUI>();
                 skillStockRootTextMesh.color = Color.white;
             }
@@ -345,8 +328,7 @@ namespace CleanestHud.HudChanges
                 RectTransform equipmentDisplayRootRect = equipmentDisplayRoot.GetComponent<RectTransform>();
                 equipmentDisplayRootRect.localPosition = equipmentDisplayRootRectLocalPosition;
 
-                Transform equipmentCooldownText = equipmentDisplayRoot.Find("CooldownText");
-                RectTransform equipmentCooldownTextRect = equipmentCooldownText.GetComponent<RectTransform>();
+                RectTransform equipmentCooldownTextRect = equipmentDisplayRoot.Find("CooldownText").GetComponent<RectTransform>();
                 equipmentCooldownTextRect.localPosition = new Vector3(0f, 1f, 0f);
 
                 ScaleEquipmentSlot(equipmentDisplayRoot, equipmentSlotScaleFactor);
@@ -375,18 +357,22 @@ namespace CleanestHud.HudChanges
         internal static void ScaleEquipmentSlot(Transform equipmentDisplayRoot, float scaleFactor)
         {
             float extraFactor = 0.0448f;
+
+
+
             RectTransform equipmentDisplayRootRect = equipmentDisplayRoot.GetComponent<RectTransform>();
+            equipmentDisplayRootRect.localScale = (new Vector3(1f, 0.98f, 1f) * scaleFactor);
+
             Transform equipmentBGPanel = equipmentDisplayRoot.Find("BGPanel");
             RectTransform equipmentBGPanelRect = equipmentBGPanel.GetComponent<RectTransform>();
-            Transform equipmentIconPanel = equipmentDisplayRoot.Find("IconPanel");
-            RectTransform equipmentIconPanelRect = equipmentIconPanel.GetComponent<RectTransform>();
-            Transform equipmentIsReadyPanel = equipmentDisplayRoot.Find("IsReadyPanel");
-
-            equipmentDisplayRootRect.localScale = (new Vector3(1f, 0.98f, 1f) * scaleFactor);
             equipmentBGPanelRect.localScale  = new Vector3(scaleFactor + extraFactor, scaleFactor + extraFactor, scaleFactor);
-            // why is the bg panel moved slightly? now we gotta move it back
+            // why is the bg panel moved slightly by default? now we gotta move it back
             equipmentBGPanel.localPosition = Vector3.zero;
+
+            RectTransform equipmentIconPanelRect = equipmentDisplayRoot.Find("IconPanel").GetComponent<RectTransform>();
             equipmentIconPanelRect.localScale *= scaleFactor;
+
+            Transform equipmentIsReadyPanel = equipmentDisplayRoot.Find("IsReadyPanel");
             equipmentIsReadyPanel.localScale *= scaleFactor;
         }
         private static void EditSkillsScaler()
@@ -412,37 +398,31 @@ namespace CleanestHud.HudChanges
 
 
             // MyHud.moneyText.transform is also moneyRoot
-            Transform valueText = MyHud.moneyText.transform.Find("ValueText");
-            HGTextMeshProUGUI valueTextMesh = valueText.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI valueTextMesh = MyHud.moneyText.transform.Find("ValueText").GetComponent<HGTextMeshProUGUI>();
             valueTextMesh.color = Color.white;
 
-            Transform dollarSign = MyHud.moneyText.transform.Find("DollarSign");
-            HGTextMeshProUGUI dollarSignMesh = dollarSign.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI dollarSignMesh = MyHud.moneyText.transform.Find("DollarSign").GetComponent<HGTextMeshProUGUI>();
             dollarSignMesh.color = Color.white;
 
 
 
             Transform lunarCoinRoot = upperLeftCluster.Find("LunarCoinRoot");
 
-            Transform lunarCoinValueText = lunarCoinRoot.Find("ValueText");
-            HGTextMeshProUGUI lunarCoinValueTextMesh = lunarCoinValueText.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI lunarCoinValueTextMesh = lunarCoinRoot.Find("ValueText").GetComponent<HGTextMeshProUGUI>();
             lunarCoinValueTextMesh.color = Color.white;
 
-            Transform lunarCoinSign = lunarCoinRoot.Find("LunarCoinSign");
-            HGTextMeshProUGUI lunarCoinSignMesh = lunarCoinSign.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI lunarCoinSignMesh = lunarCoinRoot.Find("LunarCoinSign").GetComponent<HGTextMeshProUGUI>();
             lunarCoinSignMesh.color = Color.white;
 
 
 
-            // void coins aren't used in vanilla, but wolfo's simulacrum mod makes use of them
+            // void coins aren't used in vanilla, but the HUD for it exists in vanilla and wolfo's simulacrum mod makes use of them
             Transform voidCoinRoot = upperLeftCluster.Find("VoidCoinRoot");
 
-            Transform voidCoinValueText = voidCoinRoot.Find("ValueText");
-            HGTextMeshProUGUI voidCoinValueTextMesh = voidCoinValueText.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI voidCoinValueTextMesh = voidCoinRoot.Find("ValueText").GetComponent<HGTextMeshProUGUI>();
             voidCoinValueTextMesh.color = Color.white;
 
-            Transform voidCoinSign = voidCoinRoot.Find("VoidCoinSign");
-            HGTextMeshProUGUI voidCoinSignMesh = voidCoinSign.GetComponent<HGTextMeshProUGUI>();
+            HGTextMeshProUGUI voidCoinSignMesh = voidCoinRoot.Find("VoidCoinSign").GetComponent<HGTextMeshProUGUI>();
             voidCoinSignMesh.color = Color.white;
         }
         private static void EditItemInventoryDisplay()
@@ -454,33 +434,45 @@ namespace CleanestHud.HudChanges
         }
         private static void EditBossHpBarAndText()
         {
-            // TopCenterCluster
-            Destroy(MyHudLocator.FindChild(0).GetComponent<VerticalLayoutGroup>());
+            MyHudLocator.FindChild("TopCenterCluster").TryDestroyComponent<VerticalLayoutGroup>();
 
-            Transform bossHealthBarRoot = MyHudLocator.FindChild(0).Find("BossHealthBarRoot");
+
+
+            Transform bossHealthBarRoot = MyHudLocator.FindChild("TopCenterCluster").Find("BossHealthBarRoot");
+            Transform bossContainer = bossHealthBarRoot.Find("Container");
+
+
+
             Transform bossHealthBarRootRect = bossHealthBarRoot.GetComponent<RectTransform>();
             bossHealthBarRootRect.localPosition = new Vector3(0f, -160, -3.8f);
-            Destroy(bossHealthBarRoot.GetComponent<VerticalLayoutGroup>());
-
-            Transform bossContainer = bossHealthBarRoot.Find("Container");
-            Destroy(bossContainer.GetComponent<VerticalLayoutGroup>());
+            bossHealthBarRoot.TryDestroyComponent<VerticalLayoutGroup>();
 
             Transform bossHealthBarContainer = bossContainer.Find("BossHealthBarContainer");
+
             RectTransform bossHealthBarContainerRect = bossHealthBarContainer.GetComponent<RectTransform>();
             bossHealthBarContainerRect.localPosition = new Vector3(0, 25, 0);
 
-            Transform bossNameLabel = bossContainer.Find("BossNameLabel");
-            RectTransform bossNameLabelRect = bossNameLabel.GetComponent<RectTransform>();
+
+
+            bossContainer.TryDestroyComponent<VerticalLayoutGroup>();
+
+            RectTransform bossNameLabelRect = bossContainer.Find("BossNameLabel").GetComponent<RectTransform>();
             bossNameLabelRect.localPosition = new Vector3(0f, 32.5f, 0f);
 
+
+
             Transform bossSubtitleLabel = bossContainer.Find("BossSubtitleLabel");
+
             RectTransform bossSubtitleLabelRect = bossSubtitleLabel.GetComponent<RectTransform>();
             bossSubtitleLabelRect.localPosition = new Vector3(0f, -40f, 0f);
 
             HGTextMeshProUGUI bossSubtitleLabelMesh = bossSubtitleLabel.GetComponent<HGTextMeshProUGUI>();
             bossSubtitleLabelMesh.color = Color.white;
 
+
+
             Transform bossBackgroundPanel = bossHealthBarContainer.Find("BackgroundPanel");
+
             RectTransform bossBackgroundPanelRect = bossBackgroundPanel.GetComponent<RectTransform>();
             bossBackgroundPanelRect.localPosition = new Vector3(0f, -42.5f, 0f);
             bossBackgroundPanelRect.localScale = new Vector3(1f, 1.5f, 1f);
@@ -496,8 +488,11 @@ namespace CleanestHud.HudChanges
             Transform fillPanel = bossBackgroundPanel.GetChild(1);
             fillPanel.localScale = newFillPanelScale;
 
+
+
             Transform shieldPanel = bossBackgroundPanel.Find("ShieldPanel");
             Transform healthText = bossBackgroundPanel.Find("HealthText");
+
             RectTransform healthTextRect = healthText.GetComponent<RectTransform>();
             healthTextRect.localPosition = new Vector3(0f, 11.5f, -5.85840205f);
             healthTextRect.localEulerAngles = Vector3.zero;
@@ -594,7 +589,7 @@ namespace CleanestHud.HudChanges
         }
         private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
         {
-            HudEditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<HudEditorComponents.ScoreboardStripEditor>();
+            HudEditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.GetOrAddComponent<HudEditorComponents.ScoreboardStripEditor>();
 
             // ClassBackground's local position is handled by the component
             scoreboardStripEditor.ClassBackgroundRect_LocalScale = Vector3.one * 1.075f;
@@ -617,13 +612,7 @@ namespace CleanestHud.HudChanges
             {
                 return;
             }
-            Transform spectatorLabel = MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel");
-            if (spectatorLabel == null)
-            {
-                return;
-            }
-
-            spectatorLabel.localPosition = new Vector3(0, 700, 0);
+            MyHudLocator.FindChild("BottomCenterCluster").Find("SpectatorLabel")?.localPosition = new Vector3(0, 700, 0);
         }
 
         

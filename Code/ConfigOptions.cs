@@ -2,8 +2,9 @@
 using BepInEx.Configuration;
 using RoR2.UI;
 using System.Runtime.CompilerServices;
-using static CleanestHud.HudResources;
 using UnityEngine.UI;
+using System;
+using MiscFixes.Modules;
 
 namespace CleanestHud
 {
@@ -26,21 +27,21 @@ namespace CleanestHud
 
 
         public static ConfigEntry<float> HudTransparency;
-        private static void HudTransparency_SettingChanged(object sender, System.EventArgs e)
+        private static void HudTransparency_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
                 return;
             }
 
-            CanvasGroup wholeHudCanvasGroup = Main.MyHud.GetComponent<CanvasGroup>() ?? Main.MyHud.gameObject.AddComponent<CanvasGroup>();
+            CanvasGroup wholeHudCanvasGroup = Main.MyHud.GetOrAddComponent<CanvasGroup>();
             wholeHudCanvasGroup.alpha = HudTransparency.Value;
             HudChanges.HudDetails.SetInspectPanelMaxAlpha();
         }
 
 
         public static ConfigEntry<bool> ShowSkillKeybinds;
-        private static void ShowSkillKeybinds_SettingChanged(object sender, System.EventArgs e)
+        private static void ShowSkillKeybinds_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -52,11 +53,13 @@ namespace CleanestHud
             // the sprint and inventory reminders are moved up/down depending on if the skills reminders exist
             // so their y positions need to change with it to stay in the same spot
             HudChanges.HudStructure.RepositionSprintAndInventoryReminders();
+            OnShowSkillKeybindsChanged?.Invoke();
         }
+        public static event Action OnShowSkillKeybindsChanged;
 
 
         public static ConfigEntry<bool> ShowSkillAndEquipmentOutlines;
-        private static void ShowSkillAndEquipmentOutlines_SettingChanged(object sender, System.EventArgs e)
+        private static void ShowSkillAndEquipmentOutlines_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -64,11 +67,13 @@ namespace CleanestHud
             }
 
             HudChanges.HudDetails.SetSkillOutlinesStatus();
+            OnShowSkillAndEquipmentOutlinesChanged?.Invoke();
         }
+        public static event Action OnShowSkillAndEquipmentOutlinesChanged;
 
 
         public static ConfigEntry<bool> ShowSprintAndInventoryKeybinds;
-        private static void ShowSprintAndInventoryKeybinds_SettingChanged(object sender, System.EventArgs e)
+        private static void ShowSprintAndInventoryKeybinds_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -76,11 +81,13 @@ namespace CleanestHud
             }
 
             HudChanges.HudDetails.SetSprintAndInventoryKeybindsStatus();
+            OnShowSprintAndInventoryKeybindsChanged?.Invoke();
         }
+        public static event Action OnShowSprintAndInventoryKeybindsChanged;
 
 
         public static ConfigEntry<bool> AllowInspectPanelFadeIn;
-        private static void AllowInspectPanelFadeIn_SettingChanged(object sender, System.EventArgs e)
+        private static void AllowInspectPanelFadeIn_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -92,7 +99,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<float> InspectPanelFadeInDuration;
-        private static void InspectPanelFadeInDuration_SettingChanged(object sender, System.EventArgs e)
+        private static void InspectPanelFadeInDuration_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -104,7 +111,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<bool> AllowAllyCardBackgrounds;
-        private static void AllowAllyCardBackgrounds_SettingChanged(object sender, System.EventArgs e)
+        private static void AllowAllyCardBackgrounds_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -120,7 +127,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<bool> AllowScoreboardLabels;
-        private static void AllowScoreboardLabels_SettingChanged(object sender, System.EventArgs e)
+        private static void AllowScoreboardLabels_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -133,7 +140,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<bool> AllowScoreboardItemHighlightColoring;
-        private static void AllowScoreboardItemHighlightColoring_SettingChanged(object sender, System.EventArgs e)
+        private static void AllowScoreboardItemHighlightColoring_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -162,8 +169,8 @@ namespace CleanestHud
         public static ConfigEntry<bool> AllowAutoScoreboardHighlight;
 
 
-        public static ConfigEntry<bool> AllowConsistentDifficultyBarColor;
-        private static void AllowConsistentDifficultyBarColor_SettingChanged(object sender, System.EventArgs e)
+        public static ConfigEntry<bool> EnableConsistentDifficultyBarBrightness;
+        private static void EnableConsistentDifficultyBarBrightness_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -176,7 +183,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<bool> AllowSimulacrumWaveBarAnimating;
-        private static void AllowSimulacrumWaveBarAnimating_SettingChanged(object sender, System.EventArgs e)
+        private static void AllowSimulacrumWaveBarAnimating_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -190,7 +197,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<bool> AllowVoidFiendMeterAnimating;
-        private static void AllowVoidFiendMeterAnimating_SettingChanged(object sender, System.EventArgs e)
+        private static void AllowVoidFiendMeterAnimating_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -202,7 +209,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<SpecialConfig.SeekerMeditateHudPosition> SeekerMeditateHudPosition;
-        private static void SeekerMeditateHudPosition_SettingChanged(object sender, System.EventArgs e)
+        private static void SeekerMeditateHudPosition_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -215,7 +222,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<SpecialConfig.SeekerLotusHudPosition> SeekerLotusHudPosition;
-        private static void SeekerLotusUiPosition_SettingChanged(object sender, System.EventArgs e)
+        private static void SeekerLotusUiPosition_SettingChanged(object sender, EventArgs e)
         {
             if (!Main.IsHudEditable)
             {
@@ -227,7 +234,7 @@ namespace CleanestHud
 
 
         public static ConfigEntry<string> BodyNameBlacklist_Config;
-        private static void BodyNameBlacklist_Config_SettingChanged(object sender, System.EventArgs e)
+        private static void BodyNameBlacklist_Config_SettingChanged(object sender, EventArgs e)
         {
             BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
         }
@@ -240,111 +247,128 @@ namespace CleanestHud
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         internal static void BindConfigOptions(ConfigFile config)
         {
-            HudTransparency = config.Bind<float>(
+            HudTransparency = config.BindOption<float>(
                 "HUD Settings",
                 "HUD Transparency",
+                "How transparent should the entire HUD be?\n1 = 100% opaque (no transparency), 0.8 = 80% opaque (20% transparency)",
                 0.8f,
-                "How transparent should the entire HUD be?\n1 = 100% opaque (no transparency), 0.8 = 80% opaque (20% transparency)"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            ShowSkillAndEquipmentOutlines = config.Bind<bool>(
+            ShowSkillAndEquipmentOutlines = config.BindOption<bool>(
                 "HUD Settings",
                 "Show skill outlines",
+                "Should skills have survivor-colored outlines?",
                 true,
-                "Should skills have survivor-colored outlines?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            ShowSkillKeybinds = config.Bind<bool>(
+            ShowSkillKeybinds = config.BindOption<bool>(
                 "HUD Settings",
                 "Show skill & equipment keybinds",
+                "Should the keybinds set for your 4 skills & equipment be displayed below your skills be shown?",
                 false,
-                "Should the keybinds set for your 4 skills & equipment be displayed below your skills be shown?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            ShowSprintAndInventoryKeybinds = config.Bind<bool>(
+            ShowSprintAndInventoryKeybinds = config.BindOption<bool>(
                 "HUD Settings",
                 "Show sprint and inventory keybinds",
+                "Should the keybinds set for sprinting and opening the inventory menu be shown?",
                 false,
-                "Should the keybinds set for sprinting and opening the inventory menu be shown?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowInspectPanelFadeIn = config.Bind<bool>(
+            AllowInspectPanelFadeIn = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow inspect panel fade-in",
+                "Should the inspect panel do it's fade-in animation whenever an item is clicked?",
                 false,
-                "Should the inspect panel do it's fade-in animation whenever an item is clicked?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            InspectPanelFadeInDuration = config.Bind<float>(
+            InspectPanelFadeInDuration = config.BindOption<float>(
                 "HUD Settings",
                 "Inspect panel fade-in duration",
+                "Set a custom duration for the inspect panel's fade-in animation. Vanilla is 0.2",
                 0.4f,
-                "Set a custom duration for the inspect panel's fade-in animation. Vanilla is 0.2"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowAllyCardBackgrounds = config.Bind<bool>(
+            AllowAllyCardBackgrounds = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow ally backgrounds",
+                "Should the allies on the left side of the HUD have their backgrounds? If Allowd, the backgrounds will be properly colored.",
                 true,
-                "Should the allies on the left side of the HUD have their backgrounds? If Allowd, the backgrounds will be properly colored."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowScoreboardLabels = config.Bind<bool>(
+            AllowScoreboardLabels = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow inventories menu labels",
+                "Should the player/items/equipment labels be visible on the inventories screen?",
                 false,
-                "Should the player/items/equipment labels be visible on the inventories screen?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowScoreboardItemHighlightColoring = config.Bind<bool>(
+            AllowScoreboardItemHighlightColoring = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow changing inventory item icon highlight colors",
+                "Should the highlights for item icons in the TAB inventories menu be colored based on the survivor that has those items?",
                 true,
-                "Should the highlights for item icons in the TAB inventories menu be colored based on the survivor that has those items?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowAutoScoreboardHighlight = config.Bind<bool>(
+            AllowAutoScoreboardHighlight = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow auto highlight when opening the inventory menu",
+                "Should the automatic highlight for the first person in TAB inventories list be allowed?\n\nNOTE: Disabling this and hovering over something will cause movement to stop working!",
                 false,
-                "Should the automatic highlight for the first person in TAB inventories list be allowed?\n\nNOTE: Disabling this and hovering over something will cause movement to stop working!"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowConsistentDifficultyBarColor = config.Bind<bool>(
+            EnableConsistentDifficultyBarBrightness = config.BindOption<bool>(
                 "HUD Settings",
-                "Allow consistent difficulty bar segment colors",
+                "Enable consistent difficulty bar segment brightness",
+                "Should the coloring for the difficulty bar stay at the same brightness instead of getting darker as the difficulty increases?",
                 true,
-                "Should the coloring for the difficulty bar stay the same instead of getting darker as the difficulty increases?"
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            AllowSimulacrumWaveBarAnimating = config.Bind<bool>(
+            AllowSimulacrumWaveBarAnimating = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow simulacrum wave progress bar animations",
+                "Should the progress bar on the simulacrum's wave UI be allowed to animate & squish around whenever enemies spawn/enemies are left?\nNOTE: Will cause the bar to become stuck squished after a second or 2 of an active wave.",
                 false,
-                "Should the progress bar on the simulacrum's wave UI be allowed to animate & squish around whenever enemies spawn/enemies are left?\nNOTE: Will cause the bar to become stuck squished after a second or 2 of an active wave."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
 
-            AllowVoidFiendMeterAnimating = config.Bind<bool>(
+            AllowVoidFiendMeterAnimating = config.BindOption<bool>(
                 "HUD Settings - Survivor Specific",
                 "Allow Void Fiend corruption meter animations",
+                "Should Void Fiend's corruption meter be allowed to animate & squish around whenever the percentage changes?\nNOTE: Currently, when the animations disabled, the colors of the meter do not change based on your form.",
                 false,
-                "Should Void Fiend's corruption meter be allowed to animate & squish around whenever the percentage changes?\nNOTE: Currently, when the animations disabled, the colors of the meter do not change based on your form."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            SeekerMeditateHudPosition = config.Bind<SpecialConfig.SeekerMeditateHudPosition>(
+            SeekerMeditateHudPosition = config.BindOption<SpecialConfig.SeekerMeditateHudPosition>(
                 "HUD Settings - Survivor Specific",
                 "Seeker Meditate Minigame UI Position",
+                "Choose the position for the UI of the minigame you do for Seeker's meditation.",
                 SpecialConfig.SeekerMeditateHudPosition.OverCrosshair,
-                "Choose the position for the UI of the minigame you do for Seeker's meditation."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            SeekerLotusHudPosition = config.Bind<SpecialConfig.SeekerLotusHudPosition>(
+            SeekerLotusHudPosition = config.BindOption<SpecialConfig.SeekerLotusHudPosition>(
                 "HUD Settings - Survivor Specific",
                 "Seeker Lotus UI Position",
+                "Choose the position for the lotus flower thing on the UI that shows your progress towards your 7th meditation.",
                 SpecialConfig.SeekerLotusHudPosition.LeftOfSkills,
-                "Choose the position for the lotus flower thing on the UI that shows your progress towards your 7th meditation."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            BodyNameBlacklist_Config = config.Bind<string>(
+            BodyNameBlacklist_Config = config.BindOption<string>(
                 "HUD Settings - Survivor Specific",
                 "Survivor Blacklist",
+                "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the majority of the mod's hud changes when playing that survivor. Each body name needs separated by a comma and NO spaces.",
                 "",
-                "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the majority of the mod's hud changes when playing that survivor. Each body name needs separated by a comma and NO spaces."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
             BodyNameBlacklist_Array = BodyNameBlacklist_Config.Value.Split(',');
 
 
-            AllowDebugLogging = config.Bind<bool>(
+            AllowDebugLogging = config.BindOption<bool>(
                 "Other",
                 "Allow debug logging",
+                "Allow to do some extra debug logging that can help diagnose issues with the mod.",
                 false,
-                "Allow to do some extra debug logging that can help diagnose issues with the mod."
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
 
 
@@ -358,7 +382,7 @@ namespace CleanestHud
                 InspectPanelFadeInDuration.SettingChanged += InspectPanelFadeInDuration_SettingChanged;
                 AllowAllyCardBackgrounds.SettingChanged += AllowAllyCardBackgrounds_SettingChanged;
                 AllowScoreboardItemHighlightColoring.SettingChanged += AllowScoreboardItemHighlightColoring_SettingChanged;
-                AllowConsistentDifficultyBarColor.SettingChanged += AllowConsistentDifficultyBarColor_SettingChanged;
+                EnableConsistentDifficultyBarBrightness.SettingChanged += EnableConsistentDifficultyBarBrightness_SettingChanged;
                 AllowSimulacrumWaveBarAnimating.SettingChanged += AllowSimulacrumWaveBarAnimating_SettingChanged;
 
                 AllowVoidFiendMeterAnimating.SettingChanged += AllowVoidFiendMeterAnimating_SettingChanged;
@@ -366,7 +390,7 @@ namespace CleanestHud
                 SeekerLotusHudPosition.SettingChanged += SeekerLotusUiPosition_SettingChanged;
                 BodyNameBlacklist_Config.SettingChanged += BodyNameBlacklist_Config_SettingChanged;
 
-                ModSupport.RiskOfOptionsMod.AddOptions();
+                ModSupport.RiskOfOptionsMod.SetupModCategoryInfo();
             }
             if (ModSupport.LookingGlassMod.ModIsRunning)
             {

@@ -69,6 +69,13 @@ namespace CleanestHud
                 Harmony harmony = new(PluginGUID);
                 harmony.CreateClassProcessor(typeof(ModSupport.DriverMod.HarmonyPatches)).Patch();
                 HudChanges.HudColor.OnHudColorUpdate += ModSupport.DriverMod.OnHudColorUpdate;
+                On.RoR2.UI.HUD.OnDestroy += ModSupport.DriverMod.HUD_OnDestroy;
+            }
+            if (ModSupport.Myst.ModIsRunning)
+            {
+                Main.OnSurvivorSpecificHudEditsFinished += ModSupport.Myst.OnSurvivorSpecificHudEditsFinished;
+                HudChanges.HudColor.OnHudColorUpdate += ModSupport.Myst.OnHudColorUpdate;
+                On.RoR2.UI.HUD.OnDestroy += ModSupport.Myst.HUD_OnDestroy;
             }
         }
     }

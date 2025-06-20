@@ -5,7 +5,7 @@ Added support for special HUD elements from the following mod characters:
 - Myst
 Feel free to suggest or make a github issue if a character you like isn't supported!
 
-I've also fixed the last few bugs with the HUD itself I know of:
+I've also fixed the last bugs with the HUD itself I know of:
 - Fixed consistent difficulty bar coloring not working
 - Fixed Seeker's lotus being slightly off center
 - Fixed dead players in the inventories menu preventing styling for other scoreboard strips below it
@@ -19,13 +19,17 @@ I've also fixed the last few bugs with the HUD itself I know of:
 - Fixed MUL-T's other equipment slot getting it's own little key prompt
 - Fixed the position of some HUD elements that were slightly off
 - Fixed equipment slots looking a little weird
+- Fixed end screen's chat box not being styled
 
 Added a note about not being able to move when hovering over something in the TAB menu if the inventory auto highlight option is disabled
 
-Mod now depends on [MiscFixes](https://thunderstore.io/package/score/MiscFixes/) because it makes more sections of the HUD easy to navigate to
+Reduced the number of `.Find` calls
+- This should (if it works how I think it does) decrease the time to do all the HUD edits when loading into a stage, possibly decreasing stage load time a little bit
+
+Heavily re-organized code
 
 Added code events in the mod for other devs to know when each stage of CleanestHud's edits are finished
-- Useful for if a modded HUD element copies off of a vanilla HUD element that gets edited
+- Useful for if a modded HUD element copies off of a vanilla HUD element that gets edited by the HUD after the mod's HUD element spawns
 
 ## 0.11.5
 

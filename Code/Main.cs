@@ -11,6 +11,7 @@ using RoR2.UI;
 using System.Linq;
 using CleanestHud.HudChanges;
 using static CleanestHud.HudResources;
+using MiscFixes.Modules;
 
 
 namespace CleanestHud
@@ -80,10 +81,9 @@ namespace CleanestHud
         /// Happens after HUD structure edits, HUD detail edits, and survivor-specific HUD elements have all been edited, but not HUD coloring.
         /// </summary>
         /// <remarks>
-        /// Can happen multiple times after the HUD is created due to happening a frame after a camera target change.
+        /// Can happen multiple times after the HUD is created.
         /// </remarks>
         public static event Action OnSurvivorSpecificHudEditsFinished;
-        private static bool HasSurvivorSpecificHudEditsEventBeenRaised = false;
 
 
 
@@ -144,14 +144,14 @@ namespace CleanestHud
                 MyHud?.StartCoroutine(HudDetails.DelayRemoveBadHealthSubBarFromAllAllyCards());
 
 
-                CanvasGroup wholeHudCanvasGroup = MyHud.GetComponent<CanvasGroup>() ?? MyHud.gameObject.AddComponent<CanvasGroup>();
+                CanvasGroup wholeHudCanvasGroup = MyHud.GetOrAddComponent<CanvasGroup>();
                 wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
 
 
                 HudStructure.EditHudStructure();
                 HudStructure.RepositionHudElementsBasedOnWidth();
                 HudDetails.EditHudDetails();
-                if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
+                if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value)
                 {
                     HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }
@@ -162,8 +162,6 @@ namespace CleanestHud
                 IsHudFinishedLoading = false;
                 IsHudUserBlacklisted = true;
                 IsColorChangeCoroutineWaiting = false;
-                HasSurvivorSpecificHudEditsEventBeenRaised = false;
-                ModSupport.DriverMod.AllowDriverWeaponSlotCreation = false;
                 HudColor.SurvivorColor = Color.clear;
             }
             internal static void CameraModeBase_OnTargetChanged(On.RoR2.CameraModes.CameraModeBase.orig_OnTargetChanged orig, RoR2.CameraModes.CameraModeBase self, CameraRigController cameraRigController, RoR2.CameraModes.CameraModeBase.OnTargetChangedArgs args)
@@ -212,15 +210,11 @@ namespace CleanestHud
                             SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
                             break;
                     }
+                    OnSurvivorSpecificHudEditsFinished?.Invoke();
                 }
                 else
                 {
                     Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
-                }
-                if (!HasSurvivorSpecificHudEditsEventBeenRaised)
-                {
-                    OnSurvivorSpecificHudEditsFinished?.Invoke();
-                    HasSurvivorSpecificHudEditsEventBeenRaised = true;
                 }
             }
             #endregion
@@ -402,12 +396,8 @@ namespace CleanestHud
             }
             private static void SetupSuppressedItemsStripEditor(ScoreboardController scoreboardController)
             {
-                Transform container = scoreboardController.transform.GetChild(0);
-                Transform suppressedItems = container.GetChild(3);
-                if (!suppressedItems.gameObject.TryGetComponent<HudEditorComponents.SuppressedItemsStripEditor>(out _))
-                {
-                    suppressedItems.gameObject.AddComponent<HudEditorComponents.SuppressedItemsStripEditor>();
-                }
+                // scoreboardController > container > suppressedItems
+                scoreboardController.transform.GetChild(0).GetChild(3).GetOrAddComponent<HudEditorComponents.SuppressedItemsStripEditor>();
             }
 
 
@@ -435,9 +425,9 @@ namespace CleanestHud
 
                 Log.Debug("DifficultyBarController_OnCurrentSegmentIndexChanged");
                 Log.Debug($"newSegmentIndex is {newSegmentIndex}");
-                Log.Debug($"ConfigOptions.AllowConsistentDifficultyBarColor.Value is {ConfigOptions.AllowConsistentDifficultyBarColor.Value}");
+                Log.Debug($"ConfigOptions.EnableConsistentDifficultyBarBrightness.Value is {ConfigOptions.EnableConsistentDifficultyBarBrightness.Value}");
 
-                if (ConfigOptions.AllowConsistentDifficultyBarColor.Value)
+                if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value)
                 {
                     HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }

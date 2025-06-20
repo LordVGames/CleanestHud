@@ -55,7 +55,7 @@ The mod includes some events you can subscribe to that correlate to when certain
 - `HudChanges.HudDetails.OnHudDetailEditsFinished`
 - `Main.OnSurvivorSpecificHudEditsFinished` (repeatable)
 - `HudChanges.HudColor.OnHudColorUpdate` (repeatable)
-The repeatable events happen when the camera/HUD's target changes, so any changes that depend on a specific survivor should go in either.
+The repeatable events happen when the camera/HUD's target changes, so any changes that depend on a specific survivor should go in either. `OnSurvivorSpecificHudEditsFinished` will always happen after a camera target change, and `OnHudColorUpdate` will try to run on every camera change, but the event will only be raised after successfully changing the HUD's color.
 
 
 ## <sub><sup>yes, i did get permission to continue the mod</sup></sub>

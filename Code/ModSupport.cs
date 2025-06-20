@@ -8,6 +8,8 @@ using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Object;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 using HarmonyLib;
 using RoR2;
 using RoR2.UI;
@@ -17,8 +19,8 @@ using RiskOfOptions.OptionConfigs;
 using SS2;
 using static CleanestHud.Main;
 using CleanestHud.HudChanges;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
+using static CleanestHud.HudChanges.HudColor;
+using MiscFixes.Modules;
 
 namespace CleanestHud
 {
@@ -37,13 +39,13 @@ namespace CleanestHud
             }
 
             [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-            internal static void AddOptions()
+            internal static void SetupModCategoryInfo()
             {
                 ModSettingsManager.SetModIcon(ModAssets.AssetBundle.LoadAsset<Sprite>("CleanestHudIcon.png"));
                 ModSettingsManager.SetModDescription("Adds an artifact that disables proc chains and prevents most items from starting a proc chain.");
 
 
-                ModSettingsManager.AddOption(
+                /*ModSettingsManager.AddOption(
                     new StepSliderOption(
                         ConfigOptions.HudTransparency,
                         new StepSliderConfig{
@@ -106,7 +108,7 @@ namespace CleanestHud
                 );
                 ModSettingsManager.AddOption(
                     new CheckBoxOption(
-                        ConfigOptions.AllowConsistentDifficultyBarColor
+                        ConfigOptions.EnableConsistentDifficultyBarBrightness
                     )
                 );
                 ModSettingsManager.AddOption(
@@ -142,7 +144,7 @@ namespace CleanestHud
                     new CheckBoxOption(
                         ConfigOptions.AllowDebugLogging
                     )
-                );
+                );*/
             }
         }
 
@@ -227,12 +229,8 @@ namespace CleanestHud
                     Log.Debug("Couldn't find LookingGlass PlayerStats PanelSkinController, waiting a lil bit");
                     yield return null;
                 }
-                RemoveLookingGlassStatsPanelBackground(playerStats);
-            }
-            private static void RemoveLookingGlassStatsPanelBackground(Transform playerStats)
-            {
-                UnityEngine.Object.Destroy(playerStats.GetComponent<RoR2.UI.SkinControllers.PanelSkinController>());
-                UnityEngine.Object.Destroy(playerStats.GetComponent<Image>());
+                playerStats.TryDestroyComponent<RoR2.UI.SkinControllers.PanelSkinController>();
+                playerStats.TryDestroyComponent<Image>();
             }
 
 
@@ -375,11 +373,11 @@ namespace CleanestHud
 
                         Transform injectorSlotIsReadyPanel = injectorSlotDisplayRoot.GetChild(0);
                         Image injectorSlotEquipmentIsReadyPanelImage = injectorSlotIsReadyPanel.GetComponent<Image>();
-                        injectorSlotEquipmentIsReadyPanelImage.color = Main.Helpers.GetAdjustedColor(HudColor.SurvivorColor, colorIntensityMultiplier: HudColor.DefaultHudColorIntensity);
+                        injectorSlotEquipmentIsReadyPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: HudColor.DefaultHudColorIntensity);
 
                         Transform injectorSlotBGPanel = injectorSlotDisplayRoot.Find("BGPanel");
                         Image injectorSlotBGPanelImage = injectorSlotBGPanel.GetComponent<Image>();
-                        injectorSlotBGPanelImage.color = Main.Helpers.GetAdjustedColor(HudColor.SurvivorColor, colorIntensityMultiplier: HudColor.DefaultHudColorIntensity);
+                        injectorSlotBGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: HudColor.DefaultHudColorIntensity);
                     }
                 }
             }
@@ -469,6 +467,14 @@ namespace CleanestHud
 
 
 
+            internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
+            {
+                orig(self);
+                AllowDriverWeaponSlotCreation = false;
+            }
+
+
+
             internal static void OnSurvivorSpecificHudEditsFinished()
             {
                 if (HudTargetBody?.baseNameToken != "ROB_DRIVER_BODY_NAME")
@@ -542,6 +548,229 @@ namespace CleanestHud
                     Destroy(MyHud.equipmentIcons[0].gameObject.transform.parent.Find("WeaponSlot").gameObject);
                 }
                 catch{};
+            }
+        }
+
+        // do NOT rename this to MystMod because the actual myst mod is called that for once
+        internal static class Myst
+        {
+            private static bool? _modexists;
+            internal static bool ModIsRunning
+            {
+                get
+                {
+                    _modexists ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(MystMod.MystPlugin.MODUID);
+                    return (bool)_modexists;
+                }
+            }
+
+
+            private static Transform mystScaler;
+            private static Transform normalScaler;
+            private static Transform equipmentSlotDisplayRoot;
+            private static Transform skillsPanel1;
+            private static Transform skillsPanel2;
+
+
+            internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
+            {
+                orig(self);
+                // storing some HUD elements in the class to save on some .Find or .GetChild calls
+                mystScaler = null;
+                normalScaler = null;
+                equipmentSlotDisplayRoot = null;
+                skillsPanel1 = null;
+                skillsPanel2 = null;
+            }
+
+
+            internal static void OnSurvivorSpecificHudEditsFinished()
+            {
+                if (HudTargetBody == null)
+                {
+                    return;
+                }
+                Transform mystHud = MyHud.mainContainer.transform.Find("MystHuD(Clone)");
+                if (mystHud == null)
+                {
+                    return;
+                }
+                mystScaler = mystHud.GetChild(0).GetChild(0);
+                normalScaler = MyHudLocator.FindChild("SkillDisplayRoot");
+                if (HudTargetBody.baseNameToken == "JAVANGLE_MYST_BODY_NAME")
+                {
+                    ReplaceNormalScalerWithMystScaler();
+                    EditEquipmentSlotStructure();
+                    EditMystScalerDetails();
+                }
+                else
+                {
+                    ReplaceMystScalerWithNormalScaler();
+                    return;
+                }
+            }
+
+
+
+            private static void ReplaceNormalScalerWithMystScaler()
+            {
+                mystScaler.gameObject.SetActive(true);
+                // not really "replacing" it, moreso hiding the original and putting myst's on top of it
+                for (int i = 0; i < normalScaler.childCount; i++)
+                {
+                    Transform child = normalScaler.GetChild(i);
+                    if (child.name.Contains("Skill") || child.name == "EquipmentSlot")
+                    {
+                        child.gameObject.SetActive(false);
+                    }
+                }
+                mystScaler.localPosition = new Vector3(-817, 128, -12.5f);
+                Transform mystCluster = mystScaler.parent;
+                mystCluster.rotation = Quaternion.identity;
+            }
+
+            private static void ReplaceMystScalerWithNormalScaler()
+            {
+                mystScaler.gameObject.SetActive(false);
+                for (int i = 0; i < normalScaler.childCount; i++)
+                {
+                    Transform child = normalScaler.GetChild(i);
+                    Log.Warning(child.name);
+                    if (child.name.Contains("Skill") || child.name == "EquipmentSlot")
+                    {
+                        child.gameObject.SetActive(true);
+                    }
+                }
+            }
+
+            private static void EditEquipmentSlotStructure()
+            {
+                equipmentSlotDisplayRoot = mystScaler.Find("EquipmentSlot").GetChild(0);
+                equipmentSlotDisplayRoot.localScale = new Vector3(0.8f, 0.785f, 0.8f);
+                equipmentSlotDisplayRoot.localPosition = new Vector3(-28, 17.25f, 0);
+
+                Transform equipmentSlotBGPanel = equipmentSlotDisplayRoot.Find("BGPanel");
+                equipmentSlotBGPanel.localPosition = Vector3.zero;
+
+                Transform equipmentTextBackgroundPanel = equipmentSlotDisplayRoot.Find("EquipmentTextBackgroundPanel");
+                equipmentTextBackgroundPanel.localPosition = new Vector3(0, -34.0633f, 0);
+            }
+
+            private static void EditMystScalerDetails()
+            {
+                Vector3 newKeybindTextLocalScale = new(0.15f, 0.125f, 1);
+                // disable copies of sprint/inventory reminders
+                Transform mystTooltipCluster = mystScaler.GetChild(0);
+                mystTooltipCluster.GetChild(0).gameObject.SetActive(false);
+                mystTooltipCluster.GetChild(1).gameObject.SetActive(false);
+
+
+                Transform backgroundExtra = mystScaler.GetChild(1);
+                backgroundExtra.gameObject.SetActive(false);
+
+
+                skillsPanel1 = mystScaler.Find("Panel1 Default");
+                for (int i = 0; i < skillsPanel1.childCount; i++)
+                {
+                    Transform skillIcon = skillsPanel1.GetChild(i);
+                    Transform skillBackgroundPanel = skillIcon.Find("SkillBackgroundPanel");
+                    skillBackgroundPanel.localScale = newKeybindTextLocalScale;
+                    Image skillBackgroundPanelImage = skillBackgroundPanel.GetComponent<Image>();
+                    skillBackgroundPanelImage.enabled = false;
+                }
+                skillsPanel2 = mystScaler.Find("Panel2 Extra");
+                for (int i = 0; i < skillsPanel2.childCount; i++)
+                {
+                    Transform skillIcon = skillsPanel2.GetChild(i);
+                    Transform skillBackgroundPanel = skillIcon.Find("SkillBackgroundPanel");
+                    skillBackgroundPanel.localScale = newKeybindTextLocalScale;
+                    Image skillBackgroundPanelImage = skillBackgroundPanel.GetComponent<Image>();
+                    skillBackgroundPanelImage.enabled = false;
+                }
+
+
+                Transform equipmentTextBackgroundPanel = equipmentSlotDisplayRoot.Find("EquipmentTextBackgroundPanel");
+                equipmentTextBackgroundPanel.localScale = new Vector3(0.2f, 0.15f, 1);// equipment key reminder needs to be even bigger
+                Image equipmentTextBackgroundPanelImage = equipmentTextBackgroundPanel.GetComponent<Image>();
+                equipmentTextBackgroundPanelImage.enabled = false;
+
+
+                Transform tooltipCluster = mystScaler.Find("TooltipCluster");
+                Transform magiciteCluster = tooltipCluster.GetChild(2);
+                Transform keyBackgroundPanel = magiciteCluster.GetChild(0);
+                keyBackgroundPanel.localScale = new Vector3(0.225f, 0.225f, 1);
+                Image keyBackgroundPanelImage = keyBackgroundPanel.GetComponent<Image>();
+                keyBackgroundPanelImage.enabled = false;
+
+
+                // if he fixes the spelling it then it is what it is
+                Transform resourceGauges = mystScaler.Find("Resourse Guages");
+
+                Transform magicGauge = resourceGauges.GetChild(0);
+                Transform magicTextBackground = magicGauge.GetChild(0);
+                Transform magicTextFrame = magicTextBackground.GetChild(0);
+                magicTextFrame.gameObject.SetActive(false);
+                Image magicTextBackgroundImage = magicTextBackground.GetComponent<Image>();
+                magicTextBackgroundImage.enabled = false;
+
+
+                Transform limitGauge = resourceGauges.GetChild(1);
+                Transform limitTextBackground = limitGauge.GetChild(0);
+                Transform limitTextFrame = limitTextBackground.GetChild(0);
+                limitTextFrame.gameObject.SetActive(false);
+                Image limitTextBackgroundImage = limitTextBackground.GetComponent<Image>();
+                limitTextBackgroundImage.enabled = false;
+            }
+
+
+
+            internal static void OnHudColorUpdate()
+            {
+                if (HudTargetBody == null)
+                {
+                    return;
+                }
+                Transform mystHud = MyHud.mainContainer.transform.Find("MystHuD(Clone)");
+                if (mystHud == null)
+                {
+                    return;
+                }
+                Transform mystScaler = mystHud.GetChild(0).GetChild(0);
+                if (HudTargetBody.baseNameToken != "JAVANGLE_MYST_BODY_NAME")
+                {
+                    return;
+                }
+
+                ColorMystScaler();
+            }
+
+
+            private static void ColorMystScaler()
+            {
+                for (int i = 0; i < skillsPanel1.childCount; i++)
+                {
+                    Transform skillIcon = skillsPanel1.GetChild(i);
+                    GameObject isReadyPanel = skillIcon.GetChild(0).gameObject;
+                    Image isReadyPanelImage = isReadyPanel.GetComponent<Image>();
+                    isReadyPanelImage.color = SurvivorColor;
+                }
+
+
+                for (int i = 0; i < skillsPanel2.childCount; i++)
+                {
+                    Transform skillIcon = skillsPanel2.GetChild(i);
+                    GameObject isReadyPanel = skillIcon.Find("IsReadyPanel").gameObject;
+                    Image isReadyPanelImage = isReadyPanel.GetComponent<Image>();
+                    isReadyPanelImage.color = SurvivorColor;
+                }
+
+                Transform equipmentIsReadyPanel = equipmentSlotDisplayRoot.GetChild(0);
+                Image equipmentIsReadyPanelImage = equipmentIsReadyPanel.GetComponent<Image>();
+                equipmentIsReadyPanelImage.color = SurvivorColor;
+
+                Transform equipmentBGPanel = equipmentSlotDisplayRoot.Find("BGPanel");
+                Image equipmentBGPanelImage = equipmentBGPanel.GetComponent<Image>();
+                equipmentBGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
             }
         }
     }
