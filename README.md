@@ -22,19 +22,31 @@ Many elements of the hud are also configurable Most are for the hud in general, 
 
 <sub><sup>also this isn't a finished release since i know there's still a few things that don't fully work, I just wanted to get this out since everything's like 90% working</sup></sub>
 
+## Screenshots Showcase
 
-## Showcase
 
-<sub>NOTE: Some elements of the HUD may look slightly different ingame due to mod updates. Screenshots will be updated when the mod is finished or I feel like there's been enough changes.</sub>
+<details>
+<summary>Expand</summary>
 
-![20250314023946_1](https://github.com/user-attachments/assets/94455d18-acc4-4d40-b41e-3a1dd132b7b8)
+![20250719144026_1](https://github.com/user-attachments/assets/0d30989d-e9d9-4bb2-91fa-b416d10fa246)
 
-<sub>(lemurian inventory shown using another mod)</sub>
+![20250719144412_1](https://github.com/user-attachments/assets/c1aeb896-7c52-4b80-8c6c-ff5824c92917)
 
-![20250314025245_1](https://github.com/user-attachments/assets/76f20eed-24c0-4b2d-a41e-8bb16687ef64)
+![20250719144446_1](https://github.com/user-attachments/assets/8a5d5522-cd47-4f30-ae30-da41923cea9d)
 
-![20250314025430_1](https://github.com/user-attachments/assets/1e033eb2-0d17-4006-9376-fbc0b6437be1)
+![20250719144530_1](https://github.com/user-attachments/assets/276bd978-1ef3-4c46-b844-fe7ced2c52c2)
 
+### Multiplayer
+
+![oEgXQq6zmr](https://github.com/user-attachments/assets/ed19b46f-640c-4a5d-8d8a-17c380f2df8a)
+
+
+### Modded Survivor: Driver
+
+![20250719144604_1](https://github.com/user-attachments/assets/17d92117-a181-45be-b6f0-5af8cf1e9f83)
+
+
+</details>
 
 ## Bugs/Suggestions
 This isn't a finished release, so there's likely bugs that I've either already found or haven't yet found. If you do find a bug, or have a suggestion for the hud, either make a github issue here or ping me (lordvgames) in the RoR2 modding discord server.
