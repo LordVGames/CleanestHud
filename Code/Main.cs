@@ -92,7 +92,6 @@ namespace CleanestHud
                 Log.Debug("HUD_Awake");
                 MyHud = hud;
                 MyHudLocator = MyHud.GetComponent<ChildLocator>();
-                HudStructure.AssetEdits.LiveEditHudElementPrefabs();
                 ImportantHudTransforms.FindImportantHudTransforms();
 
                 // for SOME reason the hp bar's sub bars don't exist on AWAKE????
@@ -119,8 +118,8 @@ namespace CleanestHud
                 CharacterBody targetBody = HudCameraTargetBody;
 
 
-                // substring is to remove "(Clone)" from the end of the name
-                string properBodyName = targetBody.name.Substring(0, targetBody.name.Length - 7);
+                // removing "(Clone)" from the end of the name
+                string properBodyName = targetBody.name[..^7];
                 if (ConfigOptions.BodyNameBlacklist_Array.Contains(properBodyName))
                 {
                     Log.Info($"Character body {properBodyName} is blacklisted from the HUD! 99% of HUD changes will not occur.");
@@ -160,7 +159,7 @@ namespace CleanestHud
                 if (ConfigOptions.AllowSurvivorSpecificEdits.Value)
                 {
                     // stupid stupid stupid
-                    EditSurvivorSpecificUI(targetBody);
+                    EditSurvivorSpecificUI();
                 }
             }
             internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
@@ -207,14 +206,14 @@ namespace CleanestHud
                 }
                 if (ConfigOptions.AllowSurvivorSpecificEdits.Value)
                 {
-                    EditSurvivorSpecificUI(cameraRigController.targetBody);
+                    EditSurvivorSpecificUI();
                 }
                 if (ConfigOptions.AllowHudColorEdits.Value)
                 {
                     MyHud?.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
                 }
             }
-            private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
+            private static void EditSurvivorSpecificUI()
             {
                 if (IsHudEditable)
                 {
@@ -272,10 +271,7 @@ namespace CleanestHud
                 yield return null;
                 // BackgroundPanel > HealthBarSubBar(Clone) #2
                 Transform badHealthSubBar = backgroundPanel.GetChild(2);
-                if (badHealthSubBar != null)
-                {
-                    badHealthSubBar.DisableImageComponent();
-                }
+                badHealthSubBar?.DisableImageComponent();
             }
 
 

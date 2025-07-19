@@ -3,9 +3,8 @@
 Added support for special HUD elements from the following mod characters:
 - Driver
 - Myst
-Feel free to suggest or make a github issue if a character you like isn't supported!
 
-I've also fixed the last bugs with the HUD itself I know of:
+Fixed many bugs:
 - Fixed consistent difficulty bar coloring not working
 - Fixed Seeker's lotus being slightly off center
 - Fixed dead players in the inventories menu preventing styling for other scoreboard strips below it
@@ -21,15 +20,15 @@ I've also fixed the last bugs with the HUD itself I know of:
 - Fixed equipment slots looking a little weird
 - Fixed end screen's chat box not being styled
 
-Added a note about not being able to move when hovering over something in the TAB menu if the inventory auto highlight option is disabled
-
 Reduced the number of `.Find` calls
-- This should (if it works how I think it does) decrease the time to do all the HUD edits when loading into a stage, possibly decreasing stage load time a little bit
+- This should (if it works how I think it does) decrease the time to do all the HUD edits when loading into a stage, possibly decreasing stage load time a tiny bit
 
 Heavily re-organized code
 
 Added code events in the mod for other devs to know when each stage of CleanestHud's edits are finished
 - Useful for if a modded HUD element copies off of a vanilla HUD element that gets edited by the HUD after the mod's HUD element spawns
+- There are also events for when some config options change
+- Read the README for more info
 
 ## 0.11.5
 

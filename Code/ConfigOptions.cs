@@ -345,7 +345,7 @@ namespace CleanestHud
             AllowAutoScoreboardHighlight = config.BindOption<bool>(
                 "HUD Settings",
                 "Allow auto highlight when opening the inventory menu",
-                "Should the automatic highlight for the first person in TAB inventories list be allowed?\n\nNOTE: Disabling this and hovering over something will cause movement to stop working!",
+                "Should the automatic highlight for the first person in TAB inventories list be allowed?",
                 false,
                 MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );

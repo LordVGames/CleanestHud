@@ -30,7 +30,7 @@ namespace CleanestHud.HudChanges
 
 
         private static Vector2 _sprintClusterLocalPositionBoosted = new(SprintClusterDefaultX, SprintClusterDefaultY);
-        public static Vector2 SprintClusterLocalPosition = new Vector2(SprintClusterDefaultX, SprintClusterDefaultY);
+        public static Vector2 SprintClusterLocalPosition = new(SprintClusterDefaultX, SprintClusterDefaultY);
         public static void ResetSprintClusterLocalPositionToDefault()
         {
             SprintClusterLocalPosition = new Vector2(SprintClusterDefaultX, SprintClusterDefaultY);
@@ -53,34 +53,6 @@ namespace CleanestHud.HudChanges
 
 
         public static event Action OnHudStructureEditsFinished;
-
-
-
-        internal static class AssetEdits
-        {
-            internal static void LiveEditHudElementPrefabs()
-            {
-                EditScoreboardStripAsset();
-            }
-            internal static void EditScoreboardStripAsset()
-            {
-                Transform scoreboardStrip = HudAssets.ScoreboardStrip.transform;
-
-                Transform longBackground = scoreboardStrip.GetChild(0);
-                Image longBackgroundImage = longBackground.GetComponent<Image>();
-                longBackgroundImage.sprite = HudAssets.WhiteSprite;
-
-                Transform totalTextContainer = longBackground.Find("TotalTextContainer");
-                Transform moneyText = totalTextContainer.Find("MoneyText");
-                HGTextMeshProUGUI moneyTextMesh = moneyText.GetComponent<HGTextMeshProUGUI>();
-                moneyTextMesh.color = Color.white;
-
-                Transform nameLabel = longBackground.GetChild(2);
-                HGTextMeshProUGUI nameLabelText = nameLabel.GetComponent<HGTextMeshProUGUI>();
-                nameLabelText.alignment = TextAlignmentOptions.Center;
-                // i would reposition parts of the asset here but that never works ingame lmao
-            }
-        }
 
 
 
@@ -214,7 +186,7 @@ namespace CleanestHud.HudChanges
 
             // calling other edit methods within this one to save on some GetChild calls
             // also the localPositions set by these are fine and are always cenetered so DO NOT mess with them
-            EditBuffDisplay(levelDisplayCluster);
+            EditBuffDisplay();
             EditLevelDisplayRoot(levelDisplayCluster);
             EditExpBar(levelDisplayCluster);
         }
@@ -227,7 +199,7 @@ namespace CleanestHud.HudChanges
             levelDisplayRootRect.pivot = new Vector2(0.5f, 0.5f);
             levelDisplayRootRect.localPosition = new Vector3(311, -27f, 0);
         }
-        private static void EditBuffDisplay(Transform levelDisplayCluster)
+        private static void EditBuffDisplay()
         {
             Transform buffDisplayRoot = MyHudLocator.FindChild("BuffDisplayRoot");
 
@@ -303,8 +275,8 @@ namespace CleanestHud.HudChanges
         }
         private static void EditSkillSlots()
         {
-            // not doing normal for loop so i don't have "MyHud.skillIcons[i]" everywhere
-            Vector3 newSkillPosition = Vector3.zero;
+            // not doing a normal "for" loop so i don't have "MyHud.skillIcons[i]" everywhere
+            Vector3 newSkillPosition;
             int i = 0;
             Vector3 centerSkillIconLocalPosition = MyHud.skillIcons[2].transform.localPosition;
             foreach (SkillIcon skillIcon in MyHud.skillIcons)

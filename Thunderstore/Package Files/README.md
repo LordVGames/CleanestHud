@@ -48,7 +48,7 @@ This isn't a finished release, so there's likely bugs that I've either already f
 - Sometimes Myst's HUD doesn't appear
 - - It's a semi-rare error that randomly happens and it comes straight from Myst itself. Can't really fix it until Myst itself adds support for this HUD.
 - Some part of the HUD is broken when an editing phase is turned off
-- - The HUD was built assuming parts of it's editing process weren't turned off, especially structure edits. It'd be a ton of work to go back and make sure everything works with those options, so any bugs stemming from those options may or may not be fixed. You can always contribute a fix yourself though.
+- - The HUD was built assuming parts of it's editing process weren't turned off, especially structure edits. It'd be a ton of work to go back and make sure everything works with those options, so any bugs stemming from these options likely won't be fixed.
 
 
 ## For mod developers
@@ -60,7 +60,7 @@ The mod includes some events you can subscribe to that correlate to when certain
 The repeatable events happen when the camera/HUD's target changes, so any changes that depend on a specific survivor should go in either. `OnSurvivorSpecificHudEditsFinished` will always happen after a camera target change, and `OnHudColorUpdate` will try to run on every camera change, but the event will only be raised after successfully changing the HUD's color.
 - Many config options have an event for when they're toggled on/off.
 
-You can look at the existing files for mod survivor HUD support for examples on how to use these.
+You can look at the existing code for this mod's survivor HUD support for examples on how to use these.
 
 
 ## <sub><sup>yes, i did get permission to continue the mod</sup></sub>

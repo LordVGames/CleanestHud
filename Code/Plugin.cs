@@ -26,9 +26,8 @@ namespace CleanestHud
             Log.Init(Logger);
             ModAssets.Init();
             ConfigOptions.BindConfigOptions(Config);
-            // prefab changes need to happen very early because when the hud is fully initialized the prefab may have already been spawned and then it can't be edited that way
-            HudResources.HudAssets.LoadHudAssets();
-            HudChanges.HudDetails.AssetEdits.EditHudElementPrefabDetails();
+            // asset edits need to happen very early because once the hud is fully initialized a prefab may have already been spawned and then it can't be edited this way
+            HudResources.HudAssets.SetupAssets();
 
 
 

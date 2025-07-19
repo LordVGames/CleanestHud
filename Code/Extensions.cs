@@ -67,7 +67,7 @@ namespace CleanestHud
             }
             else
             {
-                Log.Error($"Could not find image component in allyCardController {gameObject.name}");
+                Log.Error($"Could not find image component in GameObject {gameObject.name}");
             }
         }
 

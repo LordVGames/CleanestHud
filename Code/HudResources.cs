@@ -6,6 +6,8 @@ using UnityEngine;
 using RoR2.UI;
 using UnityEngine.UI;
 using static CleanestHud.Main;
+using RoR2.ContentManagement;
+using CleanestHud.HudChanges;
 
 namespace CleanestHud
 {
@@ -13,40 +15,75 @@ namespace CleanestHud
     {
         internal static class HudAssets
         {
+            private static readonly AssetReferenceT<Texture2D> _textWhiteReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_Common.texWhite_png);
             internal static Sprite WhiteSprite;
+            private static readonly AssetReferenceT<Material> _fontMaterialReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_Common_Fonts_Bombardier.tmpBombDropshadow3D_mat);
             internal static Material FontMaterial;
 
-            internal static GameObject SimulacrumWaveUI;
-            internal static GameObject EnemyInfoPanel;
-            internal static GameObject GameEndReportPanel;
-            internal static GameObject ViendCrosshair;
-            internal static GameObject ViendCorruption;
-            internal static GameObject ScoreboardStrip;
-            internal static GameObject ItemIconScoreboard;
-            internal static GameObject MoonDetonationPanel;
-            internal static GameObject StatStripTemplate;
-            internal static GameObject ChatBox;
-            internal static GameObject ItemIconPrefab;
+            private static readonly AssetReferenceT<GameObject> _gameEndReportPanelAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.GameEndReportPanel_prefab);
+            private static readonly AssetReferenceT<GameObject> _scoreboardStripAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ScoreboardStrip_prefab);
+            private static readonly AssetReferenceT<GameObject> _itemIconIngameAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ItemIconScoreboard_InGame_prefab);
+            private static readonly AssetReferenceT<GameObject> _moonDetonationPanelAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.HudCountdownPanel_prefab);
+            private static readonly AssetReferenceT<GameObject> _chatBoxAssetReference= new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ChatBox_prefab);
+            private static readonly AssetReferenceT<GameObject> _statStripTemplateAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.StatStripTemplate_prefab);
 
-            internal static void LoadHudAssets()
+            internal static void SetupAssets()
             {
-                Texture2D texWhite = Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Common/texWhite.png").WaitForCompletion();
-                WhiteSprite = Sprite.Create(texWhite, new Rect(0f, 0f, 4f, 4f), Vector2.zero);
-                FontMaterial = Addressables.LoadAssetAsync<Material>("RoR2/Base/Common/Fonts/Bombardier/tmpBombDropshadow3D.mat").WaitForCompletion();
+                AssignSomeAssets();
+                EditOtherAssets();
+            }
 
-                ChatBox = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/ChatBox.prefab").WaitForCompletion();
-                SimulacrumWaveUI = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/GameModes/InfiniteTowerRun/InfiniteTowerAssets/InfiniteTowerDefaultWaveUI.prefab").WaitForCompletion();
-                EnemyInfoPanel = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/EnemyInfoPanel.prefab").WaitForCompletion();
-                GameEndReportPanel = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/GameEndReportPanel.prefab").WaitForCompletion();
-                ViendCrosshair = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorCrosshair.prefab").WaitForCompletion();
-                ViendCorruption = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorCorruptionUISimplified.prefab").WaitForCompletion();
-                ScoreboardStrip = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/ScoreboardStrip.prefab").WaitForCompletion();
-                ItemIconScoreboard = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/ItemIconScoreboard.prefab").WaitForCompletion();
-                MoonDetonationPanel = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/HudCountdownPanel.prefab").WaitForCompletion();
-                StatStripTemplate = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/StatStripTemplate.prefab").WaitForCompletion();
-                ItemIconPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/ItemIconScoreboard_InGame.prefab").WaitForCompletion();
+            private static void AssignSomeAssets()
+            {
+                Texture2D texWhite = null;
+                AssetAsyncReferenceManager<Texture2D>.LoadAsset(_textWhiteReference).Completed += (handle) =>
+                {
+                    texWhite = handle.Result;
+                };
+                WhiteSprite = Sprite.Create(texWhite, new Rect(0f, 0f, 4f, 4f), Vector2.zero);
+                AssetAsyncReferenceManager<Material>.LoadAsset(_fontMaterialReference).Completed += (handle) =>
+                {
+                    FontMaterial = handle.Result;
+                };
+            }
+
+            private static void EditOtherAssets()
+            {
+                AssetAsyncReferenceManager<GameObject>.LoadAsset(_gameEndReportPanelAssetReference).Completed += (handle) =>
+                {
+                    AssetEdits.RemoveGameEndReportPanelDetails(handle.Result);
+                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_gameEndReportPanelAssetReference);
+                };
+                AssetAsyncReferenceManager<GameObject>.LoadAsset(_scoreboardStripAssetReference).Completed += (handle) =>
+                {
+                    AssetEdits.EditScoreboardStripAsset(handle.Result);
+                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_scoreboardStripAssetReference);
+                };
+                AssetAsyncReferenceManager<GameObject>.LoadAsset(_itemIconIngameAssetReference).Completed += (handle) =>
+                {
+                    AssetEdits.EditItemIconIngame(handle.Result);
+                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_itemIconIngameAssetReference);
+                };
+                AssetAsyncReferenceManager<GameObject>.LoadAsset(_moonDetonationPanelAssetReference).Completed += (handle) =>
+                {
+                    AssetEdits.RemoveMoonDetonationPanelDetails(handle.Result);
+                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_moonDetonationPanelAssetReference);
+                };
+                AssetAsyncReferenceManager<GameObject>.LoadAsset(_chatBoxAssetReference).Completed += (handle) =>
+                {
+                    AssetEdits.RemoveChatBoxDetails(handle.Result);
+                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_chatBoxAssetReference);
+                };
+                AssetAsyncReferenceManager<GameObject>.LoadAsset(_statStripTemplateAssetReference).Completed += (handle) =>
+                {
+                    // doesn't need it's own assetedits method yet
+                    handle.Result.DisableImageComponent();
+                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_statStripTemplateAssetReference);
+                };
             }
         }
+
+
 
         internal static class ImportantHudTransforms
         {
