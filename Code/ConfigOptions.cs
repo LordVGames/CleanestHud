@@ -19,12 +19,17 @@ namespace CleanestHud
             }
             public enum SeekerLotusHudPosition
             {
-                AboveHealthBar,
+                AboveSkillsMiddle,
                 LeftOfSkills
             }
         }
 
 
+
+        public static ConfigEntry<bool> AllowHudStructureEdits;
+        public static ConfigEntry<bool> AllowHudDetailsEdits;
+        public static ConfigEntry<bool> AllowHudColorEdits;
+        public static ConfigEntry<bool> AllowSurvivorSpecificEdits;
 
         public static ConfigEntry<float> HudTransparency;
         private static void HudTransparency_SettingChanged(object sender, EventArgs e)
@@ -49,11 +54,11 @@ namespace CleanestHud
             }
 
             HudChanges.HudDetails.SetSkillsAndEquipmentReminderTextStatus();
-            HudChanges.HudStructure.RepositionSkillScaler();
+            OnShowSkillKeybindsChanged?.Invoke();
             // the sprint and inventory reminders are moved up/down depending on if the skills reminders exist
             // so their y positions need to change with it to stay in the same spot
             HudChanges.HudStructure.RepositionSprintAndInventoryReminders();
-            OnShowSkillKeybindsChanged?.Invoke();
+            HudChanges.HudStructure.RepositionSkillScaler();
         }
         public static event Action OnShowSkillKeybindsChanged;
 
@@ -244,14 +249,39 @@ namespace CleanestHud
         public static ConfigEntry<bool> AllowDebugLogging;
 
 
+
+
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         internal static void BindConfigOptions(ConfigFile config)
         {
-            HudTransparency = config.BindOption<float>(
+            AllowHudStructureEdits = config.BindOption<bool>(
+                "HUD Settings",
+                "Allow HUD structure edits",
+                "Should the structure editing phase of the HUD loading be allowed to happen?\n\nNOTE: This option is REALLY not supported, it will likely cause problems! Especially with some already supported modded survivors! This will also only take effect next stage or the next time the HUD is created!",
+                true,
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
+            );
+            AllowHudDetailsEdits = config.BindOption<bool>(
+                "HUD Settings",
+                "Allow HUD details edits",
+                "Should the details editing phase of the HUD loading be allowed to happen?\n\nNOTE: This option is not very supported, it may not fully work! This will also only take effect next stage or the next time the HUD is created!",
+                true,
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
+            );
+            AllowHudColorEdits = config.BindOption<bool>(
+                "HUD Settings",
+                "Allow HUD color edits",
+                "Should the HUD be colored based on the survivor being played/spectated?\n\nNOTE: This option is not very supported, it may not fully work! This will also only take effect next stage or the next time the HUD is created!",
+                true,
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
+            );
+            HudTransparency = config.BindOptionSteppedSlider(
                 "HUD Settings",
                 "HUD Transparency",
                 "How transparent should the entire HUD be?\n1 = 100% opaque (no transparency), 0.8 = 80% opaque (20% transparency)",
                 0.8f,
+                0.05f,
+                0, 10,
                 MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
             ShowSkillAndEquipmentOutlines = config.BindOption<bool>(
@@ -282,11 +312,13 @@ namespace CleanestHud
                 false,
                 MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
-            InspectPanelFadeInDuration = config.BindOption<float>(
+            InspectPanelFadeInDuration = config.BindOptionSteppedSlider(
                 "HUD Settings",
                 "Inspect panel fade-in duration",
                 "Set a custom duration for the inspect panel's fade-in animation. Vanilla is 0.2",
                 0.4f,
+                0.05f,
+                0, 5,
                 MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
             AllowAllyCardBackgrounds = config.BindOption<bool>(
@@ -332,6 +364,15 @@ namespace CleanestHud
                 MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
 
+
+
+            AllowSurvivorSpecificEdits = config.BindOption<bool>(
+                "HUD Settings - Survivor Specific",
+                "Allow survivor-specific HUD edits",
+                "Should the editing phase for survivor-specific HUD elements be allowed to happen? This should be turned off if HUD structure edits are turned off.\n\nNOTE: This option is REALLY not supported, it may cause problems! This will also only take effect next stage or the next time the HUD is created!",
+                true,
+                MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
+            );
             AllowVoidFiendMeterAnimating = config.BindOption<bool>(
                 "HUD Settings - Survivor Specific",
                 "Allow Void Fiend corruption meter animations",
@@ -370,6 +411,7 @@ namespace CleanestHud
                 false,
                 MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
             );
+
 
 
             if (ModSupport.RiskOfOptionsMod.ModIsRunning)

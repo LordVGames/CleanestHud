@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+﻿using MiscFixes.Modules;
 using RoR2;
 using RoR2.UI;
-using static CleanestHud.Main;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 using static CleanestHud.HudResources;
-using MiscFixes.Modules;
+using static CleanestHud.Main;
 
 namespace CleanestHud.HudChanges
 {
@@ -153,21 +153,26 @@ namespace CleanestHud.HudChanges
 
 
 
-            RawImage moneyBackgroundPanelImage = MyHud.moneyText.transform.Find("BackgroundPanel").GetComponent<RawImage>();
-            moneyBackgroundPanelImage.color = colorToUse;
+            MyHud.moneyText.transform.Find("BackgroundPanel").GetComponent<RawImage>().color = colorToUse;
+            MyHud.moneyText.transform.Find("ValueText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
+            MyHud.moneyText.transform.Find("DollarSign").GetComponent<HGTextMeshProUGUI>().color = Color.white;
 
 
 
-            Transform lunarCoinBackgroundPanel = upperLeftCluster.Find("LunarCoinRoot/BackgroundPanel");
-            RawImage lunarCoinBackgroundPanelImage = lunarCoinBackgroundPanel.GetComponent<RawImage>();
-            lunarCoinBackgroundPanelImage.color = colorToUse;
+            Transform lunarCoinRoot = upperLeftCluster.Find("LunarCoinRoot");
+
+            lunarCoinRoot.Find("BackgroundPanel").GetComponent<RawImage>().color = colorToUse;
+            lunarCoinRoot.Find("ValueText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
+            lunarCoinRoot.Find("LunarCoinSign").GetComponent<HGTextMeshProUGUI>().color = Color.white;
 
 
 
             // void coins aren't used in vanilla, but wolfo's simulacrum mod makes use of them
-            Transform voidCoinBackgroundPanel = upperLeftCluster.Find("VoidCoinRoot/BackgroundPanel");
-            RawImage voidCoinBackgroundPanelImage = voidCoinBackgroundPanel.GetComponent<RawImage>();
-            voidCoinBackgroundPanelImage.color = colorToUse;
+            Transform voidCoinRoot = upperLeftCluster.Find("VoidCoinRoot");
+
+            voidCoinRoot.Find("BackgroundPanel").GetComponent<RawImage>().color = colorToUse;
+            voidCoinRoot.Find("ValueText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
+            voidCoinRoot.Find("VoidCoinSign").GetComponent<HGTextMeshProUGUI>().color = Color.white;
         }
         private static void ColorInspectionPanel(Transform container)
         {

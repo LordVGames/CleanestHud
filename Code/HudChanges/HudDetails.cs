@@ -229,6 +229,7 @@ namespace CleanestHud.HudChanges
             RemoveSprintAndInventoryReminderTextBackgrounds();
             RemoveSkillAndEquipmentReminderTextBackgrounds();
             SetSkillOutlinesStatus();
+            RemoveCurrenciesBackground();
             OnHudDetailEditsFinished?.Invoke();
         }
         private static void EditDifficultyHudDetails()
@@ -273,14 +274,8 @@ namespace CleanestHud.HudChanges
             }
 
             Transform defaultFillBarRoot = defaultWaveUI.Find("FillBarRoot");
-
-            Transform defaultFillBarBackdrop = defaultFillBarRoot.Find("Fillbar Backdrop");
-            Image defaultFillBarBackdropImage = defaultFillBarBackdrop.GetComponent<Image>();
-            defaultFillBarBackdropImage.enabled = false;
-
-            Transform defaultFillBarBackdropInner = defaultFillBarRoot.Find("FillBar Backdrop Inner");
-            Image defaultFillBarBackdropInnerImage = defaultFillBarBackdropInner.GetComponent<Image>();
-            defaultFillBarBackdropInnerImage.enabled = false;
+            defaultFillBarRoot.Find("Fillbar Backdrop").DisableImageComponent();
+            defaultFillBarRoot.Find("FillBar Backdrop Inner").DisableImageComponent();
         }
         private static void EditSimulacrumWavePanel()
         {
@@ -291,8 +286,7 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            Image wavePanelImage = wavePanel.GetComponent<Image>();
-            wavePanelImage.enabled = false;
+            wavePanel.DisableImageComponent();
         }
         private static void EditTimerPanel()
         {
@@ -303,8 +297,7 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            Image timerPanelImage = timerPanel.GetComponent<Image>();
-            timerPanelImage.enabled = false;
+            timerPanel.DisableImageComponent();
 
             GameObject wormGear = timerPanel.Find("Wormgear").gameObject;
             wormGear.SetActive(false);
@@ -323,11 +316,8 @@ namespace CleanestHud.HudChanges
                 Main.Helpers.LogMissingHudVariable("SetSprintAndInventoryKeybindsStatus", "SkillDisplayRoot");
             }
 
-            GameObject sprintCluster = scaler.Find("SprintCluster").gameObject;
-            sprintCluster.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
-
-            GameObject inventoryCluster = scaler.Find("InventoryCluster").gameObject;
-            inventoryCluster.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
+            scaler.Find("SprintCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
+            scaler.Find("InventoryCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
         }
         private static void HideItemInventoryOutline()
         {
@@ -337,59 +327,44 @@ namespace CleanestHud.HudChanges
         private static void RemoveContextNotificationDetails()
         {
             Transform contextNotification = MyHudLocator.FindChild("RightCluster").Find("ContextNotification");
-            Transform contextDisplay = contextNotification.Find("ContextDisplay");
-            RawImage contextDisplayImage = contextDisplay.GetComponent<RawImage>();
-            contextDisplayImage.enabled = false;
 
-            Transform inspectDisplay = contextNotification.GetChild(2);
-            RawImage inspectDisplayBackground = inspectDisplay.GetComponent<RawImage>();
-            inspectDisplayBackground.enabled = false;
+            contextNotification.Find("ContextDisplay").DisableRawImageComponent();
+            // GetChild(2) is inspectDisplay
+            contextNotification.GetChild(2).DisableRawImageComponent();
         }
         private static void EditBossBarDetails()
         {
             Transform bossHealthBarContainer = MyHudLocator.FindChild("BossHealthBar").parent.parent;
-            Image bossHealthBarContainerImage = bossHealthBarContainer.GetComponent<Image>();
-            bossHealthBarContainerImage.enabled = false;
+            bossHealthBarContainer.DisableImageComponent();
 
 
-            Transform bossBackgroundPanel = bossHealthBarContainer.Find("BackgroundPanel");
-            Image bossBackgroundPanelImage = bossBackgroundPanel.GetComponent<Image>();
+            Image bossBackgroundPanelImage = bossHealthBarContainer.Find("BackgroundPanel").GetComponent<Image>();
             // this is set to true on purpose to enable dark background for missing boss hp
             bossBackgroundPanelImage.enabled = true;
         }
         private static void DisableScoreboardStripContainerOutline()
         {
             Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
-            Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
-            Transform stripContainer = container.Find("StripContainer");
-
-            Image stripContainerImage = stripContainer.GetComponent<Image>();
-            stripContainerImage.enabled = false;
+            Helpers.GetContainerFromScoreboardPanel(scoreboardPanel).Find("StripContainer").DisableImageComponent();
         }
         private static void DisableInspectionPanelItemIconDetails()
         {
             Transform scoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
-            Transform container = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel);
-            Transform inspectPanelArea = container.Find("InspectPanel/InspectPanelArea");
-            Transform inspectionPanel = inspectPanelArea.Find("InspectionPanel");
-            Transform horizontalBox = inspectionPanel.GetChild(0);
+            Transform horizontalBox = Helpers.GetContainerFromScoreboardPanel(scoreboardPanel).Find("InspectPanel/InspectPanelArea/InspectionPanel").GetChild(0);
 
             Transform inspectIconContainer = horizontalBox.GetChild(0);
-            Image inspectIconContainerImage = inspectIconContainer.GetComponent<Image>();
-            inspectIconContainerImage.enabled = false;
-
-            Transform inspectVisualBackground = inspectIconContainer.GetChild(0);
-            Image inspectHudIconImage = inspectVisualBackground.GetComponent<Image>();
-            inspectHudIconImage.enabled = false;
+            inspectIconContainer.DisableImageComponent();
+            // GetChild(0) is inspectVisualBackground
+            inspectIconContainer.GetChild(0).DisableImageComponent();
         }
         private static void RemoveArtifactPanelBackground()
         {
             Transform artifactPanel = ImportantHudTransforms.RightInfoBar.Find("ArtifactPanel");
-            if (artifactPanel)
+            if (artifactPanel == null)
             {
-                Image artifactPanelImage = artifactPanel.GetComponent<Image>();
-                artifactPanelImage.enabled = false;
+                return;
             }
+            artifactPanel.DisableImageComponent();
         }
         private static void EditSuppressedItemsStrip()
         {
@@ -421,27 +396,24 @@ namespace CleanestHud.HudChanges
             Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
 
             Transform sprintCluster = scaler.Find("SprintCluster");
-            Transform keyBackgroundPanel = sprintCluster.GetChild(1);
-            Image keyBackgroundPanelImage = keyBackgroundPanel.GetComponent<Image>();
-            keyBackgroundPanelImage.enabled = false;
+            // GetChild(1) is "keyBackgroundPanel"
+            sprintCluster.GetChild(1).DisableImageComponent();
 
-            Transform inventoryCluster = scaler.Find("InventoryCluster");
-            Transform skillBackgroundPanel = inventoryCluster.Find("SkillBackgroundPanel");
-            Image skillBackgroundPanelBackgroundImage = skillBackgroundPanel.GetComponent<Image>();
-            skillBackgroundPanelBackgroundImage.enabled = false;
+            // why is the background panel name different from the SprintCluster? idfk
+            scaler.Find("InventoryCluster/SkillBackgroundPanel").DisableImageComponent();
         }
         private static void RemoveSkillAndEquipmentReminderTextBackgrounds()
         {
             foreach (SkillIcon skillIcon in MyHud.skillIcons)
             {
-                Transform skillBackgroundPanel = skillIcon.transform.Find("SkillBackgroundPanel");
-                Image skillBackgroundPanelImage = skillBackgroundPanel.GetComponent<Image>();
-                skillBackgroundPanelImage.enabled = false;
+                skillIcon.transform.Find("SkillBackgroundPanel").DisableImageComponent();
             }
-            Transform equipmentDisplayRoot = MyHud.equipmentIcons[0].transform.GetChild(1);
-            Transform equipmentTextBackgroundPanel = equipmentDisplayRoot.GetChild(6);
-            Image equipmentTextBackgroundPanelImage = equipmentTextBackgroundPanel.GetComponent<Image>();
-            equipmentTextBackgroundPanelImage.enabled = false;
+            // GetChild(1) is EquipmentDisplayRoot and GetChild(6) is EquipmentTextBackgroundPanel
+            MyHud.equipmentIcons[0].transform.GetChild(1).GetChild(6).DisableImageComponent();
+        }
+        private static void RemoveCurrenciesBackground()
+        {
+            MyHudLocator.FindChild("UpperLeftCluster").DisableImageComponent();
         }
 
 
@@ -659,12 +631,9 @@ namespace CleanestHud.HudChanges
         private static void RemoveSimulacrumWavePopUpPanelDetails(Transform simulacrumWavePopUp)
         {
             Transform simulacrumWaveUiOffset = simulacrumWavePopUp.GetChild(0);
-
-            Image background = simulacrumWaveUiOffset.GetComponent<Image>();
-            background.enabled = false;
-
-            Transform outline = simulacrumWaveUiOffset.GetChild(2);
-            outline.gameObject.SetActive(false);
+            simulacrumWaveUiOffset.DisableImageComponent();
+            // GetChild(2) is outline
+            simulacrumWaveUiOffset.GetChild(2).gameObject.SetActive(false);
         }
 
 
@@ -682,12 +651,8 @@ namespace CleanestHud.HudChanges
         }
         private static void RemoveTimeUntilNextWaveBackground(Transform timeUntilNextWaveUI)
         {
-            Transform offset = timeUntilNextWaveUI.GetChild(0);
-            Transform timeUntilNextWaveRoot = offset.GetChild(0);
-            Transform backdrop1 = timeUntilNextWaveRoot.GetChild(0);
-
-            Image backdrop1Image = backdrop1.GetComponent<Image>();
-            backdrop1Image.enabled = false;
+            // timeUntilNextWaveUI > offset > timeUntilNextWaveRoot > backdrop1
+            timeUntilNextWaveUI.GetChild(0).GetChild(0).GetChild(0).DisableImageComponent();
         }
 
 
@@ -739,13 +704,16 @@ namespace CleanestHud.HudChanges
             {
                 // HealthBar > BackgroundPanel > HealthBarSubBar(Clone) #2
                 Transform backgroundPanel = allyCard.healthBar.transform.GetChild(0);
+                if (backgroundPanel.childCount < 3)
+                {
+                    return;
+                }
                 Transform badHealthBar = backgroundPanel.GetChild(2);
                 if (badHealthBar == null)
                 {
                     return;
                 }
-                Image badHealthBarImage = badHealthBar.GetComponent<Image>();
-                badHealthBarImage.enabled = false;
+                badHealthBar.DisableImageComponent();
             }
         }
 
@@ -754,6 +722,8 @@ namespace CleanestHud.HudChanges
         internal static void RemoveBadHealthSubBarFromPersonalHealthBar()
         {
             Image badHpBarImage = ImportantHudTransforms.BarRoots.Find("HealthbarRoot").GetChild(0).GetChild(1).GetComponent<Image>();
+            // this image CAN sometimes be null and i don't want an error message to appear if it is
+            // so we're not using DisableImageComponent here
             if (badHpBarImage != null)
             {
                 badHpBarImage.enabled = false;
@@ -798,20 +768,12 @@ namespace CleanestHud.HudChanges
             {
                 return;
             }
+
+            enemyInfoPanel.DisableImageComponent();
             Transform innerFrame = enemyInfoPanel.transform.Find("InnerFrame");
-
-
-            Image enemyInfoPanelImage = enemyInfoPanel.GetComponent<Image>();
-            enemyInfoPanelImage.enabled = false;
-
-            Image innerFrameImage = innerFrame.GetComponent<Image>();
-            innerFrameImage.enabled = false;
-
-            Image monsterBodyIconContainerImage = innerFrame.Find("MonsterBodiesContainer/MonsterBodyIconContainer").GetComponent<Image>();
-            monsterBodyIconContainerImage.enabled = false;
-
-            Image inventoryDisplayImage = innerFrame.Find("InventoryContainer/InventoryDisplay").GetComponent<Image>();
-            inventoryDisplayImage.enabled = false;
+            innerFrame.DisableImageComponent();
+            innerFrame.Find("InventoryContainer/InventoryDisplay").DisableImageComponent();
+            innerFrame.Find("MonsterBodiesContainer/MonsterBodyIconContainer").DisableImageComponent();
         }
     }
 }

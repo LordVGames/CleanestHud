@@ -42,11 +42,13 @@ This isn't a finished release, so there's likely bugs that I've either already f
 
 ## Known Issues
 - Changing resolutions mid-stage doesn't re-scale the hud
-- - Kind of a vanilla issue, especially when going from a big resolution to a small OnInitialHudColorEditsFinishedone, but I feel it should still be mentioned
-- Having the "auto highlight when opening the inventory menu" setting disabled causes movement to stop when hovering over a player's inventory
-- - Another vanilla issue that's caused immediately by that new option. This can be fixed by re-enabling the option, or it can be worked around by first clicking on an item icon
+- - Kind of a vanilla issue, especially when going from a big resolution to a small one, but I feel it should still be mentioned
 - Having the [HealthbarImmune](https://thunderstore.io/c/riskofrain2/p/DestroyedClone/HealthbarImmune/) mod causes the hp bar text to disappear
 - - May or may not be an issue from HealthbarImmune itself. In any case, installing [NoMoreMath](https://thunderstore.io/package/Goorakh/NoMoreMath/) seems to fix it, even with the "effective health" setting off
+- Sometimes Myst's HUD doesn't appear
+- - It's a semi-rare error that randomly happens and it comes straight from Myst itself. Can't really fix it until Myst itself adds support for this HUD.
+- Some part of the HUD is broken when an editing phase is turned off
+- - The HUD was built assuming parts of it's editing process weren't turned off, especially structure edits. It'd be a ton of work to go back and make sure everything works with those options, so any bugs stemming from those options may or may not be fixed. You can always contribute a fix yourself though.
 
 
 ## For mod developers
@@ -56,6 +58,9 @@ The mod includes some events you can subscribe to that correlate to when certain
 - `Main.OnSurvivorSpecificHudEditsFinished` (repeatable)
 - `HudChanges.HudColor.OnHudColorUpdate` (repeatable)
 The repeatable events happen when the camera/HUD's target changes, so any changes that depend on a specific survivor should go in either. `OnSurvivorSpecificHudEditsFinished` will always happen after a camera target change, and `OnHudColorUpdate` will try to run on every camera change, but the event will only be raised after successfully changing the HUD's color.
+- Many config options have an event for when they're toggled on/off.
+
+You can look at the existing files for mod survivor HUD support for examples on how to use these.
 
 
 ## <sub><sup>yes, i did get permission to continue the mod</sup></sub>

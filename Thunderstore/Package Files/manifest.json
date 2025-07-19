@@ -6,6 +6,7 @@
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2120",
 		"RiskofThunder-HookGenPatcher-1.2.5",
-		"RiskofThunder-R2API_Language-1.0.1"
+		"RiskofThunder-R2API_Language-1.0.1",
+		"Brynzananas-Enable_Movement_On_Focused_UI-1.0.0"
 	]
 }

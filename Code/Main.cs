@@ -26,18 +26,21 @@ namespace CleanestHud
         {
             get
             {
+                //Log.Warning($"IsHudFinishedLoading is {IsHudFinishedLoading}");
+                //Log.Warning($"IsHudUserBlacklisted is {IsHudUserBlacklisted}");
+                //Log.Warning($"MyHudLocator is {MyHudLocator}");
                 return IsHudFinishedLoading && !IsHudUserBlacklisted && MyHudLocator != null;
             }
         }
         internal static bool IsColorChangeCoroutineWaiting = false;
         internal static List<Color> LastKnownScoreboardBodyColors = [];
-        internal static CharacterBody HudTargetBody
+        internal static CharacterBody HudCameraTargetBody
         {
             get
             {
                 if (!MyHud)
                 {
-                    Log.Error("HUD did not exist when trying to get HudTargetBody!");
+                    Log.Error("HUD did not exist when trying to get HudCameraTargetBody!");
                     return null;
                 }
                 if (!MyHud.targetBodyObject)
@@ -46,13 +49,6 @@ namespace CleanestHud
                     return null;
                 }
                 return MyHud.cameraRigController.targetBody;
-            }
-        }
-        internal static Vector2 SkillsScalerLocalPosition
-        {
-            get
-            {
-                return new Vector2(ModSupport.DriverMod.DriverWeaponSlot == null ? 0 : 35, ConfigOptions.ShowSkillKeybinds.Value ? 125f : 98f);
             }
         }
         internal static bool IsGameModeSimulacrum
@@ -119,8 +115,8 @@ namespace CleanestHud
                 IsHudFinishedLoading = true;
 
 
-                // storing HudTargetBody to prevent doing extra GetComponent calls from getting HudTargetBody
-                CharacterBody targetBody = HudTargetBody;
+                // storing HudCameraTargetBody to prevent doing extra GetComponent calls from getting HudCameraTargetBody
+                CharacterBody targetBody = HudCameraTargetBody;
 
 
                 // substring is to remove "(Clone)" from the end of the name
@@ -148,12 +144,23 @@ namespace CleanestHud
                 wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
 
 
-                HudStructure.EditHudStructure();
-                HudStructure.RepositionHudElementsBasedOnWidth();
-                HudDetails.EditHudDetails();
-                if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value)
+                if (ConfigOptions.AllowHudStructureEdits.Value)
+                {
+                    HudStructure.EditHudStructure();
+                    HudStructure.RepositionHudElementsBasedOnWidth();
+                }
+                if (ConfigOptions.AllowHudDetailsEdits.Value)
+                {
+                    HudDetails.EditHudDetails();
+                }
+                if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value && ConfigOptions.AllowHudColorEdits.Value)
                 {
                     HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
+                }
+                if (ConfigOptions.AllowSurvivorSpecificEdits.Value)
+                {
+                    // stupid stupid stupid
+                    EditSurvivorSpecificUI(targetBody);
                 }
             }
             internal static void HUD_OnDestroy(On.RoR2.UI.HUD.orig_OnDestroy orig, HUD self)
@@ -192,25 +199,32 @@ namespace CleanestHud
                     Log.Error("targetCharacterBody WAS NULL IN DelayOnCameraChange! NO HUD CHANGES WILL OCCUR!");
                     yield break;
                 }
-                HudStructure.MoveSpectatorLabel();
-                EditSurvivorSpecificUI(cameraRigController.targetBody);
-                MyHud?.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
+
+
+                if (ConfigOptions.AllowHudStructureEdits.Value)
+                {
+                    HudStructure.MoveSpectatorLabel();
+                }
+                if (ConfigOptions.AllowSurvivorSpecificEdits.Value)
+                {
+                    EditSurvivorSpecificUI(cameraRigController.targetBody);
+                }
+                if (ConfigOptions.AllowHudColorEdits.Value)
+                {
+                    MyHud?.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
+                }
             }
             private static void EditSurvivorSpecificUI(CharacterBody targetCharacterBody)
             {
                 if (IsHudEditable)
                 {
-                    switch (targetCharacterBody.baseNameToken)
-                    {
-                        case "VOIDSURVIVOR_BODY_NAME":
-                            SurvivorSpecific.VoidFiend.SetVoidFiendMeterAnimatorStatus();
-                            MyHud?.StartCoroutine(SurvivorSpecific.VoidFiend.DelayEditVoidFiendCorruptionUI());
-                            break;
-                        case "SEEKER_BODY_NAME":
-                            SurvivorSpecific.Seeker.RepositionSeekerLotusUI();
-                            break;
-                    }
+                    HudStructure.ResetSkillsScalerLocalPositionToDefault();
+                    HudStructure.ResetInventoryClusterLocalPositionToDefault();
+                    HudStructure.ResetSprintClusterLocalPositionToDefault();
+                    // if a survivor specific edit is needed, it's called by this
                     OnSurvivorSpecificHudEditsFinished?.Invoke();
+                    HudStructure.RepositionSkillScaler();
+                    HudStructure.RepositionSprintAndInventoryReminders();
                 }
                 else
                 {
@@ -245,8 +259,7 @@ namespace CleanestHud
                 MyHud?.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
                 if (!ConfigOptions.AllowAllyCardBackgrounds.Value)
                 {
-                    Image background = self.GetComponent<Image>();
-                    background.enabled = false;
+                    self.DisableImageComponent();
                 }
 
 
@@ -261,7 +274,7 @@ namespace CleanestHud
                 Transform badHealthSubBar = backgroundPanel.GetChild(2);
                 if (badHealthSubBar != null)
                 {
-                    badHealthSubBar.GetComponent<Image>().enabled = false;
+                    badHealthSubBar.DisableImageComponent();
                 }
             }
 
@@ -431,31 +444,6 @@ namespace CleanestHud
                 {
                     HudDetails.SetFakeInfiniteLastDifficultySegmentStatus();
                 }
-            }
-
-
-            internal static void VoidSurvivorController_OnOverlayInstanceAdded(On.RoR2.VoidSurvivorController.orig_OnOverlayInstanceAdded orig, VoidSurvivorController self, RoR2.HudOverlay.OverlayController controller, GameObject instance)
-            {
-                // the animator does not exist until after orig so it HAS to be after it
-                orig(self, controller, instance);
-                if (IsHudUserBlacklisted)
-                {
-                    return;
-                }
-
-                self.overlayInstanceAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
-            }
-
-
-            internal static void Meditate_SetupInputUIIcons(On.EntityStates.Seeker.Meditate.orig_SetupInputUIIcons orig, EntityStates.Seeker.Meditate self)
-            {
-                orig(self);
-                if (IsHudUserBlacklisted)
-                {
-                    return;
-                }
-
-                SurvivorSpecific.Seeker.RepositionSeekerMeditationUI();
             }
         }
 
