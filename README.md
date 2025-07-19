@@ -2,7 +2,6 @@
 
 This is a revival & continuation of HIFU's CleanerHud mod, with permission. (proof at bottom of readme)
 
-
 ## Info
 - Pretty much everything about the hud has been edited in some way.
 - Bugs from the original CleanerHud mod are fixed.
@@ -20,10 +19,7 @@ This is a revival & continuation of HIFU's CleanerHud mod, with permission. (pro
 
 Many elements of the hud are also configurable Most are for the hud in general, but some are for the survivor specific hud elements that seeker and void fiend have!
 
-<sub><sup>also this isn't a finished release since i know there's still a few things that don't fully work, I just wanted to get this out since everything's like 90% working</sup></sub>
-
 ## Screenshots Showcase
-
 
 <details>
 <summary>Expand</summary>
@@ -49,8 +45,7 @@ Many elements of the hud are also configurable Most are for the hud in general, 
 </details>
 
 ## Bugs/Suggestions
-This isn't a finished release, so there's likely bugs that I've either already found or haven't yet found. If you do find a bug, or have a suggestion for the hud, either make a github issue here or ping me (lordvgames) in the RoR2 modding discord server.
-
+If you find a bug, or have a suggestion for the hud, either make a github issue or ping me (lordvgames) in the RoR2 modding discord server.
 
 ## Known Issues
 - Changing resolutions mid-stage doesn't re-scale the hud
@@ -62,7 +57,6 @@ This isn't a finished release, so there's likely bugs that I've either already f
 - Some part of the HUD is broken when an editing phase is turned off
 - - The HUD was built assuming parts of it's editing process weren't turned off, especially structure edits. It'd be a ton of work to go back and make sure everything works with those options, so any bugs stemming from these options likely won't be fixed.
 
-
 ## For mod developers
 The mod includes some events you can subscribe to that correlate to when certain stages of the HUD editing process are done. These are, in order of completion:
 - `HudChanges.HudStructure.OnHudStructureEditsFinished`
@@ -73,7 +67,6 @@ The repeatable events happen when the camera/HUD's target changes, so any change
 - Many config options have an event for when they're toggled on/off.
 
 You can look at the existing code for this mod's survivor HUD support for examples on how to use these.
-
 
 ## <sub><sup>yes, i did get permission to continue the mod</sup></sub>
 

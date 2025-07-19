@@ -2,7 +2,6 @@
 
 This is a revival & continuation of HIFU's CleanerHud mod, with permission. (proof at bottom of readme)
 
-
 ## Info
 - Pretty much everything about the hud has been edited in some way.
 - Bugs from the original CleanerHud mod are fixed.
@@ -20,25 +19,33 @@ This is a revival & continuation of HIFU's CleanerHud mod, with permission. (pro
 
 Many elements of the hud are also configurable Most are for the hud in general, but some are for the survivor specific hud elements that seeker and void fiend have!
 
-<sub><sup>also this isn't a finished release since i know there's still a few things that don't fully work, I just wanted to get this out since everything's like 90% working</sup></sub>
+## Screenshots Showcase
+
+<details>
+<summary>Expand</summary>
+
+![20250719144026_1](https://github.com/user-attachments/assets/0d30989d-e9d9-4bb2-91fa-b416d10fa246)
+
+![20250719144412_1](https://github.com/user-attachments/assets/c1aeb896-7c52-4b80-8c6c-ff5824c92917)
+
+![20250719144446_1](https://github.com/user-attachments/assets/8a5d5522-cd47-4f30-ae30-da41923cea9d)
+
+![20250719144530_1](https://github.com/user-attachments/assets/276bd978-1ef3-4c46-b844-fe7ced2c52c2)
+
+### Multiplayer
+
+![oEgXQq6zmr](https://github.com/user-attachments/assets/ed19b46f-640c-4a5d-8d8a-17c380f2df8a)
 
 
-## Showcase
+### Modded Survivor: Driver
 
-<sub>NOTE: Some elements of the HUD may look slightly different ingame due to mod updates. Screenshots will be updated when the mod is finished or I feel like there's been enough changes.</sub>
+![20250719144604_1](https://github.com/user-attachments/assets/17d92117-a181-45be-b6f0-5af8cf1e9f83)
 
-![20250314023946_1](https://github.com/user-attachments/assets/94455d18-acc4-4d40-b41e-3a1dd132b7b8)
 
-<sub>(lemurian inventory shown using another mod)</sub>
-
-![20250314025245_1](https://github.com/user-attachments/assets/76f20eed-24c0-4b2d-a41e-8bb16687ef64)
-
-![20250314025430_1](https://github.com/user-attachments/assets/1e033eb2-0d17-4006-9376-fbc0b6437be1)
-
+</details>
 
 ## Bugs/Suggestions
-This isn't a finished release, so there's likely bugs that I've either already found or haven't yet found. If you do find a bug, or have a suggestion for the hud, either make a github issue here or ping me (lordvgames) in the RoR2 modding discord server.
-
+If you find a bug, or have a suggestion for the hud, either make a github issue or ping me (lordvgames) in the RoR2 modding discord server.
 
 ## Known Issues
 - Changing resolutions mid-stage doesn't re-scale the hud
@@ -50,7 +57,6 @@ This isn't a finished release, so there's likely bugs that I've either already f
 - Some part of the HUD is broken when an editing phase is turned off
 - - The HUD was built assuming parts of it's editing process weren't turned off, especially structure edits. It'd be a ton of work to go back and make sure everything works with those options, so any bugs stemming from these options likely won't be fixed.
 
-
 ## For mod developers
 The mod includes some events you can subscribe to that correlate to when certain stages of the HUD editing process are done. These are, in order of completion:
 - `HudChanges.HudStructure.OnHudStructureEditsFinished`
@@ -61,7 +67,6 @@ The repeatable events happen when the camera/HUD's target changes, so any change
 - Many config options have an event for when they're toggled on/off.
 
 You can look at the existing code for this mod's survivor HUD support for examples on how to use these.
-
 
 ## <sub><sup>yes, i did get permission to continue the mod</sup></sub>
 
