@@ -382,7 +382,10 @@ namespace CleanestHud
                 // wait a frame first to make scoreboard strips added by other mods work
                 yield return null;
                 EditScoreboardStripsIfApplicable(scoreboardController);
-                SetupSuppressedItemsStripEditor(scoreboardController);
+                if (IsGameModeSimulacrum)
+                {
+                    SetupSuppressedItemsStripEditor(scoreboardController);
+                }
             }
             private static void EditScoreboardStripsIfApplicable(ScoreboardController scoreboardController)
             {
@@ -405,8 +408,7 @@ namespace CleanestHud
             }
             private static void SetupSuppressedItemsStripEditor(ScoreboardController scoreboardController)
             {
-                // scoreboardController > container > suppressedItems
-                scoreboardController.transform.GetChild(0).GetChild(3).GetOrAddComponent<HudEditorComponents.SuppressedItemsStripEditor>();
+                scoreboardController.transform.Find("Container/SuppressedItems")?.GetOrAddComponent<HudEditorComponents.SuppressedItemsStripEditor>();
             }
 
 

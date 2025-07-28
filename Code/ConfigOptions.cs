@@ -221,7 +221,6 @@ namespace CleanestHud
                 return;
             }
 
-            // this really isn't needed but i know someone would've noticed it eventually
             HudChanges.SurvivorSpecific.Seeker.RepositionSeekerMeditationUI();
         }
 

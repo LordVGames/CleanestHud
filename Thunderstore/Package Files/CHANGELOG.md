@@ -1,3 +1,11 @@
+## 1.0.2
+
+Fixed mod trying to setup the editor component for the suppressed items UI when it shouldn't
+
+## 1.0.1
+
+Fixed Seeker's meditation UI not changing position
+
 ## 1.0.0
 
 Added support for special HUD elements from the following mod characters:

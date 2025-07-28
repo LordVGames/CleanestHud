@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using RoR2.UI;
 using static CleanestHud.Main;
+using Grumpy;
 
 namespace CleanestHud.HudChanges.SurvivorSpecific
 {
@@ -30,7 +31,7 @@ namespace CleanestHud.HudChanges.SurvivorSpecific
                 return;
             }
 
-            RepositionSeekerLotusUI();
+            RepositionSeekerMeditationUI();
         }
 
 
@@ -63,6 +64,8 @@ namespace CleanestHud.HudChanges.SurvivorSpecific
             utilityAreaDisplayRoot.Find("SeekerLotusUI(Clone)").localPosition = newLotusLocalPosition;
         }
 
+
+
         internal static void RepositionSeekerMeditationUI()
         {
             try
@@ -71,7 +74,7 @@ namespace CleanestHud.HudChanges.SurvivorSpecific
                 switch (ConfigOptions.SeekerMeditateHudPosition.Value)
                 {
                     case ConfigOptions.SpecialConfig.SeekerMeditateHudPosition.AboveHealthBar:
-                        seekerMeditateUi.localPosition = new Vector3(2.5f, 210, 0);
+                        seekerMeditateUi.localPosition = new Vector3(2.5f, 265, 0);
                         break;
                     case ConfigOptions.SpecialConfig.SeekerMeditateHudPosition.OverCrosshair:
                         seekerMeditateUi.localPosition = new Vector3(2.5f, 400, 0);
