@@ -117,30 +117,6 @@ namespace CleanestHud
             unlockAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
         }
 
-        internal static void RemoveMoonDetonationPanelDetails(GameObject moonDetonationPanelAsset)
-        {
-            RectTransform hudCountdownPanelRect = moonDetonationPanelAsset.GetComponent<RectTransform>();
-            // panel's x position is pushed -576.4219 ingame
-            hudCountdownPanelRect.localPosition = new Vector3(576.4219f, -200f, 0f);
-
-
-
-            Transform container = moonDetonationPanelAsset.transform.Find("Juice").Find("Container");
-
-            container.Find("Backdrop").DisableImageComponent();
-            container.Find("Border").DisableImageComponent();
-
-            Transform countdownTitleLabel = container.Find("CountdownTitleLabel");
-            HGTextMeshProUGUI countdownTitleLabelMesh = countdownTitleLabel.GetComponent<HGTextMeshProUGUI>();
-            countdownTitleLabelMesh.fontSharedMaterial = HudAssets.FontMaterial;
-            countdownTitleLabelMesh.color = Color.red;
-
-            Transform countdownLabel = container.Find("CountdownLabel");
-            HGTextMeshProUGUI countdownLabelMesh = countdownLabel.GetComponent<HGTextMeshProUGUI>();
-            countdownLabelMesh.fontSharedMaterial = HudAssets.FontMaterial;
-            countdownLabelMesh.color = Color.red;
-        }
-
         internal static void RemoveChatBoxDetails(GameObject chatBoxAsset)
         {
             chatBoxAsset.DisableImageComponent();

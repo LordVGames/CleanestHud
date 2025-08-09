@@ -1,3 +1,7 @@
+## 1.0.3
+
+Fixed moon detonation timer panel not being aligned correctly
+
 ## 1.0.2
 
 Fixed mod trying to setup the editor component for the suppressed items UI when it shouldn't

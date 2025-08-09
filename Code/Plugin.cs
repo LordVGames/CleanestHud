@@ -17,7 +17,7 @@ namespace CleanestHud
         public static PluginInfo PluginInfo { get; private set; }
         public const string PluginAuthor = "LordVGames";
         public const string PluginName = "CleanestHud";
-        public const string PluginVersion = "1.0.2";
+        public const string PluginVersion = "1.0.3";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public void Awake()
@@ -50,6 +50,7 @@ namespace CleanestHud
             IL.RoR2.BossGroup.UpdateObservations += Main.ILHooks.BossGroup_UpdateObservations;
             IL.RoR2.UI.BuffDisplay.UpdateLayout += Main.ILHooks.BuffDisplay_UpdateLayout;
             IL.RoR2.UI.ItemIcon.SetItemIndex += Main.ILHooks.ItemIcon_SetItemIndex;
+            IL.RoR2.EscapeSequenceController.SetHudCountdownEnabled += Main.ILHooks.EscapeSequenceController_SetHudCountdownEnabled;
 
             InfiniteTowerRun.onWaveInitialized += Main.Events.InfiniteTowerRun_onWaveInitialized;
             Run.onRunStartGlobal += Main.Events.Run_onRunStartGlobal;

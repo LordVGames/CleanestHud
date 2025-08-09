@@ -593,5 +593,36 @@ namespace CleanestHud.HudChanges
             innerFrame.Find("InventoryContainer/InventoryDisplay").DisableImageComponent();
             innerFrame.Find("MonsterBodiesContainer/MonsterBodyIconContainer").DisableImageComponent();
         }
+
+
+
+        // there's a lil bit of restructuring but it's 99% detail editing so idc it's going here
+        internal static void EditMoonDetonationPanel()
+        {
+            Transform hudCountdownPanel = MyHudLocator.FindChild("TopCenterCluster").Find("HudCountdownPanel(Clone)");
+            if (hudCountdownPanel == null)
+            {
+                Log.Warning("Couldn't find HudCountdownPanel for editing???");
+                return;
+            }
+            
+            hudCountdownPanel.localPosition = new Vector3(0, -200f, 0f);
+
+            // panel > Juice > Container
+            Transform container = hudCountdownPanel.GetChild(0).GetChild(0);
+
+            container.Find("Backdrop").DisableImageComponent();
+            container.Find("Border").DisableImageComponent();
+
+            Transform countdownTitleLabel = container.Find("CountdownTitleLabel");
+            HGTextMeshProUGUI countdownTitleLabelMesh = countdownTitleLabel.GetComponent<HGTextMeshProUGUI>();
+            countdownTitleLabelMesh.fontSharedMaterial = HudAssets.FontMaterial;
+            countdownTitleLabelMesh.color = Color.red;
+
+            Transform countdownLabel = container.Find("CountdownLabel");
+            HGTextMeshProUGUI countdownLabelMesh = countdownLabel.GetComponent<HGTextMeshProUGUI>();
+            countdownLabelMesh.fontSharedMaterial = HudAssets.FontMaterial;
+            countdownLabelMesh.color = Color.red;
+        }
     }
 }

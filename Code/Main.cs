@@ -617,6 +617,45 @@ namespace CleanestHud
                 }
                 #endregion
             }
+
+
+
+            internal static void EscapeSequenceController_SetHudCountdownEnabled(ILContext il)
+            {
+                ILCursor c = new(il);
+
+
+
+                if (!c.TryGotoNext(MoveType.After,
+                        x => x.MatchLdstr("Prefabs/UI/HudModules/HudCountdownPanel"),
+                        x => x.MatchCall(out _),
+                        x => x.MatchLdloc(1),
+                        x => x.MatchCall(out _),
+                        x => x.MatchStloc(2)
+                    ))
+                {
+                    Log.Error("COULD NOT IL HOOK EscapeSequenceController_SetHudCountdownEnabled");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                    return;
+                }
+                try
+                {
+                    c.EmitDelegate<Action>(() =>
+                    {
+                        if (!IsHudEditable)
+                        {
+                            return;
+                        }
+
+                        HudDetails.EditMoonDetonationPanel();
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex PART 1 DUE TO {e}");
+                }
+            }
         }
 
 

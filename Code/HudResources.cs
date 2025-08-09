@@ -23,7 +23,6 @@ namespace CleanestHud
             private static readonly AssetReferenceT<GameObject> _gameEndReportPanelAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.GameEndReportPanel_prefab);
             private static readonly AssetReferenceT<GameObject> _scoreboardStripAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ScoreboardStrip_prefab);
             private static readonly AssetReferenceT<GameObject> _itemIconIngameAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ItemIconScoreboard_InGame_prefab);
-            private static readonly AssetReferenceT<GameObject> _moonDetonationPanelAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.HudCountdownPanel_prefab);
             private static readonly AssetReferenceT<GameObject> _chatBoxAssetReference= new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ChatBox_prefab);
             private static readonly AssetReferenceT<GameObject> _statStripTemplateAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.StatStripTemplate_prefab);
 
@@ -63,11 +62,6 @@ namespace CleanestHud
                 {
                     AssetEdits.EditItemIconIngame(handle.Result);
                     AssetAsyncReferenceManager<GameObject>.UnloadAsset(_itemIconIngameAssetReference);
-                };
-                AssetAsyncReferenceManager<GameObject>.LoadAsset(_moonDetonationPanelAssetReference).Completed += (handle) =>
-                {
-                    AssetEdits.RemoveMoonDetonationPanelDetails(handle.Result);
-                    AssetAsyncReferenceManager<GameObject>.UnloadAsset(_moonDetonationPanelAssetReference);
                 };
                 AssetAsyncReferenceManager<GameObject>.LoadAsset(_chatBoxAssetReference).Completed += (handle) =>
                 {
