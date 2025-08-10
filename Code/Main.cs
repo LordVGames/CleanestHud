@@ -264,14 +264,20 @@ namespace CleanestHud
 
                 // healthbar > BackgroundPanel
                 Transform backgroundPanel = self.healthBar?.transform.GetChild(0);
-                MyHud?.StartCoroutine(DelayRemoveBadHealthSubBar(backgroundPanel));
+                if (backgroundPanel != null)
+                {
+                    MyHud?.StartCoroutine(DelayRemoveBadHealthSubBar(backgroundPanel));
+                }
             }
             private static IEnumerator DelayRemoveBadHealthSubBar(Transform backgroundPanel)
             {
                 yield return null;
-                // BackgroundPanel > HealthBarSubBar(Clone) #2
-                Transform badHealthSubBar = backgroundPanel.GetChild(2);
-                badHealthSubBar?.DisableImageComponent();
+                List<Transform> healthBarSubBars = backgroundPanel.FindListOfPartialMatches("HealthBarSubBar");
+                if (healthBarSubBars != null && healthBarSubBars.Count > 1)
+                {
+                    // the 2nd one is the bad super light-green hp bar that we wanna get rid of
+                    healthBarSubBars[1]?.DisableImageComponent();
+                }
             }
 
 

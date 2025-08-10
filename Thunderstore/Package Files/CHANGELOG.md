@@ -1,3 +1,7 @@
+## 1.0.4
+
+Fixed error related to editing ally hp bars
+
 ## 1.0.3
 
 Fixed moon detonation timer panel not being aligned correctly
