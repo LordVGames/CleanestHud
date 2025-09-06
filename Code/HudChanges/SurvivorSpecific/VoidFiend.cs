@@ -57,9 +57,11 @@ namespace CleanestHud.HudChanges.SurvivorSpecific
             }
 
 
+            // these lines besides .enabled fix the meter being stuck mid-squish if the animations are disabled mid-squish
+            viendMeterAnimator.SetFloat(VoidSurvivorController.isCorruptedParamHash, 0);
+            viendMeterAnimator.SetBool(VoidSurvivorController.corruptionParamHash, false);
+            viendMeterAnimator.Rebind();
             viendMeterAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
-            // no clue if this'll fix the ui getting stuck mid-squish if the animator is disabled mid-squish.
-            viendMeterAnimator.playbackTime = 0;
         }
 
         internal static IEnumerator DelayEditVoidFiendCorruptionUI()

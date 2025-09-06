@@ -576,11 +576,24 @@ namespace CleanestHud.HudChanges
 
         internal static IEnumerator DelayRemoveMonstersItemsPanelDetails()
         {
+            // stupidity incoming
+            if (MyHud == null)
+            {
+                while (MyHud == null)
+                {
+                    yield return null;
+                }
+                yield return new WaitForSeconds(0.15f);
+            }
             yield return null;
             RemoveMonstersItemsPanelDetails();
         }
         private static void RemoveMonstersItemsPanelDetails()
         {
+            if (!IsHudEditable)
+            {
+                return;
+            }
             Transform enemyInfoPanel = ImportantHudTransforms.RunInfoHudPanel.Find("RightInfoBar/EnemyInfoPanel(Clone)");
             if (enemyInfoPanel == null)
             {

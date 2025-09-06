@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using MiscFixes.Modules;
+using CleanestHud.ModSupport;
 
 namespace CleanestHud.HudChanges
 {
@@ -265,7 +266,7 @@ namespace CleanestHud.HudChanges
 
             Transform spectatorLabel = bottomCenterCluster.Find("SpectatorLabel");
             RectTransform spectatorLabelRect = spectatorLabel.GetComponent<RectTransform>();
-            spectatorLabelRect.anchoredPosition = new Vector2(0f, 150f);
+            spectatorLabelRect.anchoredPosition = new Vector2(0f, 200f);
 
             GraphicRaycaster bottomRightGraphicRaycaster = bottomRightCluster.GetComponent<GraphicRaycaster>();
             GraphicRaycaster bottomCenterGraphicRaycaster = bottomCenterCluster.gameObject.AddComponent<GraphicRaycaster>();
@@ -362,6 +363,10 @@ namespace CleanestHud.HudChanges
 
                 ScaleEquipmentSlot(equipmentDisplayRoot, equipmentSlotScaleFactor);
 
+                if (HUDdleUPMod.ModIsRunning)
+                {
+                    HUDdleUPMod.EditHuddleUpEquipmentCooldownOverlay();
+                }
             }
 
             RectTransform firstSkillIconTextBackgroundPanelRect = MyHud.skillIcons[0].transform.Find("SkillBackgroundPanel").GetComponent<RectTransform>();
@@ -550,7 +555,7 @@ namespace CleanestHud.HudChanges
                 return;
             }
 
-            spectatorLabel.localPosition = new Vector3(0, 700, 0);
+            spectatorLabel.localPosition = new Vector3(0, 200, 0);
         }
 
         

@@ -659,11 +659,123 @@ namespace CleanestHud
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"COULD NOT EMIT INTO ItemIcon_SetItemIndex PART 1 DUE TO {e}");
+                    Log.Error($"COULD NOT EMIT INTO EscapeSequenceController_SetHudCountdownEnabled DUE TO {e}");
                 }
             }
-        }
 
+
+
+            // TODO THIS SHIT BROKEN. IDK A WAY TO DO THIS EASILY
+            internal static void HealthBar_UpdateBarInfos(ILContext il)
+            {
+                
+                ILCursor c = new(il);
+                Mono.Cecil.FieldReference barInfoCollectionReference = null;
+                Mono.Cecil.FieldReference barrierBarInfo = null;
+                Mono.Cecil.FieldReference barrierOverlayEnabledFieldReference = null;
+
+
+
+                /*if (!c.TryGotoNext(MoveType.After,
+                        x => x.MatchLdarg(0),
+                        x => x.MatchLdflda<HealthBar>("barInfoCollection"),
+                        x => x.MatchLdflda(out var barrierBarInfoReference)
+                    ))
+                {
+                    Log.Error("COULD NOT IL HOOK HealthBar_UpdateBarInfos PART 1");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                }*/
+
+
+
+                if (!c.TryGotoNext(MoveType.After,
+                    x => x.MatchLdarg(0),
+                    x => x.MatchLdflda(out barInfoCollectionReference),
+                    x => x.MatchLdflda(out barrierBarInfo),
+                    x => x.MatchDup(),
+                    x => x.MatchLdarg(0),
+                    x => x.MatchCall<HealthBar>("get_source"),
+                    x => x.MatchLdfld<HealthComponent>("barrier"),
+                    x => x.MatchLdcR4(0),
+                    x => x.MatchCgt(),
+                    x => x.MatchStfld(out barrierOverlayEnabledFieldReference)
+                ))
+                {
+                    Log.Error("COULD NOT IL HOOK HealthBar_UpdateBarInfos PART 1");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                }
+
+                if (!c.TryGotoNext(MoveType.After,
+                    x => x.MatchLdcR4(0),
+                    x => x.MatchStfld(out _),
+                    x => x.MatchLdloc(1),
+                    x => x.MatchLdfld(out _),
+                    x => x.MatchStfld(out _)
+                ))
+                {
+                    Log.Error("COULD NOT IL HOOK HealthBar_UpdateBarInfos PART 2");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                }
+
+
+
+                c.Emit(OpCodes.Ldarg_0);
+                c.Emit(OpCodes.Ldflda, barInfoCollectionReference);
+                c.Emit(OpCodes.Ldflda, barrierBarInfo);
+                c.Emit(OpCodes.Ldfld, barrierOverlayEnabledFieldReference);
+                c.EmitDelegate<Action<bool>>((barrierOverlayOn) =>
+                {
+                    Transform healthBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
+                    Transform shrunkenRoot = healthBarRoot.Find("ShrunkenRoot");
+                    Transform barrierOverlay = shrunkenRoot.GetChild(3);
+
+                    if (barrierOverlayOn)
+                    {
+                        barrierOverlay.localScale = new Vector3(1, 0.7f, 1);
+                        return;
+                    }
+                    else
+                    {
+                        barrierOverlay.localScale = Vector3.one;
+                    }
+                });
+
+
+
+                /*if (!c.TryGotoNext(MoveType.After,
+                    x => x.MatchLdfld<HealthComponent>("barrier"),
+                    x => x.MatchLdcR4(0),
+                    x => x.MatchCgt()
+                ))
+                {
+                    Log.Error("COULD NOT IL HOOK HealthBar_UpdateBarInfos PART 1");
+                    Log.Warning($"cursor is {c}");
+                    Log.Warning($"il is {il}");
+                }
+
+
+
+                c.EmitDelegate<Action<int>>((barrierOverlayOnInt) =>
+                {
+                    Transform healthBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
+                    Transform shrunkenRoot = healthBarRoot.Find("ShrunkenRoot");
+                    Transform barrierOverlay = shrunkenRoot.GetChild(3);
+
+                    if (barrierOverlayOnInt == 1)
+                    {
+                        barrierOverlay.localScale = new Vector3(1, 0.7f, 1);
+                        return;
+                    }
+                    else
+                    {
+                        barrierOverlay.localScale = Vector3.one;
+                    }
+                });*/
+            }
+        }
 
 
         internal static class Events
@@ -689,9 +801,9 @@ namespace CleanestHud
             // idk what's with the jetbrains stuff here but that's what it autocompleted with so whatever
             internal static void RunArtifactManager_onArtifactEnabledGlobal([JetBrains.Annotations.NotNull] RunArtifactManager runArtifactManager, [JetBrains.Annotations.NotNull] ArtifactDef artifactDef)
             {
-                if (artifactDef.cachedName == "MonsterTeamGainsItems" && runArtifactManager.IsArtifactEnabled(artifactDef) && IsHudEditable)
+                if (artifactDef.cachedName == "MonsterTeamGainsItems" && runArtifactManager.IsArtifactEnabled(artifactDef))
                 {
-                    MyHud?.StartCoroutine(HudDetails.DelayRemoveMonstersItemsPanelDetails());
+                    runArtifactManager?.StartCoroutine(HudDetails.DelayRemoveMonstersItemsPanelDetails());
                 }
             }
         }

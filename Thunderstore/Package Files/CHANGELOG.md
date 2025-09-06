@@ -1,3 +1,9 @@
+## 1.1.0
+
+Added support for some of HUDdleUP's HUD elements
+Fixed a few HUD elements not actually being edited
+Fixed Void Fiend's corruption meter being stuck mid-squish if its animations are stopped while it's in the middle of its squishing animation
+
 ## 1.0.4
 
 Fixed error related to editing ally hp bars

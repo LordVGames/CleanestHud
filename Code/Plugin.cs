@@ -3,6 +3,7 @@ using BepInEx;
 using RoR2;
 using R2API.Utils;
 using HarmonyLib;
+using MiscFixes.Modules;
 
 namespace CleanestHud
 {
@@ -17,7 +18,7 @@ namespace CleanestHud
         public static PluginInfo PluginInfo { get; private set; }
         public const string PluginAuthor = "LordVGames";
         public const string PluginName = "CleanestHud";
-        public const string PluginVersion = "1.0.4";
+        public const string PluginVersion = "1.1.0";
         public const string PluginGUID = PluginAuthor + "." + PluginName;
 
         public void Awake()
@@ -26,6 +27,7 @@ namespace CleanestHud
             Log.Init(Logger);
             ModAssets.Init();
             ConfigOptions.BindConfigOptions(Config);
+            Config.WipeConfig();
             // asset edits need to happen very early because once the hud is fully initialized a prefab may have already been spawned and then it can't be edited this way
             HudResources.HudAssets.SetupAssets();
 
@@ -51,6 +53,7 @@ namespace CleanestHud
             IL.RoR2.UI.BuffDisplay.UpdateLayout += Main.ILHooks.BuffDisplay_UpdateLayout;
             IL.RoR2.UI.ItemIcon.SetItemIndex += Main.ILHooks.ItemIcon_SetItemIndex;
             IL.RoR2.EscapeSequenceController.SetHudCountdownEnabled += Main.ILHooks.EscapeSequenceController_SetHudCountdownEnabled;
+            //IL.RoR2.UI.HealthBar.UpdateBarInfos += Main.ILHooks.HealthBar_UpdateBarInfos;
 
             InfiniteTowerRun.onWaveInitialized += Main.Events.InfiniteTowerRun_onWaveInitialized;
             Run.onRunStartGlobal += Main.Events.Run_onRunStartGlobal;
@@ -93,6 +96,10 @@ namespace CleanestHud
                 On.RoR2.UI.HUD.OnDestroy += ModSupport.Myst.HUD_OnDestroy;
                 ConfigOptions.OnShowSprintAndInventoryKeybindsChanged += ModSupport.Myst.ConfigOptions_OnShowSprintAndInventoryKeybindsChanged;
                 ConfigOptions.OnShowSkillKeybindsChanged += ModSupport.Myst.ConfigOptions_OnShowSkillKeybindsChanged;
+            }
+            if (ModSupport.HUDdleUPMod.ModIsRunning)
+            {
+                HudChanges.HudDetails.OnHudDetailEditsFinished += ModSupport.HUDdleUPMod.RemoveNewHudPanelBackgrounds;
             }
         }
     }

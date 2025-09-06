@@ -10,6 +10,7 @@ This is a revival & continuation of HIFU's CleanerHud mod, with permission. (pro
 - Supports modded UI from many mods, including (but not limited to):
 - - [Starstorm 2](https://thunderstore.io/package/TeamMoonstorm/Starstorm2/)
 - - [LookingGlass](https://thunderstore.io/package/DropPod/LookingGlass/)
+- - [HUDdleUP](https://thunderstore.io/package/itsschwer/HUDdleUP/)
 - - [Driver](https://thunderstore.io/package/public_ParticleSystem/Driver/)
 - - [Myst](https://thunderstore.io/package/JavAngle/Myst/)
 - Many parts of the hud are configurable.
