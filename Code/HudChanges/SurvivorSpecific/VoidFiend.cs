@@ -7,86 +7,72 @@ using UnityEngine.UI;
 using RoR2;
 using RoR2.UI;
 using static CleanestHud.Main;
+using static CleanestHud.HudResources.ImportantHudTransforms;
+using MonoDetour.HookGen;
+using MonoDetour;
+using RoR2.HudOverlay;
+namespace CleanestHud.HudChanges.SurvivorSpecific;
 
-namespace CleanestHud.HudChanges.SurvivorSpecific
+
+internal static class VoidFiend
 {
-    internal class VoidFiend
+    private static Transform _viendCorruptionUI;
+    private static Animator _viendCorruptionUIAnimator;
+    private static bool IsHudCameraTargetViend
     {
-        private static bool IsHudCameraTargetViend
+        get
         {
-            get
-            {
-                return HudCameraTargetBody?.baseNameToken == "VOIDSURVIVOR_BODY_NAME";
-            }
+            return HudCameraTargetBody?.baseNameToken == "VOIDSURVIVOR_BODY_NAME";
+        }
+    }
+
+
+    internal static void SetupViendEdits()
+    {
+        if (!IsHudEditable || !IsHudCameraTargetViend)
+        {
+            return;
+        }
+        _viendCorruptionUI = CrosshairExtras.Find("VoidSurvivorCorruptionUISimplified(Clone)");
+        if (_viendCorruptionUI == null)
+        {
+            return;
+        }
+        _viendCorruptionUIAnimator = _viendCorruptionUI.GetComponent<Animator>();
+        // y'never know
+        if (_viendCorruptionUIAnimator == null)
+        {
+            return;
         }
 
 
+        SetVoidFiendMeterAnimatorStatus();
+        MyHud?.StartCoroutine(DelayEditVoidFiendCorruptionUI());
+    }
+    internal static void SetVoidFiendMeterAnimatorStatus()
+    {
+        // these lines besides .enabled fix the meter being stuck mid-squish if the animations are disabled mid-squish
+        _viendCorruptionUIAnimator.SetFloat(VoidSurvivorController.isCorruptedParamHash, 0);
+        _viendCorruptionUIAnimator.SetBool(VoidSurvivorController.corruptionParamHash, false);
+        _viendCorruptionUIAnimator.Rebind();
+        _viendCorruptionUIAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
+    }
+    internal static IEnumerator DelayEditVoidFiendCorruptionUI()
+    {
+        yield return null;
+        EditVoidFiendCorruptionUI();
+    }
+    internal static void EditVoidFiendCorruptionUI()
+    {
+        _viendCorruptionUI.localPosition = new Vector3(1, 0.5f, 0f);
+        _viendCorruptionUI.localScale = Vector3.one * 1.2f;
 
-        internal static void VoidSurvivorController_OnOverlayInstanceAdded(On.RoR2.VoidSurvivorController.orig_OnOverlayInstanceAdded orig, VoidSurvivorController self, RoR2.HudOverlay.OverlayController controller, GameObject instance)
-        {
-            // the animator does not exist until after orig so it HAS to be after it
-            orig(self, controller, instance);
-            if (IsHudUserBlacklisted)
-            {
-                return;
-            }
+        _viendCorruptionUI.GetComponent<Animator>().speed = 0.75f;
 
-            self.overlayInstanceAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
-        }
-
-
-
-        internal static void SetupViendEdits()
-        {
-            SetVoidFiendMeterAnimatorStatus();
-            MyHud?.StartCoroutine(DelayEditVoidFiendCorruptionUI());
-        }
-
-        internal static void SetVoidFiendMeterAnimatorStatus()
-        {
-            Transform viendMeterUi = MyHudLocator.FindChild("CrosshairExtras").Find("VoidSurvivorCorruptionUISimplified(Clone)");
-            if (viendMeterUi == null)
-            {
-                return;
-            }
-            Animator viendMeterAnimator = viendMeterUi.GetComponent<Animator>();
-            // y'never know
-            if (viendMeterAnimator == null)
-            {
-                return;
-            }
-
-
-            // these lines besides .enabled fix the meter being stuck mid-squish if the animations are disabled mid-squish
-            viendMeterAnimator.SetFloat(VoidSurvivorController.isCorruptedParamHash, 0);
-            viendMeterAnimator.SetBool(VoidSurvivorController.corruptionParamHash, false);
-            viendMeterAnimator.Rebind();
-            viendMeterAnimator.enabled = ConfigOptions.AllowVoidFiendMeterAnimating.Value;
-        }
-
-        internal static IEnumerator DelayEditVoidFiendCorruptionUI()
-        {
-            yield return null;
-            EditVoidFiendCorruptionUI();
-        }
-        internal static void EditVoidFiendCorruptionUI()
-        {
-            Transform viendCorruptionUI = MyHudLocator.FindChild("CrosshairExtras").Find("VoidSurvivorCorruptionUISimplified(Clone)");
-            if (viendCorruptionUI == null)
-            {
-                return;
-            }
-
-            viendCorruptionUI.localPosition = new Vector3(1, 0.5f, 0f);
-            viendCorruptionUI.localScale = Vector3.one * 1.2f;
-
-            viendCorruptionUI.GetComponent<Animator>().speed = 0.75f;
-
-            Transform viendCorruptionFillRoot = viendCorruptionUI.GetChild(0);
-            viendCorruptionFillRoot.localPosition = Vector3.zero;
-            Transform corruptionText = viendCorruptionFillRoot.Find("Text");
-            corruptionText.localPosition = new Vector3(0f, -60f, 0f);
-            corruptionText.DisableImageComponent();
-        }
+        Transform viendCorruptionFillRoot = _viendCorruptionUI.GetChild(0);
+        viendCorruptionFillRoot.localPosition = Vector3.zero;
+        Transform corruptionText = viendCorruptionFillRoot.Find("Text");
+        corruptionText.localPosition = new Vector3(0f, -60f, 0f);
+        corruptionText.DisableImageComponent();
     }
 }

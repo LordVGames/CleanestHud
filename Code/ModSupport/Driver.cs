@@ -1,4 +1,4 @@
-﻿using System;
+﻿/* using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -236,4 +236,4 @@ namespace CleanestHud.ModSupport
             weaponSlotTextPanel.gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
         }
     }
-}
+} */

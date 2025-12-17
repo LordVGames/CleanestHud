@@ -1,7 +1,20 @@
+## 2.0.0
+
+Fixed for AC release
+
+Major internal refactor & hooks ported to MonoDetour
+- Mod might have slightly better in-game load times and/or performance now
+
+"Enable Movement On Focused UI" mod
+
+Removed built-in Driver support as that mod has it's own support for CLeanestHud now
+
 ## 1.1.0
 
 Added support for some of HUDdleUP's HUD elements
+
 Fixed a few HUD elements not actually being edited
+
 Fixed Void Fiend's corruption meter being stuck mid-squish if its animations are stopped while it's in the middle of its squishing animation
 
 ## 1.0.4

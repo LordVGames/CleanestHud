@@ -232,7 +232,7 @@ namespace CleanestHud.ModSupport
 
             Transform equipmentBGPanel = equipmentSlotDisplayRoot.Find("BGPanel");
             Image equipmentBGPanelImage = equipmentBGPanel.GetComponent<Image>();
-            equipmentBGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
+            equipmentBGPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
         }
 
         internal static void ConfigOptions_OnShowSprintAndInventoryKeybindsChanged()

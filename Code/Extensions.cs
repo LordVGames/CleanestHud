@@ -1,4 +1,5 @@
-﻿using RoR2.UI;
+﻿using BepInEx;
+using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -47,27 +48,51 @@ namespace CleanestHud
 
 
 
-        internal static void DisableImageComponent(this Transform transform)
+        internal static void DisableImageComponent(this Transform transform, string callingCodeName = "")
         {
-            if (transform.TryGetComponent<Image>(out Image imageComponent))
+            if (transform == null)
+            {
+                Log.Error($"Transform was null when trying to disable an image component on it!");
+                if (!callingCodeName.IsNullOrWhiteSpace())
+                {
+                    Log.Error($"Method was called by: {callingCodeName}");
+                }
+            }
+            else if (transform.TryGetComponent<Image>(out Image imageComponent))
             {
                 imageComponent.enabled = false;
             }
             else
             {
                 Log.Error($"Could not find image component in transform {transform.name}");
+                if (!callingCodeName.IsNullOrWhiteSpace())
+                {
+                    Log.Error($"Method was called by: {callingCodeName}");
+                }
             }
         }
 
-        internal static void DisableImageComponent(this GameObject gameObject)
+        internal static void DisableImageComponent(this GameObject gameObject, string callingCodeName = "")
         {
-            if (gameObject.TryGetComponent<Image>(out Image imageComponent))
+            if (gameObject == null)
+            {
+                Log.Error($"GameObject {gameObject.name} was null when trying to disable an image component on it!");
+                if (!callingCodeName.IsNullOrWhiteSpace())
+                {
+                    Log.Error($"Method was called by: {callingCodeName}");
+                }
+            }
+            else if (gameObject.TryGetComponent<Image>(out Image imageComponent))
             {
                 imageComponent.enabled = false;
             }
             else
             {
                 Log.Error($"Could not find image component in GameObject {gameObject.name}");
+                if (!callingCodeName.IsNullOrWhiteSpace())
+                {
+                    Log.Error($"Method was called by: {callingCodeName}");
+                }
             }
         }
 
@@ -87,7 +112,11 @@ namespace CleanestHud
 
         internal static void DisableRawImageComponent(this Transform transform)
         {
-            if (transform.TryGetComponent<RawImage>(out RawImage imageComponent))
+            if (transform == null)
+            {
+                Log.Error($"Transform {transform.name} was null when trying to disable a raw image component on it!");
+            }
+            else if (transform.TryGetComponent<RawImage>(out RawImage imageComponent))
             {
                 imageComponent.enabled = false;
             }
@@ -99,13 +128,17 @@ namespace CleanestHud
 
         internal static void DisableRawImageComponent(this GameObject gameObject)
         {
-            if (gameObject.TryGetComponent<RawImage>(out RawImage imageComponent))
+            if (gameObject == null)
+            {
+                Log.Error($"GameObject {gameObject.name} was null when trying to disable a raw image component on it!");
+            }
+            else if (gameObject.TryGetComponent<RawImage>(out RawImage imageComponent))
             {
                 imageComponent.enabled = false;
             }
             else
             {
-                Log.Error($"Could not find image component in allyCardController {gameObject.name}");
+                Log.Error($"Could not find raw image component in allyCardController {gameObject.name}");
             }
         }
     }

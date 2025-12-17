@@ -17,18 +17,19 @@ namespace CleanestHud
 
             Transform longBackground = scoreboardStripAsset.transform.GetChild(0);
             longBackground.GetComponent<Image>().sprite = HudAssets.WhiteSprite;
-            longBackground.Find("ClassBackground").DisableImageComponent();
+            Transform classBackground = longBackground.Find("ClassBackground");
+            classBackground.DisableImageComponent();
+            classBackground.localPosition = new Vector3(-508, 0, 0);
+            classBackground.localScale = new Vector3(1.075f, 1.075f, 1.075f);
             // DO NOT remove the items background image here
             // if you do it will break the automatic scaling of the hud at ultrawide resolutions
             // the ScoreboardStripEditor component makes the background image invisible instead
             // same effect with better functionality
             longBackground.Find("EquipmentBackground").DisableImageComponent();
             longBackground.Find("TotalTextContainer/MoneyText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-            // GetChild(2) is NameLabel
-            longBackground.GetChild(2).GetComponent<HGTextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-            // im pretty sure its fine to disable the backgroud image here since it doesn't scale with resolution
-            longBackground.Find("NameLabel/NameFocusHighlight").DisableImageComponent();
-            // i would reposition parts of the asset here but then it never works ingame lmao
+            //longBackground.Find("NameObject/NameFocusHighlight").DisableImageComponent();
+            longBackground.Find("NameObject/NameLabel").GetComponent<HGTextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
+            // i would reposition parts of the asset here but then it never works ingame
         }
 
         // this doesn't actually happen ingame, its just the asset name

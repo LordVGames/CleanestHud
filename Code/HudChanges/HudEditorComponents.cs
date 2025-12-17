@@ -151,14 +151,14 @@ namespace CleanestHud.HudChanges
                         NameLabelRectLocalPosition = normalNameLabelRectLocalPosition;
                     }
                 }
-                else
+                /* else
                 {
                     NameLabelRectLocalPosition = new Vector3(
                         -324.08f - (nameLabelRect.sizeDelta.x / 2),
                         normalNameLabelRectLocalPosition.y,
                         normalNameLabelRectLocalPosition.z
                     );
-                }
+                } */
             }
 
             public void Update()

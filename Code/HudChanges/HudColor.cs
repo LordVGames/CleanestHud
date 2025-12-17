@@ -1,4 +1,5 @@
-﻿using MiscFixes.Modules;
+﻿using CleanestHud.HudChanges.NormalHud.ScoreboardPanel;
+using MiscFixes.Modules;
 using RoR2;
 using RoR2.UI;
 using System;
@@ -9,6 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.HudResources;
+using static CleanestHud.HudResources.ImportantHudTransforms;
 using static CleanestHud.Main;
 
 namespace CleanestHud.HudChanges
@@ -63,7 +65,7 @@ namespace CleanestHud.HudChanges
             // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
             // so we're gonna set the color like normal then wait a tiny bit then get the color again
             // basically doesn't do anything in singleplayer and it's not really noticeable in multiplayer since everything is fading in while this happens
-            SurvivorColor = Main.Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
+            SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
             if (IsColorChangeCoroutineWaiting)
             {
                 yield break;
@@ -76,10 +78,28 @@ namespace CleanestHud.HudChanges
                 yield break;
             }
             Log.Debug($"targetCharacterBody.baseNameToken after dumbass delay is {targetCharacterBody.baseNameToken}");
-            SurvivorColor = Main.Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
+            SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
             IsColorChangeCoroutineWaiting = false;
         }
 
+
+        internal static void Run_onRunStartGlobal(Run obj)
+        {
+            // why doesn't the color reset when clicking the restart button from that one mod
+            // just reset fuck
+            SurvivorColor = Color.clear;
+        }
+
+
+        internal static void BeginEdits()
+        {
+            if (!ConfigOptions.AllowHudColorEdits.Value)
+            {
+                return;
+            }
+
+            OnHudColorUpdate += Simulacrum.DefaultWaveUI.HudColorEdits;
+        }
 
         public static void UpdateHudColor()
         {
@@ -97,10 +117,10 @@ namespace CleanestHud.HudChanges
 
 
 
-            Transform simulacrumWaveUI = ImportantHudTransforms.RunInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
-            if (IsGameModeSimulacrum && simulacrumWaveUI)
+            
+            if (Helpers.IsGameModeSimulacrum && SimulacrumDefaultWaveUI)
             {
-                ColorSimulacrumWaveProgressBar(simulacrumWaveUI.Find("FillBarRoot"));
+                ColorSimulacrumWaveProgressBar(SimulacrumDefaultWaveUI.Find("FillBarRoot"));
             }
             else
             {
@@ -139,17 +159,13 @@ namespace CleanestHud.HudChanges
                 equipmentIsReadyPanelImage.color = SurvivorColor;
 
                 Image equipmentBGPanelImage = equipmentIcon.displayRoot.transform.Find("BGPanel").GetComponent<Image>();
-                equipmentBGPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
-            }
-            if (ModSupport.Starstorm2.ModIsRunning)
-            {
-                MyHud?.StartCoroutine(ModSupport.Starstorm2.CompositeInjectorSupport.DelayColorInjectorSlots());
+                equipmentBGPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
             }
         }
         private static void ColorCurrenciesPanel()
         {
             Transform upperLeftCluster = MyHudLocator.FindChild("UpperLeftCluster");
-            Color colorToUse = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
+            Color colorToUse = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
 
 
 
@@ -178,7 +194,7 @@ namespace CleanestHud.HudChanges
         {
             Image inspectionPanelImage = container.Find("InspectPanel").GetChild(0).GetChild(0).GetComponent<Image>();
             inspectionPanelImage.sprite = HudAssets.WhiteSprite;
-            inspectionPanelImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, transparencyMultiplier: 0.15f);
+            inspectionPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, transparencyMultiplier: 0.15f);
         }
         internal static void ColorDifficultyBar()
         {
@@ -197,14 +213,14 @@ namespace CleanestHud.HudChanges
                 // darker colors as difficulty increases
                 difficultyBarSegmentColors = [
                     SurvivorColor,
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (8f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (7f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (6f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (5f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (4f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (3f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (2f / 9f)),
-                    Main.Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (1f / 9f))
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (8f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (7f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (6f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (5f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (4f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (3f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (2f / 9f)),
+                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (1f / 9f))
                 ];
             }
 
@@ -228,7 +244,7 @@ namespace CleanestHud.HudChanges
         private static IEnumerator ColorBackdropImageOverFadeIn(Transform backdrop)
         {
             Image backdropImage = backdrop.GetComponent<Image>();
-            while (!Main.Helpers.AreColorsEqualIgnoringAlpha(backdropImage.color, SurvivorColor))
+            while (!Helpers.AreColorsEqualIgnoringAlpha(backdropImage.color, SurvivorColor))
             {
                 Color tempSurvivorColor = SurvivorColor;
                 tempSurvivorColor.a = 0.055f;
@@ -241,19 +257,19 @@ namespace CleanestHud.HudChanges
 
         internal static void ColorSimulacrumWaveProgressBar(Transform fillBarRoot)
         {
-            if (!AreSimulacrumWavesRunning)
+            if (!Helpers.AreSimulacrumWavesRunning)
             {
                 return;
             }
 
             Transform animated = fillBarRoot.GetChild(2);
             Image animatedImage = animated.GetComponent<Image>();
-            animatedImage.color = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
+            animatedImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
 
             Transform fillBar = fillBarRoot.GetChild(3);
             Image fillBarImage = fillBar.GetComponent<Image>();
             HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetOrAddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
-            barImageColorChanger.newFillBarColor = Main.Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
+            barImageColorChanger.newFillBarColor = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
         }
 
 
@@ -288,7 +304,7 @@ namespace CleanestHud.HudChanges
         {
             ColorScoreboardStrip(scoreboardStrip, newColor);
             ColorItemIconGlowImages(scoreboardStrip, newColor);
-            HudDetails.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
+            ScoreboardStrips.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
             ColorEquipmentSlotHighlight(scoreboardStrip, newColor);
         }
         private static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip, Color newColor)
@@ -305,7 +321,7 @@ namespace CleanestHud.HudChanges
 
 
             longBackgroundImage.color = newColor;
-            Color highlightColor = Main.Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
+            Color highlightColor = Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
             RawImage scoreboardStripHighlightRawImage = scoreboardStripTransform.gameObject.GetComponent<RawImage>();
             scoreboardStripHighlightRawImage.color = highlightColor;
         }
