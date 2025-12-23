@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using RoR2.UI;
 using CleanestHud.ModSupport;
 using static CleanestHud.Main;
+using static CleanestHud.HudChanges.HudColor;
 namespace CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
 
 
@@ -77,5 +78,18 @@ internal static class EquipmentSlots
         equipmentBGPanel.localPosition = Vector3.zero;
         equipmentIconPanelRect.localScale *= scaleFactor;
         equipmentIsReadyPanel.localScale *= scaleFactor;
+    }
+
+
+    internal static void HudColorEdits()
+    {
+        foreach (EquipmentIcon equipmentIcon in MyHud.equipmentIcons)
+        {
+            Image equipmentIsReadyPanelImage = equipmentIcon.isReadyPanelObject.GetComponent<Image>();
+            equipmentIsReadyPanelImage.color = SurvivorColor;
+
+            Image equipmentBGPanelImage = equipmentIcon.displayRoot.transform.Find("BGPanel").GetComponent<Image>();
+            equipmentBGPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
+        }
     }
 }

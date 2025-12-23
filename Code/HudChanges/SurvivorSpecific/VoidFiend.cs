@@ -18,18 +18,21 @@ internal static class VoidFiend
 {
     private static Transform _viendCorruptionUI;
     private static Animator _viendCorruptionUIAnimator;
-    private static bool IsHudCameraTargetViend
+    private static bool IsHudEditable
     {
         get
         {
-            return HudCameraTargetBody?.baseNameToken == "VOIDSURVIVOR_BODY_NAME";
+            return Main.IsHudEditable
+            && ConfigOptions.AllowSurvivorSpecificEdits.Value
+            && HudCameraTargetBody != null
+            && HudCameraTargetBody.bodyIndex == DLC1Content.BodyPrefabs.VoidSurvivorBody.bodyIndex;
         }
     }
 
 
     internal static void SetupViendEdits()
     {
-        if (!IsHudEditable || !IsHudCameraTargetViend)
+        if (!IsHudEditable)
         {
             return;
         }

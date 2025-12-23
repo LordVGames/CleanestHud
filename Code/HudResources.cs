@@ -91,8 +91,10 @@ internal class HudResources
         internal static Transform HealthBarRoot = null;
         internal static Transform LevelDisplayCluster = null;
         internal static Transform ExpBarRoot = null;
+        internal static Transform ExpBarFillPanel = null;
         internal static Transform DifficultyBar = null;
         internal static Transform DifficultyBarContent = null;
+        internal static Transform DifficultyBarBackdrop = null;
         internal static Transform SetDifficultyPanel = null;
         internal static Transform BottomRightCluster = null;
         internal static Transform BottomCenterCluster = null;
@@ -109,9 +111,11 @@ internal class HudResources
         internal static Transform SimulacrumDefaultWaveUI = null;
         internal static Transform InfiniteTowerDefaultWaveUI = null;
         internal static Transform SimulacrumWavePanel = null;
+        internal static Transform SimulacrumWaveProgressBar = null;
         internal static Transform NotificationArea = null;
         internal static Transform RightCluster = null;
         internal static Transform ContextNotification = null;
+        internal static Transform UtilityAreaDisplayRoot = null;
         internal static Transform InspectPanelArea
         {
             get
@@ -132,6 +136,10 @@ internal class HudResources
         internal static Transform ScoreboardStripContainer = null;
         internal static Transform ScoreboardPanelHorizontalBox = null;
         internal static Transform CrosshairExtras = null;
+        internal static Transform MoneyRoot = null;
+        internal static Transform LunarCoinRoot = null;
+        // void coins aren't used in vanilla, but a few mods make use of them
+        internal static Transform VoidCoinRoot = null;
 
 
         internal static void FindImportantHudTransforms()
@@ -145,8 +153,10 @@ internal class HudResources
             HealthBarRoot = BarRoots.GetChild(1);
             LevelDisplayCluster = BarRoots.GetChild(0);
             ExpBarRoot = LevelDisplayCluster.Find("ExpBarRoot");
+            ExpBarFillPanel = ExpBarRoot.Find("ShrunkenRoot/FillPanel");
             DifficultyBar = RunInfoHudPanel.Find("DifficultyBar");
             DifficultyBarContent = DifficultyBar.Find("Scroll View/Viewport/Content");
+            DifficultyBarBackdrop = DifficultyBar.Find("Scroll View/Backdrop");
             SetDifficultyPanel = RunInfoHudPanel.Find("SetDifficultyPanel");
             BottomRightCluster = MyHudLocator.FindChild("BottomRightCluster");
             BottomCenterCluster = MyHudLocator.FindChild("BottomCenterCluster");
@@ -164,13 +174,21 @@ internal class HudResources
             BossHealthBarContainer = MyHudLocator.FindChild("BossHealthBar").parent.parent;
             MapNameCluster = MyHud.mainContainer.transform.Find("MapNameCluster");
             MapNameClusterSubtext = MapNameCluster.Find("Subtext");
-            SimulacrumDefaultWaveUI = RunInfoHudPanel.Find("DefaultWaveUI");
-            InfiniteTowerDefaultWaveUI = RunInfoHudPanel.Find("DefaultWaveUI");
-            SimulacrumWavePanel = RunInfoHudPanel.Find("WavePanel");
             NotificationArea = MyHudLocator.FindChild("NotificationArea");
             RightCluster = MyHudLocator.FindChild("RightCluster");
             ContextNotification = RightCluster.Find("ContextNotification");
             CrosshairExtras = MyHudLocator.FindChild("CrosshairExtras");
+            LunarCoinRoot = UpperLeftCluster.Find("LunarCoinRoot");
+            VoidCoinRoot = UpperLeftCluster.Find("VoidCoinRoot");
+            MoneyRoot = MyHud.moneyText.transform;
+            UtilityAreaDisplayRoot = BottomRightCluster.Find("Scaler/UtilityArea/DisplayRoot");
+            if (Helpers.IsGameModeSimulacrum)
+            {
+                InfiniteTowerDefaultWaveUI = RunInfoHudPanel.Find("DefaultWaveUI");
+                SimulacrumDefaultWaveUI = RunInfoHudPanel.Find("DefaultWaveUI");
+                SimulacrumWavePanel = RunInfoHudPanel.Find("WavePanel");
+                SimulacrumWaveProgressBar = SimulacrumDefaultWaveUI.Find("FillBarRoot");    
+            }
         }
     }
 }

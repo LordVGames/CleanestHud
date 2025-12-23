@@ -6,32 +6,33 @@ using UnityEngine;
 using UnityEngine.UI;
 using RoR2.UI;
 using static CleanestHud.Main;
+using static CleanestHud.HudResources.ImportantHudTransforms;
+using RoR2;
 namespace CleanestHud.HudChanges.SurvivorSpecific;
 
 
 internal static class Seeker
 {
-    private static bool IsHudCameraTargetSeeker
+    private static bool IsHudEditable
     {
         get
         {
-            // not using .name because that includes (Clone) and i don't care about putting that in every get method like this
-            return HudCameraTargetBody?.baseNameToken == "SEEKER_BODY_NAME";
+            return Main.IsHudEditable
+            && ConfigOptions.AllowSurvivorSpecificEdits.Value
+            && HudCameraTargetBody != null
+            && HudCameraTargetBody.bodyIndex == DLC2Content.BodyPrefabs.SeekerBody.bodyIndex;
         }
     }
 
 
     internal static void RepositionSeekerLotusUI()
     {
-        if (!IsHudEditable || !IsHudCameraTargetSeeker)
+        if (!IsHudEditable)
         {
             return;
         }
 
-        Transform bottomCenterCluster = MyHudLocator.FindChild("BottomCenterCluster");
-        Transform bottomCenterClusterScaler = bottomCenterCluster.GetChild(2);
-        Transform utilityArea = bottomCenterClusterScaler.GetChild(1);
-        Transform utilityAreaDisplayRoot = utilityArea.GetChild(0);
+
         // this is ran twice when spawning in as seeker but it errors out here the first time?????
         // it works the 2nd time though
         Vector3 newLotusLocalPosition = Vector3.zero;
@@ -46,7 +47,7 @@ internal static class Seeker
                 break;
         }
         newLotusLocalPosition.y += ConfigOptions.ShowSkillKeybinds.Value ? 0 : 18;
-        utilityAreaDisplayRoot.Find("SeekerLotusUI(Clone)").localPosition = newLotusLocalPosition;
+        UtilityAreaDisplayRoot.Find("SeekerLotusUI(Clone)").localPosition = newLotusLocalPosition;
     }
 
 

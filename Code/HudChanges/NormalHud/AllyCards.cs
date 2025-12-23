@@ -3,10 +3,12 @@ using RoR2;
 using RoR2.UI;
 using MonoDetour;
 using MonoDetour.HookGen;
-using static CleanestHud.Main;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using static CleanestHud.Main;
+using static CleanestHud.HudResources;
 namespace CleanestHud.HudChanges.NormalHud;
 
 
@@ -21,6 +23,7 @@ internal static class AllyCards
     }
 
 
+
     private static void Awake(AllyCardController self)
     {
         if (IsHudUserBlacklisted)
@@ -31,7 +34,7 @@ internal static class AllyCards
 
         // icons go out of the background when there's not a lot of allies so they need to be changed a lil bit
         Transform portrait = self.transform.GetChild(0);
-        MyHud?.StartCoroutine(HudDetails.DelayEditAllyCardPortrait(portrait));
+        MyHud?.StartCoroutine(DelayEditAllyCardPortrait(portrait));
         if (!ConfigOptions.AllowAllyCardBackgrounds.Value)
         {
             self.DisableImageComponent();
@@ -45,6 +48,29 @@ internal static class AllyCards
             MyHud?.StartCoroutine(DelayRemoveBadHealthSubBar(backgroundPanel));
         }
     }
+
+    internal static void SetAllyCardBackgroundsStatus()
+    {
+        Transform allyCardContainer = MyHudLocator.FindChild("LeftCluster").Find("AllyCardContainer");
+        for (int i = 0; i < allyCardContainer.childCount; i++)
+        {
+            Transform allyCard = allyCardContainer.GetChild(i);
+            Image background = allyCard.GetComponent<Image>();
+            background.enabled = ConfigOptions.AllowAllyCardBackgrounds.Value;
+            // portrait edits get reset after enabling/disabling the background
+            MyHud?.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
+        }
+    }
+    internal static IEnumerator DelayEditAllyCardPortrait(Transform portrait)
+    {
+        yield return null;
+        EditAllyCardPortrait(portrait);
+    }
+    internal static void EditAllyCardPortrait(Transform portrait)
+    {
+        portrait.localPosition = new Vector3(-0.9f, -24, 1);
+        portrait.localScale = new Vector3(1, 0.99f, 1);
+    }
     private static IEnumerator DelayRemoveBadHealthSubBar(Transform backgroundPanel)
     {
         yield return null;
@@ -57,6 +83,7 @@ internal static class AllyCards
     }
 
 
+
     private static void UpdateInfo(AllyCardController self)
     {
         if (IsHudUserBlacklisted)
@@ -65,9 +92,32 @@ internal static class AllyCards
         }
 
 
-        if (ConfigOptions.AllowAllyCardBackgrounds.Value)
+        if (ConfigOptions.AllowAllyCardBackgrounds.Value && ConfigOptions.AllowHudColorEdits.Value)
         {
-            HudColor.ColorAllyCardControllerBackground(self);
+            ColorAllyCardControllerBackground(self);
+        }
+    }
+    internal static void ColorAllyCardControllerBackground(AllyCardController allyCardController)
+    {
+        if (!allyCardController || !allyCardController.cachedSourceCharacterBody)
+        {
+            return;
+        }
+
+        Image background = allyCardController.GetComponent<Image>();
+        Color colorToUse = allyCardController.cachedSourceCharacterBody.bodyColor;
+        colorToUse.a = 0.15f;
+        background.sprite = HudAssets.WhiteSprite;
+        background.color = colorToUse;
+    }
+    internal static void ColorAllAllyCardBackgrounds()
+    {
+        Transform allyCardContainer = MyHudLocator.FindChild("LeftCluster").GetChild(0);
+        for (int i = 0; i < allyCardContainer.childCount; i++)
+        {
+            Transform allyCard = allyCardContainer.GetChild(i);
+            AllyCardController allyCardController = allyCard.GetComponent<AllyCardController>();
+            ColorAllyCardControllerBackground(allyCardController);
         }
     }
 }

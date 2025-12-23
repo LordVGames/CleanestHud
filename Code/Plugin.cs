@@ -32,11 +32,8 @@ public partial class Plugin : BaseUnityPlugin
         MonoDetourManager.InvokeHookInitializers(typeof(Plugin).Assembly);
         HudStructure.AddEventSubscriptions();
         HudDetails.AddEventSubscriptions();
+        HudColor.AddEventSubscriptions();
         SurvivorSpecific.AddEventSubscriptions();
-        // don't really know where else to sub to ror2 events so whatever
-        InfiniteTowerRun.onWaveInitialized += HudChanges.Simulacrum.WavePopup.InfiniteTowerRun_onWaveInitialized;
-        Run.onRunStartGlobal += HudColor.Run_onRunStartGlobal;
-        RunArtifactManager.onArtifactEnabledGlobal += HudChanges.NormalHud.MonsterSelectionAndItems.RunArtifactManager_onArtifactEnabledGlobal;
         
 
         if (ModSupport.LookingGlassMod.ModIsRunning)
@@ -62,15 +59,15 @@ public partial class Plugin : BaseUnityPlugin
         } */
         if (ModSupport.Myst.ModIsRunning)
         {
-            HudChanges.SurvivorSpecific.SurvivorSpecific.OnSurvivorSpecificHudEditsFinished += ModSupport.Myst.OnSurvivorSpecificHudEditsFinished;
-            HudChanges.HudColor.OnHudColorUpdate += ModSupport.Myst.OnHudColorUpdate;
+            SurvivorSpecific.OnSurvivorSpecificHudEditsFinished += ModSupport.Myst.OnSurvivorSpecificHudEditsFinished;
+            HudColor.OnHudColorEditsFinished += ModSupport.Myst.OnHudColorUpdate;
             On.RoR2.UI.HUD.OnDestroy += ModSupport.Myst.HUD_OnDestroy;
             ConfigOptions.OnShowSprintAndInventoryKeybindsChanged += ModSupport.Myst.ConfigOptions_OnShowSprintAndInventoryKeybindsChanged;
             ConfigOptions.OnShowSkillKeybindsChanged += ModSupport.Myst.ConfigOptions_OnShowSkillKeybindsChanged;
         }
         if (ModSupport.HUDdleUPMod.ModIsRunning)
         {
-            HudChanges.HudDetails.OnHudDetailEditsFinished += ModSupport.HUDdleUPMod.RemoveNewHudPanelBackgrounds;
+            HudDetails.OnHudDetailEditsFinished += ModSupport.HUDdleUPMod.RemoveNewHudPanelBackgrounds;
         }
     }
 }

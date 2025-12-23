@@ -40,7 +40,7 @@ public static class HudStructure
         OnHudStructureEditsBegun += NormalHud.HealthBarArea.HealthBar.HudStructureEdits;
         OnHudStructureEditsBegun += NormalHud.HealthBarArea.BuffDisplay.HudStructureEdits;
         OnHudStructureEditsBegun += NormalHud.HealthBarArea.LevelDisplay.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.HealthBarArea.XpBar.HudStructureEdits;
+        OnHudStructureEditsBegun += NormalHud.HealthBarArea.ExpBar.HudStructureEdits;
         OnHudStructureEditsBegun += NormalHud.SpectatorLabel.HudStructureEdits;
         OnHudStructureEditsBegun += NormalHud.SkillsAndEquipsArea.SkillSlots.HudStructureEdits;
         OnHudStructureEditsBegun += NormalHud.SkillsAndEquipsArea.EquipmentSlots.HudStructureEdits;

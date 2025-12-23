@@ -57,19 +57,10 @@ public static class Main
     }
 
 
-
-    /// <summary>
-    /// The third phase of editing the HUD. This is for coloring various HUD elements based on the body color of the camera target.
-    /// </summary>
-    public static event Action OnHudColorEditsBegun;
-
-
-
     /// <summary>
     /// When the hud has loaded and is (should be) ready for edits, before the other HUD edit events have fired. Set variables for needed HUD elements with this.
     /// </summary>
     public static event Action OnHudInit;
-
 
 
     [MonoDetourTargets(typeof(HUD))]
@@ -140,6 +131,8 @@ public static class Main
                 HudStructure.BeginEdits();
                 HudDetails.BeginEdits();
                 // HUD coloring is handled in CameraTargetHooks under DelayOnCameraChange
+                // but survivor specific edits can sometimes not work so we'll do it again here just in case
+                HudChanges.SurvivorSpecific.SurvivorSpecific.FireSurvivorSpecificUIEvent();
             }
 
 

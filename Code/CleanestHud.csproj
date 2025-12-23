@@ -16,9 +16,9 @@
 		<MonoDetourHookGenNamespace>Mdh</MonoDetourHookGenNamespace>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+	<!-- <PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<MonoDetourHookGenStripUnusedHooks>true</MonoDetourHookGenStripUnusedHooks>
-	</PropertyGroup>
+	</PropertyGroup> -->
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.*">

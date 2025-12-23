@@ -127,9 +127,9 @@ public static class ConfigOptions
 
         if (AllowAllyCardBackgrounds.Value)
         {
-            HudChanges.HudColor.ColorAllAllyCardBackgrounds();
+            AllyCards.ColorAllAllyCardBackgrounds();
         }
-        HudChanges.HudDetails.SetAllyCardBackgroundsStatus();
+        AllyCards.SetAllyCardBackgroundsStatus();
     }
 
 
@@ -185,7 +185,7 @@ public static class ConfigOptions
         }
 
         HudChanges.NormalHud.DifficultyHud.InfiniteLastDifficulty.SetFakeInfiniteLastDifficultySegmentStatus();
-        HudChanges.HudColor.ColorDifficultyBar();
+        HudChanges.NormalHud.DifficultyHud.DifficultyBar.HudColorEdits();
     }
 
 
@@ -197,7 +197,7 @@ public static class ConfigOptions
             return;
         }
 
-        HudChanges.HudDetails.SetSimulacrumWaveBarAnimatorStatus();
+        HudChanges.Simulacrum.WavePanel.SetSimulacrumWaveBarAnimatorStatus();
     }
 
 

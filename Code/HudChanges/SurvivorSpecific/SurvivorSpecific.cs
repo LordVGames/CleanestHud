@@ -7,18 +7,21 @@ namespace CleanestHud.HudChanges.SurvivorSpecific;
 internal static class SurvivorSpecific
 {
     /// <summary>
-    /// Happens after HUD structure edits, HUD detail edits, and survivor-specific HUD elements have all been edited, but not HUD coloring.
+    /// Happens on camera target change BEFORE HUD color changes.
     /// </summary>
-    /// <remarks>
-    /// Can happen multiple times after the HUD is created.
-    /// </remarks>
+    public static event Action OnSurvivorSpecificHudEditsBegun;
+
+
+    /// <summary>
+    /// Happens after OnSurvivorSpecificHudEditsBegun.
+    /// </summary>
     public static event Action OnSurvivorSpecificHudEditsFinished;
 
 
     internal static void AddEventSubscriptions()
     {
-        OnSurvivorSpecificHudEditsFinished += VoidFiend.SetupViendEdits;
-        OnSurvivorSpecificHudEditsFinished += Seeker.RepositionSeekerLotusUI;
+        OnSurvivorSpecificHudEditsBegun += VoidFiend.SetupViendEdits;
+        OnSurvivorSpecificHudEditsBegun += Seeker.RepositionSeekerLotusUI;
         ConfigOptions.OnShowSkillKeybindsChanged += Seeker.RepositionSeekerLotusUI;
     }
 
@@ -28,8 +31,9 @@ internal static class SurvivorSpecific
         if (IsHudEditable)
         {
             // if a survivor specific edit is needed, it's called by this
-            OnSurvivorSpecificHudEditsFinished?.Invoke();
+            OnSurvivorSpecificHudEditsBegun?.Invoke();
             //HudStructure.RepositionAllHudElements();
+            OnSurvivorSpecificHudEditsFinished?.Invoke();
         }
         else
         {

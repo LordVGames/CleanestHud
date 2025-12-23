@@ -5,6 +5,7 @@ using RoR2;
 using RoR2.UI;
 using TMPro;
 using static CleanestHud.Main;
+using static CleanestHud.HudChanges.HudColor;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
 using UnityEngine.UI;
@@ -46,6 +47,23 @@ internal static class WavePanel
     }
 
 
+    internal static void HudColorEdits()
+    {
+        if (!Helpers.IsGameModeSimulacrum || !Helpers.AreSimulacrumWavesRunning)
+        {
+            return;
+        }
+
+        Transform animated = SimulacrumWaveProgressBar.GetChild(2);
+        Image animatedImage = animated.GetComponent<Image>();
+        animatedImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
+
+        Transform fillBar = SimulacrumWaveProgressBar.GetChild(3);
+        Image fillBarImage = fillBar.GetComponent<Image>();
+        HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetOrAddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
+        barImageColorChanger.newFillBarColor = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
+    }
+
 
     [MonoDetourTargets(typeof(InfiniteTowerWaveProgressBar))]
     private static class ProgressBarHook
@@ -66,8 +84,30 @@ internal static class WavePanel
 
             // i would make a HudDetails method for this but it's literally one line
             self.barImage.sprite = HudAssets.WhiteSprite;
-            HudColor.ColorSimulacrumWaveProgressBar(self.barImage.transform.parent);
-            HudDetails.SetSimulacrumWaveBarAnimatorStatus();
+            //HudColor.ColorSimulacrumWaveProgressBar(self.barImage.transform.parent);
+            HudColorEdits();
+            SetSimulacrumWaveBarAnimatorStatus();
+        }
+    }
+    internal static void SetSimulacrumWaveBarAnimatorStatus()
+    {
+        if (!Helpers.IsGameModeSimulacrum || InfiniteTowerDefaultWaveUI == null)
+        {
+            return;
+        }
+
+
+        InfiniteTowerWaveProgressBar progressBar = InfiniteTowerDefaultWaveUI.GetComponent<InfiniteTowerWaveProgressBar>();
+        Animator progressBarAnimator = InfiniteTowerDefaultWaveUI.GetComponent<Animator>();
+        if (ConfigOptions.AllowSimulacrumWaveBarAnimating.Value)
+        {
+            progressBarAnimator.enabled = true;
+            progressBar.animator = progressBarAnimator;
+        }
+        else
+        {
+            progressBar.animator = null;
+            progressBarAnimator.enabled = false;
         }
     }
 }

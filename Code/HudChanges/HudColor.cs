@@ -57,7 +57,13 @@ namespace CleanestHud.HudChanges
         /// <remarks>
         /// In multiplayer, this may successfully run twice during the coloring process, as a second coloring is attempted 0.15 seconds after the first to fix the game sometimes grabbing the wrong player's body color in the first coloring.
         /// </remarks>
-        public static event Action OnHudColorUpdate;
+        public static event Action OnHudColorEditsBegun;
+
+
+        /// <summary>
+        /// Happens a frame AFTER OnHudColorEditsBegun is fired.
+        /// </summary>
+        public static event Action OnHudColorEditsFinished;
 
 
         internal static IEnumerator SetSurvivorColorFromTargetBody(CharacterBody targetCharacterBody)
@@ -70,8 +76,8 @@ namespace CleanestHud.HudChanges
             {
                 yield break;
             }
-            yield return new WaitForSeconds(0.15f);
             IsColorChangeCoroutineWaiting = true;
+            yield return new WaitForSeconds(0.15f);
             if (targetCharacterBody == null)
             {
                 Log.Error("targetCharacterBody WAS NULL IN SetSurvivorColorFromTargetBody! NO HUD COLOR CHANGES WILL OCCUR!");
@@ -83,6 +89,20 @@ namespace CleanestHud.HudChanges
         }
 
 
+        internal static void AddEventSubscriptions()
+        {
+            Run.onRunStartGlobal += Run_onRunStartGlobal;
+            OnHudColorEditsBegun += NormalHud.CurrenciesArea.HudColorEdits;
+            OnHudColorEditsBegun += NormalHud.InspectionPanel.HudColorEdits;
+            OnHudColorEditsBegun += NormalHud.DifficultyHud.DifficultyBar.HudColorEdits;
+            OnHudColorEditsBegun += NormalHud.HealthBarArea.ExpBar.HudColorEdits;
+            OnHudColorEditsBegun += NormalHud.SkillsAndEquipsArea.EquipmentSlots.HudColorEdits;
+            OnHudColorEditsBegun += NormalHud.SkillsAndEquipsArea.SkillSlots.HudColorEdits;
+            OnHudColorEditsBegun += Simulacrum.DefaultWaveUI.HudColorEdits;
+            OnHudColorEditsBegun += Simulacrum.WavePanel.HudColorEdits;
+        }
+
+
         internal static void Run_onRunStartGlobal(Run obj)
         {
             // why doesn't the color reset when clicking the restart button from that one mod
@@ -90,16 +110,6 @@ namespace CleanestHud.HudChanges
             SurvivorColor = Color.clear;
         }
 
-
-        internal static void BeginEdits()
-        {
-            if (!ConfigOptions.AllowHudColorEdits.Value)
-            {
-                return;
-            }
-
-            OnHudColorUpdate += Simulacrum.DefaultWaveUI.HudColorEdits;
-        }
 
         public static void UpdateHudColor()
         {
@@ -114,188 +124,13 @@ namespace CleanestHud.HudChanges
                 return;
             }
             Log.Debug($"Now updating the HUD's color, SurvivorColor is {SurvivorColor}");
-
-
-
-            
-            if (Helpers.IsGameModeSimulacrum && SimulacrumDefaultWaveUI)
-            {
-                ColorSimulacrumWaveProgressBar(SimulacrumDefaultWaveUI.Find("FillBarRoot"));
-            }
-            else
-            {
-                ColorDifficultyBar();
-            }
-            ColorXpBar(ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster/ExpBarRoot"));
-            ColorSkillAndEquipmentSlots();
-            ColorCurrenciesPanel();
-            ColorInspectionPanel(Helpers.GetContainerFromScoreboardPanel(MyHudLocator.FindChild("ScoreboardPanel")));
+            OnHudColorEditsBegun?.Invoke();
             MyHud?.StartCoroutine(DelayInvokeOnHudColorUpdate());
         }
         private static IEnumerator DelayInvokeOnHudColorUpdate()
         {
             yield return null;
-            OnHudColorUpdate?.Invoke();
-        }
-        private static void ColorXpBar(Transform xpBarRoot)
-        {
-            Color tempSurvivorColor = SurvivorColor;
-            tempSurvivorColor.a = 0.72f;
-            Image fillPanelImage = xpBarRoot.Find("ShrunkenRoot/FillPanel").GetComponent<Image>();
-            fillPanelImage.color = tempSurvivorColor;
-
-        }
-        private static void ColorSkillAndEquipmentSlots()
-        {
-            foreach (SkillIcon skillIcon in MyHud.skillIcons)
-            {
-                GameObject isReadyPanel = skillIcon.isReadyPanelObject;
-                Image isReadyPanelImage = isReadyPanel.GetComponent<Image>();
-                isReadyPanelImage.color = SurvivorColor;
-            }
-            foreach (EquipmentIcon equipmentIcon in MyHud.equipmentIcons)
-            {
-                Image equipmentIsReadyPanelImage = equipmentIcon.isReadyPanelObject.GetComponent<Image>();
-                equipmentIsReadyPanelImage.color = SurvivorColor;
-
-                Image equipmentBGPanelImage = equipmentIcon.displayRoot.transform.Find("BGPanel").GetComponent<Image>();
-                equipmentBGPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
-            }
-        }
-        private static void ColorCurrenciesPanel()
-        {
-            Transform upperLeftCluster = MyHudLocator.FindChild("UpperLeftCluster");
-            Color colorToUse = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
-
-
-
-            MyHud.moneyText.transform.Find("BackgroundPanel").GetComponent<RawImage>().color = colorToUse;
-            MyHud.moneyText.transform.Find("ValueText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-            MyHud.moneyText.transform.Find("DollarSign").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-
-
-
-            Transform lunarCoinRoot = upperLeftCluster.Find("LunarCoinRoot");
-
-            lunarCoinRoot.Find("BackgroundPanel").GetComponent<RawImage>().color = colorToUse;
-            lunarCoinRoot.Find("ValueText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-            lunarCoinRoot.Find("LunarCoinSign").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-
-
-
-            // void coins aren't used in vanilla, but wolfo's simulacrum mod makes use of them
-            Transform voidCoinRoot = upperLeftCluster.Find("VoidCoinRoot");
-
-            voidCoinRoot.Find("BackgroundPanel").GetComponent<RawImage>().color = colorToUse;
-            voidCoinRoot.Find("ValueText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-            voidCoinRoot.Find("VoidCoinSign").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-        }
-        private static void ColorInspectionPanel(Transform container)
-        {
-            Image inspectionPanelImage = container.Find("InspectPanel").GetChild(0).GetChild(0).GetComponent<Image>();
-            inspectionPanelImage.sprite = HudAssets.WhiteSprite;
-            inspectionPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, transparencyMultiplier: 0.15f);
-        }
-        internal static void ColorDifficultyBar()
-        {
-            Transform difficultyBar = ImportantHudTransforms.RunInfoHudPanel.Find("DifficultyBar");
-            Transform backdrop = difficultyBar.Find("Scroll View/Backdrop");
-
-
-
-            Color[] difficultyBarSegmentColors = [];
-            if (ConfigOptions.EnableConsistentDifficultyBarBrightness.Value)
-            {
-                difficultyBarSegmentColors = [.. Enumerable.Repeat(SurvivorColor, 9)];
-            }
-            else
-            {
-                // darker colors as difficulty increases
-                difficultyBarSegmentColors = [
-                    SurvivorColor,
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (8f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (7f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (6f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (5f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (4f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (3f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (2f / 9f)),
-                    Helpers.GetAdjustedColor(SurvivorColor, brightnessMultiplier: (1f / 9f))
-                ];
-            }
-
-
-
-            DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
-            // this changes the newColor flash when the next difficulty BackgroundImage is reached
-            for (int i = 0; i < difficultyBarController.segmentDefs.Length; i++)
-            {
-                difficultyBarController.segmentDefs[i].color = difficultyBarSegmentColors[i];
-            }
-            // this actually changes the colors of the difficulty segments
-            for (int i = 0; i < difficultyBarController.images.Length; i++)
-            {
-                HudEditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].GetOrAddComponent<HudEditorComponents.DifficultyScalingBarColorChanger>();
-                coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
-            }
-            // coloring the backdrop needs to happen as it fades in or else it gets overridden
-            MyHud?.StartCoroutine(ColorBackdropImageOverFadeIn(backdrop));
-        }
-        private static IEnumerator ColorBackdropImageOverFadeIn(Transform backdrop)
-        {
-            Image backdropImage = backdrop.GetComponent<Image>();
-            while (!Helpers.AreColorsEqualIgnoringAlpha(backdropImage.color, SurvivorColor))
-            {
-                Color tempSurvivorColor = SurvivorColor;
-                tempSurvivorColor.a = 0.055f;
-                backdropImage.color = tempSurvivorColor;
-                yield return null;
-            }
-        }
-
-
-
-        internal static void ColorSimulacrumWaveProgressBar(Transform fillBarRoot)
-        {
-            if (!Helpers.AreSimulacrumWavesRunning)
-            {
-                return;
-            }
-
-            Transform animated = fillBarRoot.GetChild(2);
-            Image animatedImage = animated.GetComponent<Image>();
-            animatedImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
-
-            Transform fillBar = fillBarRoot.GetChild(3);
-            Image fillBarImage = fillBar.GetComponent<Image>();
-            HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetOrAddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
-            barImageColorChanger.newFillBarColor = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
-        }
-
-
-
-        internal static void ColorAllyCardControllerBackground(AllyCardController allyCardController)
-        {
-            if (!allyCardController || !allyCardController.cachedSourceCharacterBody)
-            {
-                return;
-            }
-
-            Image background = allyCardController.GetComponent<Image>();
-            Color colorToUse = allyCardController.cachedSourceCharacterBody.bodyColor;
-            colorToUse.a = 0.15f;
-            background.sprite = HudAssets.WhiteSprite;
-            background.color = colorToUse;
-        }
-        internal static void ColorAllAllyCardBackgrounds()
-        {
-            Transform allyCardContainer = MyHudLocator.FindChild("LeftCluster").GetChild(0);
-            for (int i = 0; i < allyCardContainer.childCount; i++)
-            {
-                Transform allyCard = allyCardContainer.GetChild(i);
-                AllyCardController allyCardController = allyCard.GetComponent<AllyCardController>();
-                ColorAllyCardControllerBackground(allyCardController);
-            }
+            OnHudColorEditsFinished?.Invoke();
         }
 
 

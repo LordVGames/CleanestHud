@@ -5,7 +5,8 @@ Fixed for AC release
 Major internal refactor & hooks ported to MonoDetour
 - Mod might have slightly better in-game load times and/or performance now
 
-"Enable Movement On Focused UI" mod
+"Enable Movement On Focused UI" mod is no longer a thunderstore dependency
+- It is still recommended if you don't like how you stop moving when hovering over HUD elements since I'm not sure how to fix it
 
 Removed built-in Driver support as that mod has it's own support for CLeanestHud now
 

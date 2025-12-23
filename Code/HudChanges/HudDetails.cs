@@ -31,6 +31,7 @@ public static class HudDetails
 
     internal static void AddEventSubscriptions()
     {
+        RunArtifactManager.onArtifactEnabledGlobal += NormalHud.MonsterSelectionAndItems.RunArtifactManager_onArtifactEnabledGlobal;
         OnHudDetailEditsBegun += NormalHud.ArtifactPanel.HudDetailEdits;
         OnHudDetailEditsBegun += NormalHud.BossHpBar.HudDetailEdits;
         OnHudDetailEditsBegun += NormalHud.CurrenciesArea.HudDetailEdits;
@@ -48,6 +49,7 @@ public static class HudDetails
         OnHudDetailEditsBegun += Simulacrum.DefaultWaveUI.HudDetailEdits;
         OnHudDetailEditsBegun += Simulacrum.SuppressedItemsStrip.HudDetailEdits;
         OnHudDetailEditsBegun += Simulacrum.WavePanel.HudDetailEdits;
+        InfiniteTowerRun.onWaveInitialized += Simulacrum.WavePopup.InfiniteTowerRun_onWaveInitialized;
     }
 
 
@@ -78,66 +80,6 @@ public static class HudDetails
         Transform equipment1DisplayRoot = MyHud.equipmentIcons[0].displayRoot.transform;
         GameObject equipment1TextBackgroundPanel = equipment1DisplayRoot.Find("EquipmentTextBackgroundPanel").gameObject;
         equipment1TextBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
-    }
-
-
-    
-
-
-    #region Infinite last difficulty segment
-    
-    #endregion
-
-
-    internal static void SetSimulacrumWaveBarAnimatorStatus()
-    {
-        if (!Helpers.IsGameModeSimulacrum)
-        {
-            return;
-        }
-        Transform simulacrumWaveUIClone = ImportantHudTransforms.RunInfoHudPanel.Find("InfiniteTowerDefaultWaveUI(Clone)");
-        if (!simulacrumWaveUIClone)
-        {
-            return;
-        }
-
-        InfiniteTowerWaveProgressBar progressBar = simulacrumWaveUIClone.GetComponent<InfiniteTowerWaveProgressBar>();
-        Animator progressBarAnimator = simulacrumWaveUIClone.GetComponent<Animator>();
-        if (ConfigOptions.AllowSimulacrumWaveBarAnimating.Value)
-        {
-            progressBarAnimator.enabled = true;
-            progressBar.animator = progressBarAnimator;
-        }
-        else
-        {
-            progressBar.animator = null;
-            progressBarAnimator.enabled = false;
-        }
-    }
-
-
-
-    internal static void SetAllyCardBackgroundsStatus()
-    {
-        Transform allyCardContainer = MyHudLocator.FindChild("LeftCluster").Find("AllyCardContainer");
-        for (int i = 0; i < allyCardContainer.childCount; i++)
-        {
-            Transform allyCard = allyCardContainer.GetChild(i);
-            Image background = allyCard.GetComponent<Image>();
-            background.enabled = ConfigOptions.AllowAllyCardBackgrounds.Value;
-            // portrait edits get reset after enabling/disabling the background
-            MyHud?.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
-        }
-    }
-    internal static IEnumerator DelayEditAllyCardPortrait(Transform portrait)
-    {
-        yield return null;
-        EditAllyCardPortrait(portrait);
-    }
-    internal static void EditAllyCardPortrait(Transform portrait)
-    {
-        portrait.localPosition = new Vector3(-0.9f, -24, 1);
-        portrait.localScale = new Vector3(1, 0.99f, 1);
     }
 
 

@@ -4,6 +4,8 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.Main;
+using static CleanestHud.HudChanges.HudColor;
+using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
 using RoR2.UI;
 namespace CleanestHud.HudChanges.NormalHud;
@@ -61,5 +63,13 @@ internal static class InspectionPanel
             uiJuice.canvasGroup = null;
             canvasGroup.alpha = ConfigOptions.HudTransparency.Value;
         }
+    }
+
+
+    internal static void HudColorEdits()
+    {
+        Image inspectionPanelImage = ScoreboardPanelContainer.Find("InspectPanel").GetChild(0).GetChild(0).GetComponent<Image>();
+        inspectionPanelImage.sprite = HudAssets.WhiteSprite;
+        inspectionPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, transparencyMultiplier: 0.15f);
     }
 }

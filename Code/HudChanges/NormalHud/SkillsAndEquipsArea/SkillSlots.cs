@@ -4,6 +4,7 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.Main;
+using static CleanestHud.HudChanges.HudColor;
 using static CleanestHud.HudResources;
 using RoR2.UI;
 namespace CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
@@ -75,6 +76,17 @@ internal static class SkillSlots
     internal static void HudDetailEdits()
     {
         SetSkillOutlinesStatus();
+    }
+
+
+    internal static void HudColorEdits()
+    {
+        foreach (SkillIcon skillIcon in MyHud.skillIcons)
+        {
+            GameObject isReadyPanel = skillIcon.isReadyPanelObject;
+            Image isReadyPanelImage = isReadyPanel.GetComponent<Image>();
+            isReadyPanelImage.color = SurvivorColor;
+        }
     }
 
 
