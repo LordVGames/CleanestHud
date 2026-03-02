@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud.ScoreboardPanel;
 
+
 [MonoDetourTargets(typeof(ItemIcon))]
 internal static class ItemIcons
 {

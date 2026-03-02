@@ -11,6 +11,7 @@ using MonoDetour;
 using System.Collections;
 namespace CleanestHud.HudChanges.NormalHud;
 
+
 internal static class NotificationArea
 {
     internal static void HudStructureEdits()

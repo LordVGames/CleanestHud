@@ -11,6 +11,27 @@ namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
 internal static class BarRoots
 {
+    private static Vector2 _barRootsLocalPosition = new(BarRootsDefaultX, BarRootsDefaultY);
+    public static Vector2 BarRootsLocalPosition
+    {
+        get
+        {
+            return _barRootsLocalPosition;
+        }
+        set
+        {
+            _barRootsLocalPosition = value;
+            ImportantHudTransforms.BarRoots.localPosition = _barRootsLocalPosition;
+        }
+    }
+    public static void ResetBarRootsLocalPositionToDefault()
+    {
+        BarRootsLocalPosition = new Vector2(BarRootsDefaultX, BarRootsDefaultY);
+    }
+    public const float BarRootsDefaultX = 0;
+    public const float BarRootsDefaultY = 0;
+
+
     internal static void HudStructureEdits()
     {
         ImportantHudTransforms.BarRoots.SetParent(BottomCenterCluster);

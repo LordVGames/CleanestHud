@@ -32,29 +32,4 @@ internal static class ScoreboardStrips
         button.m_Colors.selectedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.selectedColor, Color.white);
         button.m_Colors.m_ColorMultiplier = 1.5f;
     }
-
-
-    internal static void EditScoreboardStrip(ScoreboardStrip scoreboardStrip)
-    {
-        // more space between icons, similar spacing to inventory at the top of the screen
-        scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth = 58;
-        scoreboardStrip.itemInventoryDisplay.maxHeight = 54;
-        //AttachEditorToScoreboardStrip(scoreboardStrip.transform);
-    }
-    private static void AttachEditorToScoreboardStrip(Transform scoreboardStripTransform)
-    {
-        HudEditorComponents.ScoreboardStripEditor scoreboardStripEditor = scoreboardStripTransform.gameObject.AddComponent<HudEditorComponents.ScoreboardStripEditor>();
-
-        // ClassBackground's local position is handled by the component
-        scoreboardStripEditor.ClassBackgroundRect_LocalScale = Vector3.one * 1.075f;
-        scoreboardStripEditor.ClassBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
-
-        // the entirety of itemsbackground is handled by the component
-
-        // EquipmentBackground's local position is also handled by the component
-        scoreboardStripEditor.EquipmentBackgroundRect_LocalScale = Vector3.one * 1.1f;
-        scoreboardStripEditor.EquipmentBackgroundRect_Pivot = new Vector2(0.5f, 0.5f);
-
-        // name label positioning is well yknow
-    }
 }

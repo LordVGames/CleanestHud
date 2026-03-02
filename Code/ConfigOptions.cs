@@ -1,12 +1,13 @@
-﻿using UnityEngine;
-using BepInEx.Configuration;
-using RoR2.UI;
-using System.Runtime.CompilerServices;
-using UnityEngine.UI;
-using System;
-using MiscFixes.Modules;
+﻿using BepInEx.Configuration;
+using CleanestHud.HudChanges;
 using CleanestHud.HudChanges.NormalHud;
 using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
+using MiscFixes.Modules;
+using RoR2.UI;
+using System;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.UI;
 namespace CleanestHud;
 
 
@@ -169,6 +170,28 @@ public static class ConfigOptions
                 colorToUse = scoreboardController.stripAllocator.elements[i].userBody.bodyColor;
             }
             Main.MyHud?.StartCoroutine(HudChanges.HudColor.DelayColorItemIconHighlights(scoreboardController.stripAllocator.elements[i], colorToUse));
+        }
+    }
+
+
+    public static ConfigEntry<float> ScoreboardItemIconWidth;
+    private static void ScoreboardItemIconWidth_SettingChanged(object sender, EventArgs e)
+    {
+        if (!Main.IsHudEditable)
+        {
+            return;
+        }
+        HudResources.ImportantHudTransforms.ScoreboardPanel.TryGetComponent<ScoreboardController>(out var scoreboardController);
+        if (scoreboardController == null)
+        {
+            return;
+        }
+
+
+        foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
+        {
+            scoreboardStrip.TryGetComponent<ScoreboardStrip>(out var scoreboardStripComponent);
+            scoreboardStripComponent?.itemInventoryDisplay.itemIconPrefabWidth = ConfigOptions.ScoreboardItemIconWidth.Value;
         }
     }
 
@@ -343,6 +366,13 @@ public static class ConfigOptions
             true,
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
         );
+        ScoreboardItemIconWidth = config.BindOptionSlider<float>(
+            "HUD Settings",
+            "TAB Menu Item Icon Size",
+            "Control how dense or spacious the item icons are in the TAB menu. Larger values will put more space between icons while making them smaller, and vice versa for smaller values.",
+            57f,
+            MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
+        );
         AllowAutoScoreboardHighlight = config.BindOption<bool>(
             "HUD Settings",
             "Allow auto highlight when opening the inventory menu",
@@ -425,6 +455,7 @@ public static class ConfigOptions
             InspectPanelFadeInDuration.SettingChanged += InspectPanelFadeInDuration_SettingChanged;
             AllowAllyCardBackgrounds.SettingChanged += AllowAllyCardBackgrounds_SettingChanged;
             AllowScoreboardItemHighlightColoring.SettingChanged += AllowScoreboardItemHighlightColoring_SettingChanged;
+            ScoreboardItemIconWidth.SettingChanged += ScoreboardItemIconWidth_SettingChanged;
             EnableConsistentDifficultyBarBrightness.SettingChanged += EnableConsistentDifficultyBarBrightness_SettingChanged;
             AllowSimulacrumWaveBarAnimating.SettingChanged += AllowSimulacrumWaveBarAnimating_SettingChanged;
 
@@ -439,7 +470,5 @@ public static class ConfigOptions
         {
             ModSupport.LookingGlassMod.HookStatsPanelConfig_SettingChanged();
         }
-
-        config.WipeConfig();
     }
 }

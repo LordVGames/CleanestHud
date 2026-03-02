@@ -50,13 +50,10 @@ internal static class ScoreboardController
             yield break;
         }
 
+
         // wait a frame first to make scoreboard strips added by other mods work
         yield return null;
         EditScoreboardStripsIfApplicable(scoreboardController);
-        if (Helpers.IsGameModeSimulacrum)
-        {
-            SetupSuppressedItemsStripEditor(scoreboardController);
-        }
     }
     private static void EditScoreboardStripsIfApplicable(RoR2.UI.ScoreboardController scoreboardController)
     {
@@ -64,10 +61,6 @@ internal static class ScoreboardController
         {
             Transform scoreboardStripTransform = scoreboardStrip.transform;
 
-            if (scoreboardStrip.itemInventoryDisplay.itemIconPrefabWidth != 58)
-            {
-                HudChanges.NormalHud.ScoreboardPanel.ScoreboardStrips.EditScoreboardStrip(scoreboardStrip);
-            }
 
             Transform longBackground = scoreboardStripTransform.GetChild(0);
             Image longBackgroundImage = longBackground.GetComponent<Image>();
@@ -75,11 +68,11 @@ internal static class ScoreboardController
             {
                 HudColor.ColorAllOfScoreboardStrip(scoreboardStrip, scoreboardStrip.userBody.bodyColor);
             }
+            Transform itemsBackground = longBackground.GetChild(6);
+            // DO NOT remove the items background image
+            // if you do it will break the automatic scaling of the hud at ultrawide resolutions
+            itemsBackground.GetComponent<Image>().color = Color.clear;
         }
-    }
-    private static void SetupSuppressedItemsStripEditor(RoR2.UI.ScoreboardController scoreboardController)
-    {
-        scoreboardController.transform.Find("Container/SuppressedItems")?.GetOrAddComponent<HudEditorComponents.SuppressedItemsStripEditor>();
     }
 
 

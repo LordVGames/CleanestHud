@@ -10,14 +10,35 @@ namespace CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
 
 internal static class SkillsScaler
 {
-    private static Vector2 _skillScalerLocalPositionBoosted;
-    public static Vector2 SkillScalerLocalPosition = new(SkillScalerDefaultX, SkillScalerDefaultY);
+    private static Vector2 _skillScalerLocalPositionBoosted = new(SkillScalerDefaultX, SkillScalerDefaultY);
+    private static Vector2 _skillScalerLocalPosition = new(SkillScalerDefaultX, SkillScalerDefaultY);
+    public static Vector2 SkillScalerLocalPosition
+    {
+        get
+        {
+            return _skillScalerLocalPosition;
+        }
+        set
+        {
+            if (!IsHudEditable)
+            {
+                return;
+            }
+
+            RectTransform scalerRect = SkillDisplayRoot.GetComponent<RectTransform>();
+            // if keybinds are shown, the scaler needs to be boosted up some to account for it
+            _skillScalerLocalPosition = value;
+            _skillScalerLocalPositionBoosted = _skillScalerLocalPosition;
+            _skillScalerLocalPositionBoosted.y += ConfigOptions.ShowSkillKeybinds.Value ? 27 : 0;
+            scalerRect.localPosition = _skillScalerLocalPositionBoosted;
+        }
+    }
     public static void ResetSkillsScalerLocalPositionToDefault()
     {
         SkillScalerLocalPosition = new Vector2(SkillScalerDefaultX, SkillScalerDefaultY);
     }
     public const float SkillScalerDefaultX = 0;
-    public const float SkillScalerDefaultY = 98;
+    public const float SkillScalerDefaultY = 100;
 
 
 
@@ -35,15 +56,6 @@ internal static class SkillsScaler
 
     internal static void RepositionSkillScaler()
     {
-        if (!IsHudEditable)
-        {
-            return;
-        }
-
-        RectTransform scalerRect = SkillDisplayRoot.GetComponent<RectTransform>();
-        // if keybinds are shown, the scaler needs to be boosted up some to account for it
-        _skillScalerLocalPositionBoosted = SkillScalerLocalPosition;
-        _skillScalerLocalPositionBoosted.y += ConfigOptions.ShowSkillKeybinds.Value ? 27 : 0;
-        scalerRect.localPosition = _skillScalerLocalPositionBoosted;
+        SkillScalerLocalPosition = SkillScalerLocalPosition;
     }
 }

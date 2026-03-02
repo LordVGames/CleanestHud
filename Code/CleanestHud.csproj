@@ -16,28 +16,47 @@
 		<MonoDetourHookGenNamespace>Mdh</MonoDetourHookGenNamespace>
 	</PropertyGroup>
 
-	<!-- <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<MonoDetourHookGenStripUnusedHooks>true</MonoDetourHookGenStripUnusedHooks>
-	</PropertyGroup> -->
+	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
+
+		<PackageReference Include="DropPod-LookingGlass" Version="1.15.1" Publicize="true" />
 
 		<PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.1.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 
-		<PackageReference Include="MonoDetour" Version="0.7.8" />
+		<PackageReference Include="itsschwer-HUDdleUP" Version="1.3.1" />
 
-		<PackageReference Include="MonoDetour.HookGen" Version="0.7.6" />
+		<PackageReference Include="JavAngle-Myst" Version="1.2.13" Publicize="true" />
+
+		<PackageReference Include="KingEnderBrine-ExtraSkillSlots" Version="1.6.4" Publicize="true" />
+
+		<PackageReference Include="MonoDetour" Version="0.7.10" />
+
+		<PackageReference Include="MonoDetour.HookGen" Version="0.7.12" />
+
+		<PackageReference Include="PopcornFactory-Lee_Hyperreal" Version="2.2.0" Publicize="true" />
+
+		<PackageReference Include="public_ParticleSystem-Driver" Version="2.3.5" Publicize="true" />
 		<PackageReference Include="R2API.Language" Version="1.1.0" />
-		<PackageReference Include="RoR2BepInExPack" Version="1.41.0" />
+		<PackageReference Include="R2API.RecalculateStats" Version="1.6.6" />
+		<PackageReference Include="RoR2BepInExPack" Version="1.42.0" />
+		<PackageReference Include="Rune580.Mods.RiskOfRain2.RiskOfOptions" Version="2.8.5" />
+		<PackageReference Include="score-MiscFixes" Version="1.5.9" />
 
 		<PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" />
 		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1-r.0" />
@@ -45,32 +64,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="DriverMod">
-	    <HintPath>..\..\! Assemblies to reference\DriverMod-nstrip.dll</HintPath>
+	  <Reference Include="Unity.Postprocessing.Runtime">
+	    <HintPath>D:\Steam on SSD\steamapps\common\Risk of Rain 2\Risk of Rain 2_Data\Managed\Unity.Postprocessing.Runtime.dll</HintPath>
 	  </Reference>
-	  <Reference Include="HUDdleUP">
-	    <HintPath>..\..\! Assemblies to reference\HUDdleUP.dll</HintPath>
-	  </Reference>
-	  <Reference Include="LookingGlass">
-	    <HintPath>..\..\! Assemblies to reference\LookingGlass-nstrip.dll</HintPath>
-	  </Reference>
-	  <Reference Include="MiscFixes">
-	    <HintPath>..\..\! Assemblies to reference\MiscFixes.dll</HintPath>
-	  </Reference>
-	  <Reference Include="MystMod">
-	    <HintPath>..\..\! Assemblies to reference\MystMod.dll</HintPath>
-	  </Reference>
-	  <Reference Include="RiskOfOptions">
-	    <HintPath>..\..\! Assemblies to reference\RiskOfOptions.dll</HintPath>
-	  </Reference>
-	  <Reference Include="Starstorm2">
-	    <HintPath>..\..\! Assemblies to reference\Starstorm2.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="HudChanges\NormalHud\SkillsAndEquipsArea\" />
-	  <Folder Include="HudChanges\Simulacrum\" />
 	</ItemGroup>
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

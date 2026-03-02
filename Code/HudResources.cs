@@ -14,16 +14,16 @@ internal class HudResources
 {
     internal static class HudAssets
     {
-        private static readonly AssetReferenceT<Texture2D> _textWhiteReference = new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_Common.texWhite_png);
+        private static readonly AssetReferenceT<Texture2D> _textWhiteReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_Common.texWhite_png);
         internal static Sprite WhiteSprite;
-        private static readonly AssetReferenceT<Material> _fontMaterialReference = new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_Common_Fonts_Bombardier.tmpBombDropshadow3D_mat);
+        private static readonly AssetReferenceT<Material> _fontMaterialReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_Common_Fonts_Bombardier.tmpBombDropshadow3D_mat);
         internal static Material FontMaterial;
 
-        private static readonly AssetReferenceT<GameObject> _gameEndReportPanelAssetReference = new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_UI.GameEndReportPanel_prefab);
-        private static readonly AssetReferenceT<GameObject> _scoreboardStripAssetReference = new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_UI.ScoreboardStrip_prefab);
-        private static readonly AssetReferenceT<GameObject> _itemIconIngameAssetReference = new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_UI.ItemIconScoreboard_InGame_prefab);
-        private static readonly AssetReferenceT<GameObject> _chatBoxAssetReference= new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_UI.ChatBox_prefab);
-        private static readonly AssetReferenceT<GameObject> _statStripTemplateAssetReference = new(RoR2BepInExPack.GameAssetPaths.Version_1_35_0.RoR2_Base_UI.StatStripTemplate_prefab);
+        private static readonly AssetReferenceT<GameObject> _gameEndReportPanelAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.GameEndReportPanel_prefab);
+        private static readonly AssetReferenceT<GameObject> _scoreboardStripAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ScoreboardStrip_prefab);
+        private static readonly AssetReferenceT<GameObject> _itemIconIngameAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ItemIconScoreboard_InGame_prefab);
+        private static readonly AssetReferenceT<GameObject> _chatBoxAssetReference= new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.ChatBox_prefab);
+        private static readonly AssetReferenceT<GameObject> _statStripTemplateAssetReference = new(RoR2BepInExPack.GameAssetPathsBetter.RoR2_Base_UI.StatStripTemplate_prefab);
 
         internal static void SetupAssets()
         {
@@ -50,28 +50,23 @@ internal class HudResources
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_gameEndReportPanelAssetReference).Completed += (handle) =>
             {
                 AssetEdits.RemoveGameEndReportPanelDetails(handle.Result);
-                AssetAsyncReferenceManager<GameObject>.UnloadAsset(_gameEndReportPanelAssetReference);
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_scoreboardStripAssetReference).Completed += (handle) =>
             {
                 AssetEdits.EditScoreboardStripAsset(handle.Result);
-                AssetAsyncReferenceManager<GameObject>.UnloadAsset(_scoreboardStripAssetReference);
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_itemIconIngameAssetReference).Completed += (handle) =>
             {
                 AssetEdits.EditItemIconIngame(handle.Result);
-                AssetAsyncReferenceManager<GameObject>.UnloadAsset(_itemIconIngameAssetReference);
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_chatBoxAssetReference).Completed += (handle) =>
             {
                 AssetEdits.RemoveChatBoxDetails(handle.Result);
-                AssetAsyncReferenceManager<GameObject>.UnloadAsset(_chatBoxAssetReference);
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_statStripTemplateAssetReference).Completed += (handle) =>
             {
                 // doesn't need it's own assetedits method yet
                 handle.Result.DisableImageComponent();
-                AssetAsyncReferenceManager<GameObject>.UnloadAsset(_statStripTemplateAssetReference);
             };
         }
     }
@@ -98,7 +93,9 @@ internal class HudResources
         internal static Transform SetDifficultyPanel = null;
         internal static Transform BottomRightCluster = null;
         internal static Transform BottomCenterCluster = null;
+        internal static Transform BottomLeftCluster = null;
         internal static Transform BuffDisplayRoot = null;
+        internal static Transform Scaler = null;
         internal static Transform SkillDisplayRoot = null;
         internal static Transform SprintCluster = null;
         internal static Transform InventoryCluster = null;
@@ -149,19 +146,21 @@ internal class HudResources
             RunInfoHudPanel = UpperRightCluster.GetChild(0);
             TimerPanel = RunInfoHudPanel.Find("TimerPanel");
             RightInfoBar = RunInfoHudPanel.Find("RightInfoBar");
-            BarRoots = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots");
-            HealthBarRoot = BarRoots.GetChild(1);
-            LevelDisplayCluster = BarRoots.GetChild(0);
-            ExpBarRoot = LevelDisplayCluster.Find("ExpBarRoot");
-            ExpBarFillPanel = ExpBarRoot.Find("ShrunkenRoot/FillPanel");
             DifficultyBar = RunInfoHudPanel.Find("DifficultyBar");
             DifficultyBarContent = DifficultyBar.Find("Scroll View/Viewport/Content");
             DifficultyBarBackdrop = DifficultyBar.Find("Scroll View/Backdrop");
             SetDifficultyPanel = RunInfoHudPanel.Find("SetDifficultyPanel");
             BottomRightCluster = MyHudLocator.FindChild("BottomRightCluster");
             BottomCenterCluster = MyHudLocator.FindChild("BottomCenterCluster");
+            BottomLeftCluster = MyHudLocator.FindChild("BottomLeftCluster");
+            BarRoots = BottomLeftCluster.Find("BarRoots");
+            LevelDisplayCluster = BarRoots.GetChild(0);
+            ExpBarRoot = LevelDisplayCluster.Find("ExpBarRoot");
+            ExpBarFillPanel = ExpBarRoot.Find("ShrunkenRoot/FillPanel");
+            HealthBarRoot = BarRoots.GetChild(1);
             BuffDisplayRoot = MyHudLocator.FindChild("BuffDisplayRoot");
             SkillDisplayRoot = MyHudLocator.FindChild("SkillDisplayRoot");
+            Scaler = BottomRightCluster.Find("Scaler");
             SprintCluster = SkillDisplayRoot.Find("SprintCluster");
             InventoryCluster = SkillDisplayRoot.Find("InventoryCluster");
             ScoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
@@ -181,7 +180,7 @@ internal class HudResources
             LunarCoinRoot = UpperLeftCluster.Find("LunarCoinRoot");
             VoidCoinRoot = UpperLeftCluster.Find("VoidCoinRoot");
             MoneyRoot = MyHud.moneyText.transform;
-            UtilityAreaDisplayRoot = BottomRightCluster.Find("Scaler/UtilityArea/DisplayRoot");
+            UtilityAreaDisplayRoot = Scaler.Find("UtilityArea/DisplayRoot");
             if (Helpers.IsGameModeSimulacrum)
             {
                 InfiniteTowerDefaultWaveUI = RunInfoHudPanel.Find("DefaultWaveUI");

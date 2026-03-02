@@ -94,6 +94,7 @@ public static class Main
             }
 
             BeginLiveHudChanges();
+            yield break;
         }
         private static void BeginLiveHudChanges()
         {

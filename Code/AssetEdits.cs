@@ -6,149 +6,159 @@ using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using MiscFixes.Modules;
+namespace CleanestHud;
 
-namespace CleanestHud
+
+internal class AssetEdits
 {
-    internal class AssetEdits
+    internal static void EditScoreboardStripAsset(GameObject scoreboardStripAsset)
     {
-        internal static void EditScoreboardStripAsset(GameObject scoreboardStripAsset)
-        {
-            scoreboardStripAsset.GetComponent<RawImage>().texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
-
-            Transform longBackground = scoreboardStripAsset.transform.GetChild(0);
-            longBackground.GetComponent<Image>().sprite = HudAssets.WhiteSprite;
-            Transform classBackground = longBackground.Find("ClassBackground");
-            classBackground.DisableImageComponent();
-            classBackground.localPosition = new Vector3(-508, 0, 0);
-            classBackground.localScale = new Vector3(1.075f, 1.075f, 1.075f);
-            // DO NOT remove the items background image here
-            // if you do it will break the automatic scaling of the hud at ultrawide resolutions
-            // the ScoreboardStripEditor component makes the background image invisible instead
-            // same effect with better functionality
-            longBackground.Find("EquipmentBackground").DisableImageComponent();
-            longBackground.Find("TotalTextContainer/MoneyText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
-            //longBackground.Find("NameObject/NameFocusHighlight").DisableImageComponent();
-            longBackground.Find("NameObject/NameLabel").GetComponent<HGTextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
-            // i would reposition parts of the asset here but then it never works ingame
-        }
-
-        // this doesn't actually happen ingame, its just the asset name
-        internal static void EditItemIconIngame(GameObject itemIconIngameAsset)
-        {
-            Transform navFocusHighlightTransform = itemIconIngameAsset.transform.GetChild(1);
-
-            RawImage navFocusHighlightRawImage = navFocusHighlightTransform.GetComponent<RawImage>();
-            navFocusHighlightRawImage.texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
-
-            HGButton button = itemIconIngameAsset.GetComponent<HGButton>();
-            // setting the button colors to white makes it not influence glowimage color with yellow (the default)
-            // we can always just manually color it back to yellow later anyways
-            button.m_Colors.highlightedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.highlightedColor, Color.white);
-            button.m_Colors.normalColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.normalColor, Color.white);
-            button.m_Colors.pressedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.pressedColor, Color.white);
-            button.m_Colors.selectedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.selectedColor, Color.white);
-            // better higlight visibility for some character colors
-            button.m_Colors.m_ColorMultiplier = 1.5f;
-        }
-
-        internal static void RemoveGameEndReportPanelDetails(GameObject gameEndReportPanelAsset)
-        {
-            Transform safeAreaJUICEDLMAO = gameEndReportPanelAsset.transform.Find("SafeArea (JUICED)");
-            Transform bodyArea = safeAreaJUICEDLMAO.Find("BodyArea");
+        scoreboardStripAsset.GetComponent<RawImage>().texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
+        Transform longBackground = scoreboardStripAsset.transform.GetChild(0);
+        longBackground.GetComponent<Image>().sprite = HudAssets.WhiteSprite;
 
 
-
-            Transform headerArea = safeAreaJUICEDLMAO.Find("HeaderArea");
-
-            HGTextMeshProUGUI deathFlavorTextMesh = headerArea.Find("DeathFlavorText").GetComponent<HGTextMeshProUGUI>();
-            deathFlavorTextMesh.fontStyle = FontStyles.Normal;
-            deathFlavorTextMesh.fontSizeMax = 30f;
-
-            HGTextMeshProUGUI resultLabelMesh = headerArea.Find("ResultArea/ResultLabel").GetComponent<HGTextMeshProUGUI>();
-            resultLabelMesh.material = HudAssets.FontMaterial;
+        Transform classBackground = longBackground.Find("ClassBackground");
+        classBackground.DisableImageComponent();
+        classBackground.localScale = new Vector3(1.075f, 1.075f, 1.075f);
+        RectTransform classBackgroundRect = classBackground.GetComponent<RectTransform>();
+        classBackgroundRect.pivot = new Vector2(0f, 0f);
+        Transform classIcon = classBackground.GetChild(0);
+        classIcon.localPosition = new Vector3(-5, -5, 0); // 30 gets added to Y ingame for 25 Y
 
 
+        Transform nameObject = longBackground.Find("NameObject");
+        nameObject.GetChild(1).DisableImageComponent(); // GetChild for NameFocusHighlight
+        Transform nameLabel = nameObject.GetChild(0);
+        nameLabel.localPosition = new Vector3(-5, -26, 0); // (-105, +26, 0) gets added to this ingame for (-110, 0, 0)
+        nameLabel.GetComponent<HGTextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 
-            Transform statsAndChatArea = bodyArea.Find("StatsAndChatArea");
-            Transform chatArea = statsAndChatArea.Find("ChatArea");
-            Transform chatBox = chatArea.GetChild(0);
-            Transform standardRect = chatBox.GetChild(2);
-            Transform standardRectScrollView = standardRect.GetChild(0);
-            Transform statsContainer = statsAndChatArea.Find("StatsContainer");
-            Transform statsBody = statsContainer.Find("Stats Body");
-            Transform statsBodyScrollview = statsBody.Find("ScrollView");
-            Transform statsBodyScrollviewViewportContent = statsBodyScrollview.Find("Viewport/Content");
-            Transform scrollbarVertical = statsBodyScrollview.Find("Scrollbar Vertical");
 
-            chatArea.DisableImageComponent();
-            // GetChild(0) is to get to "PermanentBg"
-            chatBox.GetChild(0).DisableImageComponent();
-            // GetChild(1) is to get to "StandardRectScrollViewBackground"
-            standardRectScrollView.GetChild(1).gameObject.SetActive(false);
-            // GetChild(2) is to get to "StandardRectScrollViewBorderImage"
-            standardRectScrollView.GetChild(2).gameObject.SetActive(false);
-            statsContainer.Find("BorderImage").gameObject.SetActive(false);
-            statsContainer.Find("Stats And Player Nav/Stats Header").DisableImageComponent();
-            statsBody.DisableImageComponent();
-            statsBodyScrollviewViewportContent.Find("SelectedDifficultyStrip").DisableImageComponent();
-            statsBodyScrollviewViewportContent.Find("EnabledArtifactsStrip").DisableImageComponent();
-            scrollbarVertical.DisableImageComponent();
-            scrollbarVertical.Find("Sliding Area/Handle").DisableImageComponent();
+        longBackground.Find("EquipmentBackground").DisableImageComponent();
+        longBackground.Find("TotalTextContainer/MoneyText").GetComponent<HGTextMeshProUGUI>().color = Color.white;
 
-            RectTransform chatAreaRect = chatArea.GetComponent<RectTransform>();
-            chatAreaRect.sizeDelta = new Vector2(817f, 200f);
-            chatAreaRect.localPosition = new Vector3(441.5f, -311.666666666f, 0f);
+        var scoreboardStripComponent = scoreboardStripAsset.GetComponent<ScoreboardStrip>();
+        scoreboardStripComponent.itemInventoryDisplay.itemIconPrefabWidth = ConfigOptions.ScoreboardItemIconWidth.Value;
+        scoreboardStripComponent.itemInventoryDisplay.maxHeight = 50;
+    }
+
+
+    // this doesn't actually happen ingame, its just the asset name
+    internal static void EditItemIconIngame(GameObject itemIconIngameAsset)
+    {
+        Transform navFocusHighlightTransform = itemIconIngameAsset.transform.GetChild(1);
+
+        RawImage navFocusHighlightRawImage = navFocusHighlightTransform.GetComponent<RawImage>();
+        navFocusHighlightRawImage.texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
+
+        HGButton button = itemIconIngameAsset.GetComponent<HGButton>();
+        // setting the button colors to white makes it not influence glowimage color with yellow (the default)
+        // we can always just manually color it back to yellow later anyways
+        button.m_Colors.highlightedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.highlightedColor, Color.white);
+        button.m_Colors.normalColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.normalColor, Color.white);
+        button.m_Colors.pressedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.pressedColor, Color.white);
+        button.m_Colors.selectedColor = Helpers.ChangeColorWhileKeepingAlpha(button.m_Colors.selectedColor, Color.white);
+        // better higlight visibility for some character colors
+        button.m_Colors.m_ColorMultiplier = 1.5f;
+    }
+
+
+    internal static void RemoveGameEndReportPanelDetails(GameObject gameEndReportPanelAsset)
+    {
+        Transform safeAreaJUICEDLMAO = gameEndReportPanelAsset.transform.Find("SafeArea (JUICED)");
+        Transform bodyArea = safeAreaJUICEDLMAO.Find("BodyArea");
 
 
 
-            Transform infoArea = bodyArea.Find("RightArea/InfoArea");
-            Transform infoBody = infoArea.Find("Info Body");
-            Transform itemArea = infoBody.Find("ItemArea");
-            Transform itemAreaScrollView = itemArea.Find("ScrollView");
-            Transform unlockArea = infoBody.Find("UnlockArea");
-            Transform unlockAreaScrollView = unlockArea.Find("ScrollView");
+        Transform headerArea = safeAreaJUICEDLMAO.Find("HeaderArea");
 
-            infoArea.Find("BorderImage").DisableImageComponent();
-            infoArea.Find("Info Header").DisableImageComponent();
-            itemArea.Find("Item Header").DisableImageComponent();
-            itemAreaScrollView.DisableImageComponent();
-            itemAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
-            unlockArea.Find("Unlocked Header").DisableImageComponent();
-            unlockAreaScrollView.DisableImageComponent();
-            unlockAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
-        }
+        HGTextMeshProUGUI deathFlavorTextMesh = headerArea.Find("DeathFlavorText").GetComponent<HGTextMeshProUGUI>();
+        deathFlavorTextMesh.fontStyle = FontStyles.Normal;
+        deathFlavorTextMesh.fontSizeMax = 30f;
 
-        internal static void RemoveChatBoxDetails(GameObject chatBoxAsset)
-        {
-            chatBoxAsset.DisableImageComponent();
+        HGTextMeshProUGUI resultLabelMesh = headerArea.Find("ResultArea/ResultLabel").GetComponent<HGTextMeshProUGUI>();
+        resultLabelMesh.material = HudAssets.FontMaterial;
 
 
 
-            Transform permanentBG = chatBoxAsset.transform.Find("PermanentBG");
+        Transform statsAndChatArea = bodyArea.Find("StatsAndChatArea");
+        Transform chatArea = statsAndChatArea.Find("ChatArea");
+        Transform chatBox = chatArea.GetChild(0);
+        Transform standardRect = chatBox.GetChild(2);
+        Transform standardRectScrollView = standardRect.GetChild(0);
+        Transform statsContainer = statsAndChatArea.Find("StatsContainer");
+        Transform statsBody = statsContainer.Find("Stats Body");
+        Transform statsBodyScrollview = statsBody.Find("ScrollView");
+        Transform statsBodyScrollviewViewportContent = statsBodyScrollview.Find("Viewport/Content");
+        Transform scrollbarVertical = statsBodyScrollview.Find("Scrollbar Vertical");
 
-            Image permanentBGImage = permanentBG.GetComponent<Image>();
-            permanentBGImage.sprite = HudAssets.WhiteSprite;
-            permanentBGImage.color = new Color32(0, 0, 0, 212);
+        chatArea.DisableImageComponent();
+        // GetChild(0) is to get to "PermanentBg"
+        chatBox.GetChild(0).DisableImageComponent();
+        // GetChild(1) is to get to "StandardRectScrollViewBackground"
+        standardRectScrollView.GetChild(1).gameObject.SetActive(false);
+        // GetChild(2) is to get to "StandardRectScrollViewBorderImage"
+        standardRectScrollView.GetChild(2).gameObject.SetActive(false);
+        statsContainer.Find("BorderImage").gameObject.SetActive(false);
+        statsContainer.Find("Stats And Player Nav/Stats Header").DisableImageComponent();
+        statsBody.DisableImageComponent();
+        statsBodyScrollviewViewportContent.Find("SelectedDifficultyStrip").DisableImageComponent();
+        statsBodyScrollviewViewportContent.Find("EnabledArtifactsStrip").DisableImageComponent();
+        scrollbarVertical.DisableImageComponent();
+        scrollbarVertical.Find("Sliding Area/Handle").DisableImageComponent();
 
-            Transform inputField = permanentBG.Find("Input Field");
-            Image inputFieldImage = inputField.GetComponent<Image>();
-            inputFieldImage.sprite = HudAssets.WhiteSprite;
-            inputFieldImage.color = new Color32(0, 0, 0, 100);
-
-            RectTransform permanentBGRect = permanentBG.GetComponent<RectTransform>();
-            permanentBGRect.localPosition = new Vector3(0f, 1f, 0f);
-            permanentBGRect.sizeDelta = new Vector2(0f, 48f);
+        RectTransform chatAreaRect = chatArea.GetComponent<RectTransform>();
+        chatAreaRect.sizeDelta = new Vector2(817f, 200f);
+        chatAreaRect.localPosition = new Vector3(441.5f, -311.666666666f, 0f);
 
 
 
-            Transform chatBoxScrollView = chatBoxAsset.transform.Find("StandardRect/Scroll View");
+        Transform infoArea = bodyArea.Find("RightArea/InfoArea");
+        Transform infoBody = infoArea.Find("Info Body");
+        Transform itemArea = infoBody.Find("ItemArea");
+        Transform itemAreaScrollView = itemArea.Find("ScrollView");
+        Transform unlockArea = infoBody.Find("UnlockArea");
+        Transform unlockAreaScrollView = unlockArea.Find("ScrollView");
 
-            chatBoxScrollView.Find("Background").DisableImageComponent();
-            chatBoxScrollView.Find("BorderImage").DisableImageComponent();
+        infoArea.Find("BorderImage").DisableImageComponent();
+        infoArea.Find("Info Header").DisableImageComponent();
+        itemArea.Find("Item Header").DisableImageComponent();
+        itemAreaScrollView.DisableImageComponent();
+        itemAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
+        unlockArea.Find("Unlocked Header").DisableImageComponent();
+        unlockAreaScrollView.DisableImageComponent();
+        unlockAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
+    }
 
-            Transform chatBoxScrollbarVertical = chatBoxScrollView.Find("Scrollbar Vertical");
-            Scrollbar chatBoxScrollbarVerticalScrollbar = chatBoxScrollbarVertical.GetComponent<Scrollbar>();
-            chatBoxScrollbarVerticalScrollbar.enabled = true;
-        }
+    internal static void RemoveChatBoxDetails(GameObject chatBoxAsset)
+    {
+        chatBoxAsset.DisableImageComponent();
+
+
+        Transform permanentBG = chatBoxAsset.transform.Find("PermanentBG");
+
+        Image permanentBGImage = permanentBG.GetComponent<Image>();
+        permanentBGImage.sprite = HudAssets.WhiteSprite;
+        permanentBGImage.color = new Color32(0, 0, 0, 212);
+
+        Transform inputField = permanentBG.Find("Input Field");
+        Image inputFieldImage = inputField.GetComponent<Image>();
+        inputFieldImage.sprite = HudAssets.WhiteSprite;
+        inputFieldImage.color = new Color32(0, 0, 0, 100);
+
+        RectTransform permanentBGRect = permanentBG.GetComponent<RectTransform>();
+        permanentBGRect.localPosition = new Vector3(0f, 1f, 0f);
+        permanentBGRect.sizeDelta = new Vector2(0f, 48f);
+
+
+
+        Transform chatBoxScrollView = chatBoxAsset.transform.Find("StandardRect/Scroll View");
+
+        chatBoxScrollView.Find("Background").DisableImageComponent();
+        chatBoxScrollView.Find("BorderImage").DisableImageComponent();
+
+        Transform chatBoxScrollbarVertical = chatBoxScrollView.Find("Scrollbar Vertical");
+        Scrollbar chatBoxScrollbarVerticalScrollbar = chatBoxScrollbarVertical.GetComponent<Scrollbar>();
+        chatBoxScrollbarVerticalScrollbar.enabled = true;
     }
 }

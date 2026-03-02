@@ -1,6 +1,8 @@
+using CleanestHud.HudChanges.NormalHud.HealthBarArea;
+using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
+using CleanestHud.ModSupport;
 using System;
 using static CleanestHud.Main;
-using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
 namespace CleanestHud.HudChanges.SurvivorSpecific;
 
 
@@ -30,9 +32,15 @@ internal static class SurvivorSpecific
     {
         if (IsHudEditable)
         {
+            // reset any possible changes made by other characters first
+            SkillsScaler.ResetSkillsScalerLocalPositionToDefault();
+            BarRoots.ResetBarRootsLocalPositionToDefault();
+            SprintAndInventoryReminders.ResetInventoryClusterLocalPositionToDefault();
+            SprintAndInventoryReminders.ResetSprintClusterLocalPositionToDefault();
+
+
             // if a survivor specific edit is needed, it's called by this
             OnSurvivorSpecificHudEditsBegun?.Invoke();
-            //HudStructure.RepositionAllHudElements();
             OnSurvivorSpecificHudEditsFinished?.Invoke();
         }
         else

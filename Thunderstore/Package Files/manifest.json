@@ -1,12 +1,11 @@
 ﻿{
 	"name": "CleanestHud",
-	"version_number": "1.1.1",
+	"version_number": "2.0.0",
 	"website_url": "https://github.com/LordVGames/CleanestHud",
 	"description": "A revival/continuation of HIFU's CleanerHud mod. Edits the hud to be cleaner, re-organizes some things, and integrates the color of your survivor throughout the hud.",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.2121",
-		"MonoDetour-MonoDetour_BepInEx_5-0.7.9",
-		"RiskofThunder-HookGenPatcher-1.2.5",
+		"MonoDetour-MonoDetour_BepInEx_5-0.7.12",
 		"RiskofThunder-R2API_Language-1.1.0"
 	]
 }

@@ -7,6 +7,7 @@ using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
+
 internal static class BuffDisplay
 {
     internal static void HudStructureEdits()

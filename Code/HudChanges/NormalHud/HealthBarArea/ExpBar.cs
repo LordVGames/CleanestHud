@@ -9,6 +9,7 @@ using static CleanestHud.HudResources.ImportantHudTransforms;
 using static CleanestHud.HudChanges.HudColor;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
+
 internal static class ExpBar
 {
     internal static void HudStructureEdits()

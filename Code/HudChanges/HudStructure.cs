@@ -1,14 +1,16 @@
-﻿using System;
+﻿using CleanestHud.HudChanges.NormalHud.HealthBarArea;
+using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
+using CleanestHud.ModSupport;
+using MiscFixes.Modules;
 using RoR2.UI;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using MiscFixes.Modules;
-using CleanestHud.ModSupport;
-using static CleanestHud.Main;
 using static CleanestHud.HudResources;
-using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges;
+
 
 public static class HudStructure
 {
@@ -78,7 +80,7 @@ public static class HudStructure
         SprintAndInventoryReminders.ResetInventoryClusterLocalPositionToDefault();
         SprintAndInventoryReminders.ResetSprintClusterLocalPositionToDefault();
         SkillsScaler.RepositionSkillScaler();
-        SprintAndInventoryReminders.RepositionSprintAndInventoryReminders();
+        BarRoots.ResetBarRootsLocalPositionToDefault();
 
         Transform itemInventoryDisplayRoot = MyHud.itemInventoryDisplay.transform.parent;
         RectTransform itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
@@ -89,6 +91,7 @@ public static class HudStructure
             itemInventoryDisplayRootRect.localPosition.y,
             itemInventoryDisplayRootRect.localPosition.z
         );
+
 
         Transform healthbarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
         RectTransform healthbarRootRect = healthbarRoot.GetComponent<RectTransform>();
@@ -116,6 +119,6 @@ public static class HudStructure
             0
         );
 
-        NormalHud.SkillsAndEquipsArea.SprintAndInventoryReminders.RepositionSprintAndInventoryReminders();
+        SprintAndInventoryReminders.RepositionSprintAndInventoryReminders();
     }
 }

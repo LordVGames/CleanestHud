@@ -8,6 +8,7 @@ using static CleanestHud.HudResources;
 using RoR2.UI;
 namespace CleanestHud.HudChanges.NormalHud;
 
+
 internal static class ArtifactPanel
 {
     internal static void HudDetailEdits()

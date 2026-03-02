@@ -5,6 +5,7 @@ using UnityEngine;
 using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.Simulacrum;
 
+
 internal static class WavePopup
 {
     internal static void InfiniteTowerRun_onWaveInitialized(InfiniteTowerWaveController obj)

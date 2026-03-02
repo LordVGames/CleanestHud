@@ -13,7 +13,6 @@ namespace CleanestHud;
 [NetworkCompatibility(CompatibilityLevel.NoNeedForSync, VersionStrictness.DifferentModVersionsAreOk)]
 [BepInDependency(MiscFixes.MiscFixesPlugin.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency(LookingGlass.PluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency(SS2.SS2Main.GUID, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(RobDriver.DriverPlugin.MODUID, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInAutoPlugin]
 public partial class Plugin : BaseUnityPlugin
@@ -34,40 +33,5 @@ public partial class Plugin : BaseUnityPlugin
         HudDetails.AddEventSubscriptions();
         HudColor.AddEventSubscriptions();
         SurvivorSpecific.AddEventSubscriptions();
-        
-
-        if (ModSupport.LookingGlassMod.ModIsRunning)
-        {
-            HudDetails.OnHudDetailEditsFinished += ModSupport.LookingGlassMod.OnHudDetailEditsFinished;
-        }
-        /* if (ModSupport.Driver.ModIsRunning)
-        {
-            // doing a try/catch block for this stuff so the hud doesn't super die when driver adds support itself
-            try
-            {
-                Harmony harmony = new(PluginGUID);
-                harmony.CreateClassProcessor(typeof(ModSupport.Driver.HarmonyPatches)).Patch();
-                Main.OnSurvivorSpecificHudEditsFinished += ModSupport.Driver.OnSurvivorSpecificHudEditsFinished;
-                HudChanges.HudColor.OnHudColorUpdate += ModSupport.Driver.OnHudColorUpdate;
-                On.RoR2.UI.HUD.OnDestroy += ModSupport.Driver.HUD_OnDestroy;
-                ConfigOptions.OnShowSkillKeybindsChanged += ModSupport.Driver.SetWeaponTextStatus;
-            }
-            catch
-            {
-                Log.Error("Couldn't setup Driver mod support! Either Driver mod added support itself or something else went wrong.");
-            }
-        } */
-        if (ModSupport.Myst.ModIsRunning)
-        {
-            SurvivorSpecific.OnSurvivorSpecificHudEditsFinished += ModSupport.Myst.OnSurvivorSpecificHudEditsFinished;
-            HudColor.OnHudColorEditsFinished += ModSupport.Myst.OnHudColorUpdate;
-            On.RoR2.UI.HUD.OnDestroy += ModSupport.Myst.HUD_OnDestroy;
-            ConfigOptions.OnShowSprintAndInventoryKeybindsChanged += ModSupport.Myst.ConfigOptions_OnShowSprintAndInventoryKeybindsChanged;
-            ConfigOptions.OnShowSkillKeybindsChanged += ModSupport.Myst.ConfigOptions_OnShowSkillKeybindsChanged;
-        }
-        if (ModSupport.HUDdleUPMod.ModIsRunning)
-        {
-            HudDetails.OnHudDetailEditsFinished += ModSupport.HUDdleUPMod.RemoveNewHudPanelBackgrounds;
-        }
     }
 }
