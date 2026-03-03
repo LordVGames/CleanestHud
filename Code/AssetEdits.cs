@@ -130,6 +130,7 @@ internal class AssetEdits
         unlockAreaScrollView.Find("Scrollbar Vertical").DisableImageComponent();
     }
 
+
     internal static void RemoveChatBoxDetails(GameObject chatBoxAsset)
     {
         chatBoxAsset.DisableImageComponent();

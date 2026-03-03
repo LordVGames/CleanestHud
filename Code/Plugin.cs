@@ -28,7 +28,7 @@ public partial class Plugin : BaseUnityPlugin
         HudResources.HudAssets.SetupAssets();
         // beginning of HUD editing process starts in the HudAwakeAndDestroy class in Main.cs
         // HUD coloring happens from camera target changes which are in the CameraTargetHooks class in Main.cs
-        MonoDetourManager.InvokeHookInitializers(typeof(Plugin).Assembly);
+        MonoDetourManager.InvokeHookInitializers(typeof(Plugin).Assembly, reportUnloadableTypes: false);
         HudStructure.AddEventSubscriptions();
         HudDetails.AddEventSubscriptions();
         HudColor.AddEventSubscriptions();

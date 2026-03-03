@@ -50,6 +50,7 @@ internal class HUDdleUPMod
         HudResources.ImportantHudTransforms.RightInfoBar.Find("RailgunnerAccuracyPanel")?.DisableImageComponent();
         HudResources.ImportantHudTransforms.RightInfoBar.Find("BanditComboPanel")?.DisableImageComponent();
         HudResources.ImportantHudTransforms.RightInfoBar.Find("ConnectionPanel")?.DisableImageComponent();
+        HudResources.ImportantHudTransforms.RightInfoBar.Find("DronePanel")?.DisableImageComponent();
     }
 
 

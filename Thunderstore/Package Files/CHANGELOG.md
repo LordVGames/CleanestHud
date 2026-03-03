@@ -1,3 +1,7 @@
+## 2.0.1
+
+Fixed drones panel from HUDdleUp not having its background removed
+
 ## 2.0.0
 
 Fixed for AC release

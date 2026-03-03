@@ -9,7 +9,7 @@
 	<PropertyGroup>
 		<AssemblyName>LordVGames.CleanestHud</AssemblyName>
 		<AssemblyTitle>CleanestHud</AssemblyTitle>
-		<Version>2.0.0</Version>
+		<Version>2.0.1</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -45,9 +45,9 @@
 
 		<PackageReference Include="KingEnderBrine-ExtraSkillSlots" Version="1.6.4" Publicize="true" />
 
-		<PackageReference Include="MonoDetour" Version="0.7.10" />
+		<PackageReference Include="MonoDetour" Version="0.7.13" />
 
-		<PackageReference Include="MonoDetour.HookGen" Version="0.7.12" />
+		<PackageReference Include="MonoDetour.HookGen" Version="0.7.13" />
 
 		<PackageReference Include="PopcornFactory-Lee_Hyperreal" Version="2.2.0" Publicize="true" />
 
