@@ -79,7 +79,13 @@ public static class HudDetails
 
         Transform equipment1DisplayRoot = MyHud.equipmentIcons[0].displayRoot.transform;
         GameObject equipment1TextBackgroundPanel = equipment1DisplayRoot.Find("EquipmentTextBackgroundPanel").gameObject;
-        equipment1TextBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+        equipment1TextBackgroundPanel?.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+
+        Transform equipment2DisplayRoot = MyHud.equipmentIcons[1].displayRoot.transform;
+        Log.Warning($"equipment2DisplayRoot.name {equipment2DisplayRoot.name}");
+        GameObject equipment2ExtraEquipmentTextBackgroundPanel = equipment2DisplayRoot.Find("ExtraEquipmentKey").gameObject;
+        Log.Warning($"equipment2ExtraEquipmentTextBackgroundPanel.name {equipment2ExtraEquipmentTextBackgroundPanel.name}");
+        equipment2ExtraEquipmentTextBackgroundPanel?.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
     }
 
 

@@ -25,6 +25,7 @@ internal static class EquipmentSlots
                     equipmentSlotScaleFactor = 0.928f;
                     break;
                 case 1:
+                    // 367.5125 27.8 3.8
                     equipmentDisplayRootRectLocalPosition = new Vector3(-20, -5f, 0f);
                     // smaller by default, we don't have to scale any more/less unless we want it to be even smaller
                     equipmentSlotScaleFactor = 1f;
@@ -44,6 +45,18 @@ internal static class EquipmentSlots
             equipmentCooldownTextRect.localPosition = new Vector3(0f, 1f, 0f);
 
             ScaleEquipmentSlot(equipmentDisplayRoot, equipmentSlotScaleFactor);
+
+            // functional coupler button prompts aren't centered with the equipment icon
+            if (i == 1)
+            {
+                Transform extraEquipmentKey = equipmentDisplayRoot.Find("ExtraEquipmentKey");
+                extraEquipmentKey.localPosition = new Vector3(
+                    3,
+                    extraEquipmentKey.localPosition.y,
+                    extraEquipmentKey.localPosition.z
+                );
+                extraEquipmentKey.gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+            }
 
             if (HUDdleUPMod.ModIsRunning)
             {

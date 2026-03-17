@@ -1,13 +1,17 @@
-﻿using System;
+﻿using EntityStates.Seeker;
+using Mdh.EntityStates.Seeker.Meditate;
+using MonoDetour;
+using MonoDetour.HookGen;
+using RoR2;
+using RoR2.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using RoR2.UI;
-using static CleanestHud.Main;
 using static CleanestHud.HudResources.ImportantHudTransforms;
-using RoR2;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.SurvivorSpecific;
 
 
@@ -51,7 +55,6 @@ internal static class Seeker
     }
 
 
-
     internal static void RepositionSeekerMeditationUI()
     {
         try
@@ -71,6 +74,29 @@ internal static class Seeker
         {
             Log.Debug("Couldn't reposition seeker meditation hud!");
             return;
+        }
+    }
+
+
+    [MonoDetourTargets(typeof(Meditate))]
+    private static class Hooks
+    {
+        [MonoDetourHookInitialize]
+        private static void Setup()
+        {
+            Mdh.EntityStates.Seeker.Meditate.SetupInputUIIcons.Postfix(OnMeditate);
+        }
+
+
+        private static void OnMeditate(Meditate self)
+        {
+            if (IsHudUserBlacklisted)
+            {
+                return;
+            }
+
+
+            RepositionSeekerMeditationUI();
         }
     }
 }

@@ -56,7 +56,7 @@ public static class ConfigOptions
             return;
         }
 
-        HudChanges.HudDetails.SetSkillsAndEquipmentReminderTextStatus();
+        HudDetails.SetSkillsAndEquipmentReminderTextStatus();
         OnShowSkillKeybindsChanged?.Invoke();
         // the sprint and inventory reminders are moved up/down depending on if the skills reminders exist
         // so their y positions need to change with it to stay in the same spot

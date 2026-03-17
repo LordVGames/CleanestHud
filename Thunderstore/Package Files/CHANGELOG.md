@@ -1,3 +1,8 @@
+## 2.0.2
+
+Fixed seeker meditation ui not being moved
+Made functional coupler button prompt work with existing configs
+
 ## 2.0.1
 
 Fixed drones panel from HUDdleUp not having its background removed
