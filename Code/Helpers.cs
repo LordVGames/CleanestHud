@@ -1,15 +1,25 @@
-﻿using System;
+﻿using CleanestHud.HudChanges;
+using RoR2;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
-using RoR2;
 using UnityEngine;
 namespace CleanestHud;
 
 
 internal static class Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="rgbColor"></param>
+    /// <param name="saturationMultiplier"></param>
+    /// <param name="brightnessMultiplier">Brightness can be finnicky/not work</param>
+    /// <param name="colorIntensityMultiplier"></param>
+    /// <param name="transparencyMultiplier"></param>
+    /// <returns></returns>
     public static Color GetAdjustedColor(Color rgbColor, float saturationMultiplier = 1, float brightnessMultiplier = 1, float colorIntensityMultiplier = 1, float transparencyMultiplier = 1)
     {
         Color.RGBToHSV(rgbColor, out float hsvHue, out float hsvSaturation, out float hsvBrightness);
@@ -70,7 +80,7 @@ internal static class Helpers
         Transform levelDisplayCluster;
         try
         {
-            // BarRoots is at BottomLeftCluster before ChangeRestOfHud changes it to BottomCenterCluster
+            // BarRoots is at BottomLeftCluster before ChangeRestOfHud Edits it to BottomCenterCluster
             levelDisplayCluster = HudResources.ImportantHudTransforms.BarRoots.Find("LevelDisplayCluster");
         }
         catch

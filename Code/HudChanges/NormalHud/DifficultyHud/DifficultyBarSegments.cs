@@ -6,11 +6,21 @@ using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources.ImportantHudTransforms;
 using R2API.Utils;
+using MonoDetour.HookGen;
+using MonoDetour;
 namespace CleanestHud.HudChanges.NormalHud.DifficultyHud;
 
 
+[MonoDetourTargets]
 internal static class DifficultyBarSegments
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudChanges.HudStructure.OnHudStructureEditsBegun += NormalHud.DifficultyHud.DifficultyBarSegments.HudStructureEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         if (Helpers.IsGameModeSimulacrum)

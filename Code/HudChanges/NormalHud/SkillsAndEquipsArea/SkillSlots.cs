@@ -1,20 +1,31 @@
-using System;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
+using RoR2.UI;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using static CleanestHud.Main;
 using static CleanestHud.HudChanges.HudColor;
 using static CleanestHud.HudResources;
-using RoR2.UI;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
 
 
+[MonoDetourTargets]
 internal static class SkillSlots
 {
     public const float SkillSlotSpacing = 105;
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        HudColor.OnHudColorEditsBegun += HudColorEdits;
+        ConfigOptions.OnShowSkillAndEquipmentKeybindsChanged += ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged;
+    }
 
-    
+
     internal static void HudStructureEdits()
     {
         // not doing a normal "for" loop so i don't have "MyHud.skillIcons[i]" everywhere
@@ -60,7 +71,7 @@ internal static class SkillSlots
             iconPanelRect.localScale = Vector3.one * 1.1f;
 
             RectTransform isReadyPanelRect = skillIcon.isReadyPanelObject.GetComponent<RectTransform>();
-            isReadyPanelRect.localScale *= 1.1f;
+            isReadyPanelRect.localScale = Vector3.one * 1.1f;
 
             GameObject skillBackgroundPanel = skillIcon.transform.Find("SkillBackgroundPanel").gameObject;
             skillBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
@@ -77,6 +88,15 @@ internal static class SkillSlots
     {
         SetSkillOutlinesStatus();
     }
+    internal static void SetSkillOutlinesStatus()
+    {
+        foreach (var skillIcon in MyHud.skillIcons)
+        {
+            Transform isReadyPanel = skillIcon.transform.GetChild(0);
+            Image iconOutline = isReadyPanel.GetComponent<Image>();
+            iconOutline.enabled = ConfigOptions.ShowSkillAndEquipmentOutlines.Value;
+        }
+    }
 
 
     internal static void HudColorEdits()
@@ -90,13 +110,12 @@ internal static class SkillSlots
     }
 
 
-    internal static void SetSkillOutlinesStatus()
+    private static void ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged()
     {
-        foreach (var skillIcon in MyHud.skillIcons)
+        foreach (SkillIcon skillIcon in MyHud.skillIcons)
         {
-            Transform isReadyPanel = skillIcon.transform.GetChild(0);
-            Image iconOutline = isReadyPanel.GetComponent<Image>();
-            iconOutline.enabled = ConfigOptions.ShowSkillAndEquipmentOutlines.Value;
+            Transform skillTextBackgroundPanel = skillIcon.transform.GetChild(5);
+            skillTextBackgroundPanel.gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
         }
     }
 }

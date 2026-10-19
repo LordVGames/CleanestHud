@@ -5,11 +5,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources.ImportantHudTransforms;
+using MonoDetour.HookGen;
+using MonoDetour;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
 
+[MonoDetourTargets]
 internal static class LevelDisplay
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudChanges.HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         RectTransform levelDisplayClusterRect = LevelDisplayCluster.GetComponent<RectTransform>();

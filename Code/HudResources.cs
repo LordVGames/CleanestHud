@@ -53,7 +53,7 @@ internal class HudResources
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_scoreboardStripAssetReference).Completed += (handle) =>
             {
-                AssetEdits.EditScoreboardStripAsset(handle.Result);
+                AssetEdits.EditscoreboardStripAsset(handle.Result);
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_itemIconIngameAssetReference).Completed += (handle) =>
             {
@@ -65,7 +65,7 @@ internal class HudResources
             };
             AssetAsyncReferenceManager<GameObject>.LoadAsset(_statStripTemplateAssetReference).Completed += (handle) =>
             {
-                // doesn't need it's own assetedits method yet
+                // doesn't need it's own assetEdits method yet
                 handle.Result.DisableImageComponent();
             };
         }
@@ -96,9 +96,11 @@ internal class HudResources
         internal static Transform BottomLeftCluster = null;
         internal static Transform BuffDisplayRoot = null;
         internal static Transform Scaler = null;
+        internal static Transform ExtraButtonPanels = null;
         internal static Transform SkillDisplayRoot = null;
         internal static Transform SprintCluster = null;
         internal static Transform InventoryCluster = null;
+        internal static Transform KeyItemSlot = null;
         internal static Transform ArtifactPanel = null;
         internal static Transform TopCenterCluster = null;
         internal static Transform BossHealthBarContainer = null;
@@ -161,8 +163,10 @@ internal class HudResources
             BuffDisplayRoot = MyHudLocator.FindChild("BuffDisplayRoot");
             SkillDisplayRoot = MyHudLocator.FindChild("SkillDisplayRoot");
             Scaler = BottomRightCluster.Find("Scaler");
-            SprintCluster = SkillDisplayRoot.Find("SprintCluster");
-            InventoryCluster = SkillDisplayRoot.Find("InventoryCluster");
+            ExtraButtonPanels = Scaler.Find("ExtraButtonPanels");
+            SprintCluster = SkillDisplayRoot.Find("ExtraButtonPanels/SprintCluster");
+            InventoryCluster = SkillDisplayRoot.Find("ExtraButtonPanels/InventoryCluster");
+            KeyItemSlot = SkillDisplayRoot.Find("ExtraButtonPanels/KeyItemSlot");
             ScoreboardPanel = MyHudLocator.FindChild("ScoreboardPanel");
             ScoreboardPanelContainer = Helpers.GetContainerFromScoreboardPanel(ScoreboardPanel);
             SuppressedItems = ScoreboardPanelContainer.GetChild(3);

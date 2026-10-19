@@ -13,11 +13,21 @@ using static CleanestHud.HudResources.ImportantHudTransforms;
 using MonoDetour.HookGen;
 using MonoDetour;
 using System.Linq;
+using HG;
 namespace CleanestHud.HudChanges.NormalHud.DifficultyHud;
 
 
+[MonoDetourTargets]
 internal static class DifficultyBar
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        HudColor.OnHudColorEditsBegun += HudColorEdits;
+    }
+
+
     internal static void HudDetailEdits()
     {
         ImportantHudTransforms.DifficultyBar.DisableImageComponent();
@@ -69,15 +79,15 @@ internal static class DifficultyBar
 
 
         DifficultyBarController difficultyBarController = ImportantHudTransforms.DifficultyBar.GetComponent<DifficultyBarController>();
-        // this changes the newColor flash when the next difficulty BackgroundImage is reached
+        // this Edits the newColor flash when the next difficulty BackgroundImage is reached
         for (int i = 0; i < difficultyBarController.segmentDefs.Length; i++)
         {
             difficultyBarController.segmentDefs[i].color = difficultyBarSegmentColors[i];
         }
-        // this actually changes the colors of the difficulty segments
+        // this actually Edits the colors of the difficulty segments
         for (int i = 0; i < difficultyBarController.images.Length; i++)
         {
-            HudEditorComponents.DifficultyScalingBarColorChanger coloredDifficultyBarImage = difficultyBarController.images[i].GetOrAddComponent<HudEditorComponents.DifficultyScalingBarColorChanger>();
+            var coloredDifficultyBarImage = difficultyBarController.images[i].EnsureComponent<HudEditorComponents.DifficultyScalingBarColorChanger>();
             coloredDifficultyBarImage.newColor = difficultyBarSegmentColors[i];
         }
         // coloring the backdrop needs to happen as it fades in or else it gets overridden

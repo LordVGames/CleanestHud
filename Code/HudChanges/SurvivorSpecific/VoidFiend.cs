@@ -14,6 +14,7 @@ using RoR2.HudOverlay;
 namespace CleanestHud.HudChanges.SurvivorSpecific;
 
 
+[MonoDetourTargets]
 internal static class VoidFiend
 {
     private static Transform _viendCorruptionUI;
@@ -27,6 +28,13 @@ internal static class VoidFiend
             && HudCameraTargetBody != null
             && HudCameraTargetBody.bodyIndex == DLC1Content.BodyPrefabs.VoidSurvivorBody.bodyIndex;
         }
+    }
+
+
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        SurvivorSpecific.OnSurvivorSpecificHudChangesBegun += SetupViendEdits;
     }
 
 

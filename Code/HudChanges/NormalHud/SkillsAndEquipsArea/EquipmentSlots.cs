@@ -1,17 +1,29 @@
-using System;
+using CleanestHud.ModSupport;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
+using RoR2.UI;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using RoR2.UI;
-using CleanestHud.ModSupport;
-using static CleanestHud.Main;
 using static CleanestHud.HudChanges.HudColor;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
 
 
+[MonoDetourTargets]
 internal static class EquipmentSlots
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudColor.OnHudColorEditsBegun += HudColorEdits;
+        ConfigOptions.OnShowSkillAndEquipmentKeybindsChanged += ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged;
+    }
+    
+
     internal static void HudStructureEdits()
     {
         for (int i = 0; i < MyHud.equipmentIcons.Length; i++)
@@ -25,7 +37,6 @@ internal static class EquipmentSlots
                     equipmentSlotScaleFactor = 0.928f;
                     break;
                 case 1:
-                    // 367.5125 27.8 3.8
                     equipmentDisplayRootRectLocalPosition = new Vector3(-20, -5f, 0f);
                     // smaller by default, we don't have to scale any more/less unless we want it to be even smaller
                     equipmentSlotScaleFactor = 1f;
@@ -55,7 +66,8 @@ internal static class EquipmentSlots
                     extraEquipmentKey.localPosition.y,
                     extraEquipmentKey.localPosition.z
                 );
-                extraEquipmentKey.gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+                Transform actualKeyBind = extraEquipmentKey.Find("NextIcon");
+                actualKeyBind.gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
             }
 
             if (HUDdleUPMod.ModIsRunning)
@@ -72,7 +84,7 @@ internal static class EquipmentSlots
             firstSkillIconTextBackgroundPanelRect.position.y,
             equipmentTextBackgroundPanelRect.position.z
         );
-        equipmentTextBackgroundPanel.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+        equipmentTextBackgroundPanel.transform.Find("EquipmentKeyText").gameObject.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
     }
     // A tiny bit of scaling still happens even when the scaleFactor is just 1
     internal static void ScaleEquipmentSlot(Transform equipmentDisplayRoot, float scaleFactor)
@@ -104,5 +116,19 @@ internal static class EquipmentSlots
             Image equipmentBGPanelImage = equipmentIcon.displayRoot.transform.Find("BGPanel").GetComponent<Image>();
             equipmentBGPanelImage.color = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: DefaultHudColorIntensity);
         }
+    }
+
+
+    private static void ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged()
+    {
+        Transform equipment1DisplayRoot = MyHud.equipmentIcons[0].displayRoot.transform;
+        // equipment text background gets force enabled now?? so we'll just disable the text in it instead
+        GameObject equipment1Text = equipment1DisplayRoot?.Find("EquipmentTextBackgroundPanel/EquipmentKeyText").gameObject;
+        equipment1Text?.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
+
+
+        Transform equipment2DisplayRoot = MyHud.equipmentIcons[1].displayRoot.transform;
+        GameObject equipment2ExtraEquipmentTextBackgroundPanel = equipment2DisplayRoot?.Find("ExtraEquipmentKey/NextIcon").gameObject;
+        equipment2ExtraEquipmentTextBackgroundPanel?.SetActive(ConfigOptions.ShowSkillKeybinds.Value);
     }
 }

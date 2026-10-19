@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using CleanestHud.HudChanges;
+using HG;
+using MiscFixes.Modules;
 using Mono.Cecil.Cil;
 using MonoDetour;
 using MonoDetour.Cil;
@@ -10,13 +8,16 @@ using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
 using MonoMod.Cil;
 using RoR2;
-using RoR2.UI;
-using System.Linq;
-using CleanestHud.HudChanges;
-using static CleanestHud.HudResources;
-using MiscFixes.Modules;
 using RoR2.CameraModes;
 using RoR2.ConVar;
+using RoR2.UI;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
+using static CleanestHud.HudResources;
 namespace CleanestHud;
 
 
@@ -63,6 +64,12 @@ public static class Main
     public static event Action OnHudInit;
 
 
+    /// <summary>
+    /// This goes off right after the MyHud value is set, and should only be used for adding to events from MyHud.
+    /// </summary>
+    public static event Action OnHudInitImmediate;
+
+
     [MonoDetourTargets(typeof(HUD))]
     private static class HudAwakeAndDestroy
     {
@@ -73,18 +80,22 @@ public static class Main
             Mdh.RoR2.UI.HUD.OnDestroy.Postfix(OnDestroy);
         }
 
-        
+
         private static void Awake(HUD hud)
         {
             Log.Debug("HUD_Awake");
             MyHud = hud;
             MyHudLocator = MyHud.GetComponent<ChildLocator>();
+            MyHud.onTargetBodyObjectDiscovered += MyHud_onTargetBodyObjectDiscovered;
+            OnHudInitImmediate?.Invoke();
 
             // for SOME reason the hp bar's sub bars don't exist on AWAKE????
             // so we need to wait and keep checking until they do exist, THEN and ONLY THEN can we safely do all our hud changes
             Transform hpBarShrunkenRoot = MyHudLocator.FindChild("BottomLeftCluster").Find("BarRoots/HealthbarRoot/ShrunkenRoot");
             MyHud?.StartCoroutine(WaitForHpBarToFinishLoading(hpBarShrunkenRoot));
         }
+
+
         private static IEnumerator WaitForHpBarToFinishLoading(Transform hpBarShrunkenRoot)
         {
             while (hpBarShrunkenRoot.childCount == 0)
@@ -137,7 +148,7 @@ public static class Main
             }
 
 
-            CanvasGroup wholeHudCanvasGroup = MyHud.GetOrAddComponent<CanvasGroup>();
+            var wholeHudCanvasGroup = MyHud.EnsureComponent<CanvasGroup>();
             wholeHudCanvasGroup.alpha = ConfigOptions.HudTransparency.Value;
         }
 
@@ -149,48 +160,10 @@ public static class Main
             IsColorChangeCoroutineWaiting = false;
             HudColor.SurvivorColor = Color.clear;
         }
-    }
 
 
-
-    [MonoDetourTargets(typeof(CameraModeBase))]
-    internal static class CameraTargetHooks
-    {
-        [MonoDetourHookInitialize]
-        private static void Setup()
+        private static void MyHud_onTargetBodyObjectDiscovered(GameObject obj)
         {
-            Mdh.RoR2.CameraModes.CameraModeBase.OnTargetChanged.Postfix(OnTargetChanged);
-        }
-
-
-        private static void OnTargetChanged(CameraModeBase self, ref CameraRigController cameraRigController, ref CameraModeBase.OnTargetChangedArgs args)
-        {
-            if (!cameraRigController.targetBody)
-            {
-                Log.Debug("cameraRigController.targetBody was invalid? returning");
-                return;
-            }
-            if (MyHud != null)
-            {
-                MyHud?.StartCoroutine(DelayOnCameraChange(cameraRigController));
-            }
-            else
-            {
-                Log.Debug("MyHud was null in CameraModeBase_OnTargetChanged somehow, not doing DelayOnCameraChange");
-            }
-        }
-        private static IEnumerator DelayOnCameraChange(CameraRigController cameraRigController)
-        {
-            // delay a frame to make sure everything that needs to be changed/setup has been (i.e. survivor specific ui)
-            yield return null;
-            Log.Debug("DelayOnCameraChange");
-            if (cameraRigController.targetBody == null)
-            {
-                Log.Error("targetCharacterBody WAS NULL IN DelayOnCameraChange! NO HUD CHANGES WILL OCCUR!");
-                yield break;
-            }
-
-
             if (ConfigOptions.AllowHudStructureEdits.Value)
             {
                 HudChanges.NormalHud.SpectatorLabel.MoveSpectatorLabel();
@@ -201,11 +174,10 @@ public static class Main
             }
             if (ConfigOptions.AllowHudColorEdits.Value)
             {
-                MyHud?.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(cameraRigController.targetBody));
+                MyHud?.StartCoroutine(HudColor.SetSurvivorColorFromTargetBody(HudCameraTargetBody));
             }
         }
     }
-
 
 
     [MonoDetourTargets(typeof(BaseConVar))]

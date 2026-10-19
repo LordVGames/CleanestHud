@@ -11,7 +11,7 @@ namespace CleanestHud;
 
 internal class AssetEdits
 {
-    internal static void EditScoreboardStripAsset(GameObject scoreboardStripAsset)
+    internal static void EditscoreboardStripAsset(GameObject scoreboardStripAsset)
     {
         scoreboardStripAsset.GetComponent<RawImage>().texture = ModAssets.AssetBundle.LoadAsset<Texture2D>("NewNavHighlight");
         Transform longBackground = scoreboardStripAsset.transform.GetChild(0);

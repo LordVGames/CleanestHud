@@ -15,6 +15,7 @@ using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.SurvivorSpecific;
 
 
+[MonoDetourTargets]
 internal static class Seeker
 {
     private static bool IsHudEditable
@@ -26,6 +27,14 @@ internal static class Seeker
             && HudCameraTargetBody != null
             && HudCameraTargetBody.bodyIndex == DLC2Content.BodyPrefabs.SeekerBody.bodyIndex;
         }
+    }
+
+
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        SurvivorSpecific.OnSurvivorSpecificHudChangesBegun += RepositionSeekerLotusUI;
+        ConfigOptions.OnShowSkillAndEquipmentKeybindsChanged += Seeker.RepositionSeekerLotusUI;
     }
 
 

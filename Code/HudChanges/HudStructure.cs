@@ -1,6 +1,4 @@
-﻿using CleanestHud.HudChanges.NormalHud.HealthBarArea;
-using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
-using CleanestHud.ModSupport;
+﻿using CleanestHud.ModSupport;
 using MiscFixes.Modules;
 using RoR2.UI;
 using System;
@@ -8,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.HudResources;
+using static CleanestHud.HudResources.ImportantHudTransforms;
 using static CleanestHud.Main;
 namespace CleanestHud.HudChanges;
 
@@ -24,36 +23,15 @@ public static class HudStructure
 
 
     /// <summary>
-    /// The first phase of editing the HUD BEFORE this mod's HUD edits are done. This is for changes on where a HUD element is or how big it is.
+    /// The first phase of editing the HUD BEFORE this mod's HUD Edits are done. This is for Edits on where a HUD element is or how big it is.
     /// </summary>
     public static event Action OnHudStructureEditsBegun;
 
 
     /// <summary>
-    /// The first phase of editing the HUD AFTER this mod's HUD edits are done. This is for changes on where a HUD element is or how big it is.
+    /// The first phase of editing the HUD AFTER this mod's HUD Edits are done. This is for Edits on where a HUD element is or how big it is.
     /// </summary>
     public static event Action OnHudStructureEditsFinished;
-
-
-    internal static void AddEventSubscriptions()
-    {
-        OnHudStructureEditsBegun += NormalHud.DifficultyHud.DifficultyBarSegments.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.HealthBarArea.BarRoots.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.HealthBarArea.HealthBar.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.HealthBarArea.BuffDisplay.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.HealthBarArea.LevelDisplay.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.HealthBarArea.ExpBar.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.SpectatorLabel.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.SkillsAndEquipsArea.SkillSlots.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.SkillsAndEquipsArea.EquipmentSlots.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.CurrenciesArea.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.ItemInventoryDisplayArea.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.BossHpBar.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.NotificationArea.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.ScoreboardPanel.ScoreboardPanel.HudStructureEdits;
-        OnHudStructureEditsBegun += NormalHud.SkillsAndEquipsArea.SkillsScaler.HudStructureEdits;
-        OnHudStructureEditsBegun += Simulacrum.DefaultWaveUI.HudStructureEdits;
-    }
 
 
     internal static void BeginEdits()
@@ -62,7 +40,12 @@ public static class HudStructure
         {
             return;
         }
+        if (!ConfigOptions.AllowHudStructureEdits.Value)
+        {
+            return;
+        }
         
+
         OnHudStructureEditsBegun?.Invoke();
         OnHudStructureEditsFinished?.Invoke();
         RepositionAllHudElements();
@@ -76,11 +59,9 @@ public static class HudStructure
             return;
         }
 
-        SkillsScaler.ResetSkillsScalerLocalPositionToDefault();
-        SprintAndInventoryReminders.ResetInventoryClusterLocalPositionToDefault();
-        SprintAndInventoryReminders.ResetSprintClusterLocalPositionToDefault();
-        SkillsScaler.RepositionSkillScaler();
-        BarRoots.ResetBarRootsLocalPositionToDefault();
+        NormalHud.SkillsAndEquipsArea.SkillsScaler.ResetSkillsScalerLocalPositionToDefault();
+        NormalHud.SkillsAndEquipsArea.SkillsScaler.RepositionSkillScaler();
+        NormalHud.HealthBarArea.BarRoots.ResetBarRootsLocalPositionToDefault();
 
         Transform itemInventoryDisplayRoot = MyHud.itemInventoryDisplay.transform.parent;
         RectTransform itemInventoryDisplayRootRect = itemInventoryDisplayRoot.GetComponent<RectTransform>();
@@ -93,8 +74,7 @@ public static class HudStructure
         );
 
 
-        Transform healthbarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
-        RectTransform healthbarRootRect = healthbarRoot.GetComponent<RectTransform>();
+        RectTransform healthbarRootRect = HealthBarRoot.GetComponent<RectTransform>();
         healthbarRootRect.localPosition = new Vector3(
             0 - (healthbarRootRect.sizeDelta.x / 2),
             45,
@@ -119,6 +99,6 @@ public static class HudStructure
             0
         );
 
-        SprintAndInventoryReminders.RepositionSprintAndInventoryReminders();
+        //NormalHud.SkillsAndEquipsArea.SprintAndInventoryReminders.RepositionSprintAndInventoryReminders();
     }
 }

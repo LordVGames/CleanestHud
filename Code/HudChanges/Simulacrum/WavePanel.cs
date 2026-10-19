@@ -12,11 +12,24 @@ using UnityEngine.UI;
 using MiscFixes.Modules;
 using MonoDetour.HookGen;
 using MonoDetour;
+using HG;
 namespace CleanestHud.HudChanges.Simulacrum;
 
 
+[MonoDetourTargets]
 internal static class WavePanel
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        HudColor.OnHudColorEditsBegun += HudColorEdits;
+    }
+
+
+
+
     internal static void HudStructureEdits()
     {
         if (!Helpers.IsGameModeSimulacrum)
@@ -60,9 +73,11 @@ internal static class WavePanel
 
         Transform fillBar = SimulacrumWaveProgressBar.GetChild(3);
         Image fillBarImage = fillBar.GetComponent<Image>();
-        HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetOrAddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
+        var barImageColorChanger = fillBarImage.EnsureComponent<HudEditorComponents.SimulacrumBarColorChanger>();
         barImageColorChanger.newFillBarColor = Helpers.GetAdjustedColor(SurvivorColor, colorIntensityMultiplier: 0.5f);
     }
+
+
 
 
     [MonoDetourTargets(typeof(InfiniteTowerWaveProgressBar))]

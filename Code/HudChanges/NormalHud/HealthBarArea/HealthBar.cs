@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
+using static CleanestHud.HudResources.ImportantHudTransforms;
 using MonoDetour.HookGen;
 using MonoDetour;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
@@ -13,32 +14,52 @@ namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 [MonoDetourTargets(typeof(RoR2.UI.HealthBar))]
 internal static class HealthBar
 {
-    internal static void HudStructureEdits()
-    {
-        // TODO what is GetChild(1) here?
-        Transform healthBarRoot = ImportantHudTransforms.BarRoots.GetChild(1);
-
-        Image healthBarRootImage = healthBarRoot.GetComponent<Image>();
-        healthBarRootImage.sprite = HudAssets.WhiteSprite;
-
-        Transform shrunkenRoot = healthBarRoot.Find("ShrunkenRoot");
-        if (shrunkenRoot.childCount != 0)
-        {
-            Transform child1 = shrunkenRoot.GetChild(0);
-            child1.gameObject.SetActive(false);
-            Transform child2 = shrunkenRoot.GetChild(1);
-            child2.gameObject.SetActive(false);
-        }
-    }
-
-
-
-
     [MonoDetourHookInitialize]
-    private static void SetupHooks()
+    private static void Setup()
     {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += RemoveBadHealthSubBarFromPersonalHealthBar;
         Mdh.RoR2.UI.HealthBar.InitializeHealthBar.Prefix(ImproveHealthBarTextVisuals);
     }
+
+
+    internal static void HudStructureEdits()
+    {
+		Image healthBarRootImage = HealthBarRoot.GetComponent<Image>();
+		healthBarRootImage.sprite = HudAssets.WhiteSprite;
+
+		Transform shrunkenRoot = HealthBarRoot.Find("ShrunkenRoot");
+		if (shrunkenRoot.childCount != 0)
+		{
+			Transform badBar1 = shrunkenRoot.GetChild(0);
+			badBar1.gameObject.SetActive(false);
+			Transform badBar2 = shrunkenRoot.GetChild(1);
+			badBar2.gameObject.SetActive(false);
+
+
+			Transform barrierBar = shrunkenRoot.GetChild(3);
+			barrierBar.localPosition = new Vector3(
+				barrierBar.localPosition.x,
+				-1,
+				barrierBar.localPosition.z
+			);
+			barrierBar.localScale = new Vector3(1, 0.7f, 1);
+		}
+	}
+
+
+    internal static void RemoveBadHealthSubBarFromPersonalHealthBar()
+    {
+        Transform shrunkenRoot = ImportantHudTransforms.BarRoots.Find("HealthbarRoot").Find("ShrunkenRoot");
+        Image badHpBarImage0 = shrunkenRoot.GetChild(0).GetComponent<Image>();
+        Image badHpBarImage1 = shrunkenRoot.GetChild(1).GetComponent<Image>();
+        // these images CAN sometimes be null and i don't want an error message to appear if it is
+        // so we're not using DisableImageComponent here
+        badHpBarImage0?.enabled = false;
+        badHpBarImage1?.enabled = false;
+    }
+
+
     private static void ImproveHealthBarTextVisuals(RoR2.UI.HealthBar self)
     {
         // only edit the player's healthbar which has a special name

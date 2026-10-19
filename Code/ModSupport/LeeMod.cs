@@ -68,7 +68,7 @@ internal static class LeeMod
             Mdh.LeeHyperrealMod.Content.Controllers.LeeHyperrealUIController.InitializeSkillIconMaterial.ILHook(FixLocations);
 
 
-            CleanestHud.HudChanges.SurvivorSpecific.SurvivorSpecific.OnSurvivorSpecificHudEditsFinished += OnSurvivorSpecificHudEditsFinished;
+            CleanestHud.HudChanges.SurvivorSpecific.SurvivorSpecific.OnSurvivorSpecificHudChangesFinished += OnSurvivorSpecificHudChangesFinished;
         }
 
 
@@ -135,7 +135,7 @@ internal static class LeeMod
 
 
 
-    internal static void OnSurvivorSpecificHudEditsFinished()
+    internal static void OnSurvivorSpecificHudChangesFinished()
     {
         if (!IsHudEditable || !ModIsRunning)
         {

@@ -2,6 +2,7 @@
 using CleanestHud.HudChanges;
 using CleanestHud.HudChanges.NormalHud;
 using CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
+using HG;
 using MiscFixes.Modules;
 using RoR2.UI;
 using System;
@@ -42,7 +43,8 @@ public static class ConfigOptions
             return;
         }
 
-        CanvasGroup wholeHudCanvasGroup = Main.MyHud.GetOrAddComponent<CanvasGroup>();
+
+        var wholeHudCanvasGroup = Main.MyHud.EnsureComponent<CanvasGroup>();
         wholeHudCanvasGroup.alpha = HudTransparency.Value;
         InspectionPanel.SetInspectPanelMaxAlpha();
     }
@@ -55,15 +57,9 @@ public static class ConfigOptions
         {
             return;
         }
-
-        HudDetails.SetSkillsAndEquipmentReminderTextStatus();
-        OnShowSkillKeybindsChanged?.Invoke();
-        // the sprint and inventory reminders are moved up/down depending on if the skills reminders exist
-        // so their y positions need to change with it to stay in the same spot
-        SprintAndInventoryReminders.RepositionSprintAndInventoryReminders();
-        SkillsScaler.RepositionSkillScaler();
+        OnShowSkillAndEquipmentKeybindsChanged?.Invoke();
     }
-    public static event Action OnShowSkillKeybindsChanged;
+    public static event Action OnShowSkillAndEquipmentKeybindsChanged;
 
 
     public static ConfigEntry<bool> ShowSkillAndEquipmentOutlines;
@@ -87,8 +83,6 @@ public static class ConfigOptions
         {
             return;
         }
-
-        SprintAndInventoryReminders.SetSprintAndInventoryKeybindsStatus();
         OnShowSprintAndInventoryKeybindsChanged?.Invoke();
     }
     public static event Action OnShowSprintAndInventoryKeybindsChanged;
@@ -181,8 +175,7 @@ public static class ConfigOptions
         {
             return;
         }
-        HudResources.ImportantHudTransforms.ScoreboardPanel.TryGetComponent<ScoreboardController>(out var scoreboardController);
-        if (scoreboardController == null)
+        if (!HudResources.ImportantHudTransforms.ScoreboardPanel.TryGetComponent<ScoreboardController>(out var scoreboardController))
         {
             return;
         }
@@ -190,8 +183,10 @@ public static class ConfigOptions
 
         foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
         {
-            scoreboardStrip.TryGetComponent<ScoreboardStrip>(out var scoreboardStripComponent);
-            scoreboardStripComponent?.itemInventoryDisplay.itemIconPrefabWidth = ConfigOptions.ScoreboardItemIconWidth.Value;
+            if (scoreboardStrip.TryGetComponent<ScoreboardStrip>(out var scoreboardStripComponent))
+            {
+                scoreboardStripComponent.itemInventoryDisplay.itemIconPrefabWidth = ConfigOptions.ScoreboardItemIconWidth.Value;
+            }
         }
     }
 
@@ -280,21 +275,21 @@ public static class ConfigOptions
     {
         AllowHudStructureEdits = config.BindOption<bool>(
             "HUD Settings",
-            "Allow HUD structure edits",
+            "Allow HUD structure Edits",
             "Should the structure editing phase of the HUD loading be allowed to happen?\n\nNOTE: This option is REALLY not supported, it will likely cause problems! Especially with some already supported modded survivors! This will also only take effect next stage or the next time the HUD is created!",
             true,
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
         );
         AllowHudDetailsEdits = config.BindOption<bool>(
             "HUD Settings",
-            "Allow HUD details edits",
+            "Allow HUD details Edits",
             "Should the details editing phase of the HUD loading be allowed to happen?\n\nNOTE: This option is not very supported, it may not fully work! This will also only take effect next stage or the next time the HUD is created!",
             true,
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
         );
         AllowHudColorEdits = config.BindOption<bool>(
             "HUD Settings",
-            "Allow HUD color edits",
+            "Allow HUD color Edits",
             "Should the HUD be colored based on the survivor being played/spectated?\n\nNOTE: This option is not very supported, it may not fully work! This will also only take effect next stage or the next time the HUD is created!",
             true,
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
@@ -399,15 +394,15 @@ public static class ConfigOptions
 
         AllowSurvivorSpecificEdits = config.BindOption<bool>(
             "HUD Settings - Survivor Specific",
-            "Allow survivor-specific HUD edits",
-            "Should the editing phase for survivor-specific HUD elements be allowed to happen? This should be turned off if HUD structure edits are turned off.\n\nNOTE: This option is REALLY not supported, it may cause problems! This will also only take effect next stage or the next time the HUD is created!",
+            "Allow survivor-specific HUD Edits",
+            "Should the editing phase for survivor-specific HUD elements be allowed to happen? This should be turned off if HUD structure Edits are turned off.\n\nNOTE: This option is REALLY not supported, it may cause problems! This will also only take effect next stage or the next time the HUD is created!",
             true,
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
         );
         AllowVoidFiendMeterAnimating = config.BindOption<bool>(
             "HUD Settings - Survivor Specific",
             "Allow Void Fiend corruption meter animations",
-            "Should Void Fiend's corruption meter be allowed to animate & squish around whenever the percentage changes?\nNOTE: Currently, when the animations disabled, the colors of the meter do not change based on your form.",
+            "Should Void Fiend's corruption meter be allowed to animate & squish around whenever the percentage Edits?\nNOTE: Currently, when the animations disabled, the colors of the meter do not change based on your form.",
             false,
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
         );
@@ -428,7 +423,7 @@ public static class ConfigOptions
         BodyNameBlacklist_Config = config.BindOption<string>(
             "HUD Settings - Survivor Specific",
             "Survivor Blacklist",
-            "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the majority of the mod's hud changes when playing that survivor. Each body name needs separated by a comma and NO spaces.",
+            "If the HUD gets messed up when playing with certain survivors, add their BODY name (i.e. CommandoBody) here to stop the majority of the mod's hud Edits when playing that survivor. Each body name needs separated by a comma and NO spaces.",
             "",
             MiscFixes.Modules.Extensions.ConfigFlags.ClientSided
         );

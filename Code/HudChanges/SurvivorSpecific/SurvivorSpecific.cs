@@ -9,43 +9,33 @@ namespace CleanestHud.HudChanges.SurvivorSpecific;
 internal static class SurvivorSpecific
 {
     /// <summary>
-    /// Happens on camera target change BEFORE HUD color changes.
+    /// Happens on camera target change BEFORE HUD color Edits.
     /// </summary>
-    public static event Action OnSurvivorSpecificHudEditsBegun;
+    public static event Action OnSurvivorSpecificHudChangesBegun;
 
 
     /// <summary>
-    /// Happens after OnSurvivorSpecificHudEditsBegun.
+    /// Happens after OnSurvivorSpecificHudChangesBegun.
     /// </summary>
-    public static event Action OnSurvivorSpecificHudEditsFinished;
-
-
-    internal static void AddEventSubscriptions()
-    {
-        OnSurvivorSpecificHudEditsBegun += VoidFiend.SetupViendEdits;
-        OnSurvivorSpecificHudEditsBegun += Seeker.RepositionSeekerLotusUI;
-        ConfigOptions.OnShowSkillKeybindsChanged += Seeker.RepositionSeekerLotusUI;
-    }
+    public static event Action OnSurvivorSpecificHudChangesFinished;
 
 
     internal static void FireSurvivorSpecificUIEvent()
     {
         if (IsHudEditable)
         {
-            // reset any possible changes made by other characters first
+            // reset any possible Edits made by other characters first
             SkillsScaler.ResetSkillsScalerLocalPositionToDefault();
             BarRoots.ResetBarRootsLocalPositionToDefault();
-            SprintAndInventoryReminders.ResetInventoryClusterLocalPositionToDefault();
-            SprintAndInventoryReminders.ResetSprintClusterLocalPositionToDefault();
 
 
             // if a survivor specific edit is needed, it's called by this
-            OnSurvivorSpecificHudEditsBegun?.Invoke();
-            OnSurvivorSpecificHudEditsFinished?.Invoke();
+            OnSurvivorSpecificHudChangesBegun?.Invoke();
+            OnSurvivorSpecificHudChangesFinished?.Invoke();
         }
         else
         {
-            Log.Debug("Cannot do survivor-specific HUD edits, the HUD is not editable!");
+            Log.Debug("Cannot do survivor-specific HUD Edits, the HUD is not editable!");
         }
     }
 }

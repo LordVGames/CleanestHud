@@ -1,16 +1,26 @@
-using System;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
+using RoR2.UI;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
-using RoR2.UI;
 namespace CleanestHud.HudChanges.NormalHud.ScoreboardPanel;
 
 
+[MonoDetourTargets]
 internal static class ScoreboardPanel
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudChanges.HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         RectTransform scoreboardPanelRect = ImportantHudTransforms.ScoreboardPanel.GetComponent<RectTransform>();

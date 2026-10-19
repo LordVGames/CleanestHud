@@ -6,9 +6,12 @@ using UnityEngine.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
+using MonoDetour.HookGen;
+using MonoDetour;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
 
+[MonoDetourTargets]
 internal static class BarRoots
 {
     private static Vector2 _barRootsLocalPosition = new(BarRootsDefaultX, BarRootsDefaultY);
@@ -32,14 +35,29 @@ internal static class BarRoots
     public const float BarRootsDefaultY = 0;
 
 
+
+
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudChanges.HudStructure.OnHudStructureEditsBegun += NormalHud.HealthBarArea.BarRoots.HudStructureEdits;
+    }
     internal static void HudStructureEdits()
     {
-        ImportantHudTransforms.BarRoots.SetParent(BottomCenterCluster);
-        ImportantHudTransforms.BarRoots.TryDestroyComponent<VerticalLayoutGroup>();
+		/*ImportantHudTransforms.BarRoots.SetParent(BottomCenterCluster);
+        //ImportantHudTransforms.BarRoots.TryDestroyComponent<VerticalLayoutGroup>();
         RectTransform barRootsRect = ImportantHudTransforms.BarRoots.GetComponent<RectTransform>();
         barRootsRect.rotation = Quaternion.identity;
-        barRootsRect.pivot = new Vector2(0.5f, 0.25f);
-        barRootsRect.anchoredPosition = Vector2.zero;
-        barRootsRect.sizeDelta = new Vector2(-400f, 100f);
-    }
+        //barRootsRect.pivot = new Vector2(0.5f, 0.25f);
+        //barRootsRect.anchoredPosition = Vector2.zero;
+        //barRootsRect.sizeDelta = new Vector2(-400f, 100f);*/
+
+		ImportantHudTransforms.BarRoots.SetParent(BottomCenterCluster);
+		ImportantHudTransforms.BarRoots.TryDestroyComponent<VerticalLayoutGroup>();
+		RectTransform barRootsRect = ImportantHudTransforms.BarRoots.GetComponent<RectTransform>();
+		barRootsRect.rotation = Quaternion.identity;
+		barRootsRect.pivot = new Vector2(0.5f, 0.25f);
+		barRootsRect.anchoredPosition = Vector2.zero;
+		barRootsRect.sizeDelta = new Vector2(-400f, 100f);
+	}
 }

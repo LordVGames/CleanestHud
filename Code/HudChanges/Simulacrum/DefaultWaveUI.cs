@@ -1,19 +1,32 @@
-using System;
-using System.Collections;
-using UnityEngine;
+using HG;
+using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
 using RoR2.UI;
+using System;
+using System.Collections;
 using TMPro;
-using static CleanestHud.Main;
-using static CleanestHud.HudResources;
+using UnityEngine;
 using UnityEngine.UI;
-using MiscFixes.Modules;
+using static CleanestHud.HudResources;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.Simulacrum;
 
 
 // both this, the wave panel and a few other things are within the whole wave ui transform
+[MonoDetourTargets]
 internal static class DefaultWaveUI
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        HudColor.OnHudColorEditsBegun += HudColorEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         if (!Helpers.IsGameModeSimulacrum)
@@ -66,7 +79,7 @@ internal static class DefaultWaveUI
 
         Transform fillBar = fillBarRoot.GetChild(3);
         Image fillBarImage = fillBar.GetComponent<Image>();
-        HudEditorComponents.SimulacrumBarColorChanger barImageColorChanger = fillBarImage.GetOrAddComponent<HudEditorComponents.SimulacrumBarColorChanger>();
+        var barImageColorChanger = fillBarImage.EnsureComponent<HudEditorComponents.SimulacrumBarColorChanger>();
         barImageColorChanger.newFillBarColor = Helpers.GetAdjustedColor(HudColor.SurvivorColor, colorIntensityMultiplier: 0.5f);
     }
 }

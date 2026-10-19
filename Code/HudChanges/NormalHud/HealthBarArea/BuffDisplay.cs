@@ -1,5 +1,7 @@
 using System;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +10,16 @@ using static CleanestHud.HudResources.ImportantHudTransforms;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
 
+[MonoDetourTargets]
 internal static class BuffDisplay
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudChanges.HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         BuffDisplayRoot.TryDestroyComponent<HorizontalLayoutGroup>();

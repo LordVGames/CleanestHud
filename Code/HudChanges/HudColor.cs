@@ -1,6 +1,8 @@
 ﻿using CleanestHud.HudChanges.NormalHud.ScoreboardPanel;
 using CleanestHud.ModSupport;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
 using RoR2.UI;
 using System;
@@ -16,12 +18,11 @@ using static CleanestHud.Main;
 namespace CleanestHud.HudChanges;
 
 
+[MonoDetourTargets]
 public class HudColor
 {
     public const float DefaultHudColorIntensity = 0.643f;
     public const float DefaultSurvivorColorMultiplier = 0.85f;
-
-
     public static Color SurvivorColor
     {
         get { return _survivorColor; }
@@ -67,6 +68,23 @@ public class HudColor
     public static event Action OnHudColorEditsFinished;
 
 
+
+
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        Run.onRunStartGlobal += Run_onRunStartGlobal;
+    }
+    internal static void Run_onRunStartGlobal(Run obj)
+    {
+        // why doesn't the color reset when clicking the restart button from that one mod
+        // just reset fuck
+        SurvivorColor = Color.clear;
+    }
+
+
+
+
     internal static IEnumerator SetSurvivorColorFromTargetBody(CharacterBody targetCharacterBody)
     {
         // game is a dumbass and tries to set the other player's color to YOUR hud AFTER the game already sets YOUR OWN color, but only sometimes!!!!!!!
@@ -81,34 +99,12 @@ public class HudColor
         yield return new WaitForSeconds(0.15f);
         if (targetCharacterBody == null)
         {
-            Log.Error("targetCharacterBody WAS NULL IN SetSurvivorColorFromTargetBody! NO HUD COLOR CHANGES WILL OCCUR!");
+            Log.Warning("targetCharacterBody WAS NULL IN SetSurvivorColorFromTargetBody! HUD coloring may or may not occur!");
             yield break;
         }
         Log.Debug($"targetCharacterBody.baseNameToken after dumbass delay is {targetCharacterBody.baseNameToken}");
         SurvivorColor = Helpers.GetAdjustedColor(targetCharacterBody.bodyColor, DefaultSurvivorColorMultiplier, DefaultSurvivorColorMultiplier);
         IsColorChangeCoroutineWaiting = false;
-    }
-
-
-    internal static void AddEventSubscriptions()
-    {
-        Run.onRunStartGlobal += Run_onRunStartGlobal;
-        OnHudColorEditsBegun += NormalHud.CurrenciesArea.HudColorEdits;
-        OnHudColorEditsBegun += NormalHud.InspectionPanel.HudColorEdits;
-        OnHudColorEditsBegun += NormalHud.DifficultyHud.DifficultyBar.HudColorEdits;
-        OnHudColorEditsBegun += NormalHud.HealthBarArea.ExpBar.HudColorEdits;
-        OnHudColorEditsBegun += NormalHud.SkillsAndEquipsArea.EquipmentSlots.HudColorEdits;
-        OnHudColorEditsBegun += NormalHud.SkillsAndEquipsArea.SkillSlots.HudColorEdits;
-        OnHudColorEditsBegun += Simulacrum.DefaultWaveUI.HudColorEdits;
-        OnHudColorEditsBegun += Simulacrum.WavePanel.HudColorEdits;
-    }
-
-
-    internal static void Run_onRunStartGlobal(Run obj)
-    {
-        // why doesn't the color reset when clicking the restart button from that one mod
-        // just reset fuck
-        SurvivorColor = Color.clear;
     }
 
 
@@ -124,15 +120,15 @@ public class HudColor
         {
             return;
         }
+        if (!ConfigOptions.AllowHudColorEdits.Value)
+        {
+            return;
+        }
         Log.Debug($"Now updating the HUD's color, SurvivorColor is {SurvivorColor}");
         OnHudColorEditsBegun?.Invoke();
-        MyHud?.StartCoroutine(DelayInvokeOnHudColorUpdate());
-    }
-    private static IEnumerator DelayInvokeOnHudColorUpdate()
-    {
-        yield return null;
         OnHudColorEditsFinished?.Invoke();
     }
+
 
 
 
@@ -140,9 +136,12 @@ public class HudColor
     {
         ColorScoreboardStrip(scoreboardStrip, newColor);
         ColorItemIconGlowImages(scoreboardStrip, newColor);
-        ScoreboardStrips.EditScoreboardStripEquipmentSlotHighlight(scoreboardStrip);
+        ItemIcons.ColorKeyItemIcon(scoreboardStrip.keyItemIcon);
+        ScoreboardStrips.EditscoreboardStripEquipmentSlotHighlight(scoreboardStrip);
         ColorEquipmentSlotHighlight(scoreboardStrip, newColor);
     }
+
+
     private static void ColorScoreboardStrip(ScoreboardStrip scoreboardStrip, Color newColor)
     {
         Transform scoreboardStripTransform = scoreboardStrip.transform;
@@ -157,16 +156,21 @@ public class HudColor
 
 
         longBackgroundImage.color = newColor;
-        Color highlightColor = Helpers.GetAdjustedColor(scoreboardStrip.userBody.bodyColor, brightnessMultiplier: 3);
+        Color colorToUse = scoreboardStrip.userBody == null ? Color.black : scoreboardStrip.userBody.bodyColor;
+        Color highlightColor = Helpers.GetAdjustedColor(colorToUse, brightnessMultiplier: 3);
         RawImage scoreboardStripHighlightRawImage = scoreboardStripTransform.gameObject.GetComponent<RawImage>();
         scoreboardStripHighlightRawImage.color = highlightColor;
     }
+
+
     internal static IEnumerator DelayColorItemIconHighlights(ScoreboardStrip scoreboardStrip, Color newColor)
     {
         // scoreboard strips don't have their icons immediately, so we wait a frame
         yield return null;
         ColorItemIconGlowImages(scoreboardStrip, newColor);
     }
+
+
     internal static void ColorItemIconGlowImages(ScoreboardStrip scoreboardStrip, Color newColor)
     {
         if (!IsHudEditable)
@@ -187,15 +191,19 @@ public class HudColor
 
         foreach (ItemIcon itemIcon in scoreboardStrip.itemInventoryDisplay.itemIcons)
         {
-            itemIcon.glowImage.color = colorToUse;
+            itemIcon?.glowImage.color = colorToUse;
         }
     }
+
+
     internal static void ColorEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip, Color newColor)
     {
         Transform navFocusHighlight = scoreboardStrip.equipmentIcon.transform.GetChild(1);
         RawImage navFocusHighlightRawImage = navFocusHighlight.GetComponent<RawImage>();
         navFocusHighlightRawImage.color = newColor;
     }
+
+
     internal static void ColorSingleItemIconHighlight(ItemIcon itemIcon)
     {
         if (!IsHudEditable)
@@ -214,7 +222,6 @@ public class HudColor
         ScoreboardStrip scoreboardStrip = itemIcon.transform.parent.parent.parent.GetComponent<ScoreboardStrip>();
         if (scoreboardStrip == null)
         {
-            Log.Debug("ScoreboardStrip was null??? returning");
             return;
         }
 

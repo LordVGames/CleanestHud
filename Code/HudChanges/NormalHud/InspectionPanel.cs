@@ -1,18 +1,29 @@
-using System;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
+using RoR2.UI;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using static CleanestHud.Main;
 using static CleanestHud.HudChanges.HudColor;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
-using RoR2.UI;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud;
 
 
+[MonoDetourTargets]
 internal static class InspectionPanel
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        HudColor.OnHudColorEditsBegun += HudColorEdits;
+    }
+
+
     internal static void HudDetailEdits()
     {
         RemoveInspectIconDetails();

@@ -1,23 +1,35 @@
-using System;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
+using RoR2.UI;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using static CleanestHud.Main;
 using static CleanestHud.HudResources;
-using RoR2.UI;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud.ScoreboardPanel;
 
 
+[MonoDetourTargets]
 internal static class ScoreboardStrips
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+    }
+
+
     internal static void HudDetailEdits()
     {
         ImportantHudTransforms.ScoreboardStripContainer.DisableImageComponent();
     }
 
 
-    internal static void EditScoreboardStripEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip)
+
+
+    internal static void EditscoreboardStripEquipmentSlotHighlight(ScoreboardStrip scoreboardStrip)
     {
         Transform equipmentBackground = scoreboardStrip.equipmentIcon.transform;
         Transform navFocusHighlight = equipmentBackground.GetChild(1);

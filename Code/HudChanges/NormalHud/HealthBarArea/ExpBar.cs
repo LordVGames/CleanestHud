@@ -7,11 +7,22 @@ using static CleanestHud.Main;
 using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
 using static CleanestHud.HudChanges.HudColor;
+using MonoDetour.HookGen;
+using MonoDetour;
 namespace CleanestHud.HudChanges.NormalHud.HealthBarArea;
 
 
+[MonoDetourTargets]
 internal static class ExpBar
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudChanges.HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudChanges.HudColor.OnHudColorEditsBegun += HudColorEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         Image expBarRootImage = ExpBarRoot.GetComponent<Image>();

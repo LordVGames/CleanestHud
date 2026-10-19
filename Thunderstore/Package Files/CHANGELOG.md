@@ -1,3 +1,21 @@
+## 3.0.0
+
+Another refactor (kinda)
+
+Fixed for DLC4 and supports the new UI from it
+
+Fixed functional coupler keybind reminder not going away with the other keybind reminders
+
+Mod now depends on [HideKeyItemSlot](https://thunderstore.io/c/riskofrain2/p/kina/HideKeyItemSlot/) (not a hard dependency, you can still disable/uninstall it if you don't want to use it)
+
+Fixed remote operation label being covered up by the skills
+
+Dead players on the tab menu now show up with a black color instead of the default RoR2 UI Color
+
+Driver:
+
+- Weapon slot text now shows "Weapon" (would always show nothing before)
+
 ## 2.0.2
 
 Fixed seeker meditation ui not being moved

@@ -12,8 +12,17 @@ using System.Collections;
 namespace CleanestHud.HudChanges.NormalHud;
 
 
+[MonoDetourTargets]
 internal static class NotificationArea
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+    }
+
+
     internal static void HudStructureEdits()
     {
         RectTransform notificationAreaRect = ImportantHudTransforms.NotificationArea.GetComponent<RectTransform>();
@@ -28,11 +37,8 @@ internal static class NotificationArea
     internal static void HudDetailEdits()
     {
         ImportantHudTransforms.ContextNotification.Find("ContextDisplay").DisableRawImageComponent();
-        // GetChild(2) is inspectDisplay
-        ImportantHudTransforms.ContextNotification.GetChild(2).DisableRawImageComponent();
+        ImportantHudTransforms.ContextNotification.Find("InspectDisplay").DisableRawImageComponent();
     }
-
-
 
 
     [MonoDetourTargets(typeof(NotificationUIController))]

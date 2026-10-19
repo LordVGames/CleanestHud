@@ -53,9 +53,9 @@ internal static class ScoreboardController
 
         // wait a frame first to make scoreboard strips added by other mods work
         yield return null;
-        EditScoreboardStripsIfApplicable(scoreboardController);
+        EditscoreboardStripsIfApplicable(scoreboardController);
     }
-    private static void EditScoreboardStripsIfApplicable(RoR2.UI.ScoreboardController scoreboardController)
+    private static void EditscoreboardStripsIfApplicable(RoR2.UI.ScoreboardController scoreboardController)
     {
         foreach (var scoreboardStrip in scoreboardController.stripAllocator.elements)
         {
@@ -64,11 +64,17 @@ internal static class ScoreboardController
 
             Transform longBackground = scoreboardStripTransform.GetChild(0);
             Image longBackgroundImage = longBackground.GetComponent<Image>();
-            if (IsHudEditable && scoreboardStrip.userBody != null && !Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, scoreboardStrip.userBody.bodyColor))
+            if (IsHudEditable)
             {
-                HudColor.ColorAllOfScoreboardStrip(scoreboardStrip, scoreboardStrip.userBody.bodyColor);
+                Color colorToUse = scoreboardStrip.userBody == null ? Color.black : scoreboardStrip.userBody.bodyColor;
+                if (!Helpers.AreColorsEqualIgnoringAlpha(longBackgroundImage.color, colorToUse))
+                {
+                    HudColor.ColorAllOfScoreboardStrip(scoreboardStrip, colorToUse);
+                }
             }
-            Transform itemsBackground = longBackground.GetChild(6);
+            Transform keyItemBackground = longBackground.GetChild(6);
+            keyItemBackground.GetComponent<Image>().color = Color.clear;
+            Transform itemsBackground = longBackground.GetChild(7);
             // DO NOT remove the items background image
             // if you do it will break the automatic scaling of the hud at ultrawide resolutions
             itemsBackground.GetComponent<Image>().color = Color.clear;

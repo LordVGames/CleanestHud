@@ -57,7 +57,7 @@ internal static class AllyCards
             Transform allyCard = allyCardContainer.GetChild(i);
             Image background = allyCard.GetComponent<Image>();
             background.enabled = ConfigOptions.AllowAllyCardBackgrounds.Value;
-            // portrait edits get reset after enabling/disabling the background
+            // portrait Edits get reset after enabling/disabling the background
             MyHud?.StartCoroutine(DelayEditAllyCardPortrait(allyCard.GetChild(0)));
         }
     }

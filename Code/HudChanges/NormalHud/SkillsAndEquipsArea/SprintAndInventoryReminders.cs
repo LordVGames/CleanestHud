@@ -1,95 +1,97 @@
-using System;
+using CleanestHud.ModSupport;
+using HG;
 using MiscFixes.Modules;
+using MonoDetour;
+using MonoDetour.HookGen;
 using RoR2;
+using RoR2.UI;
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using RoR2.UI;
-using CleanestHud.ModSupport;
-using static CleanestHud.Main;
+using static CleanestHud.HudResources;
 using static CleanestHud.HudResources.ImportantHudTransforms;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud.SkillsAndEquipsArea;
 
 
+[MonoDetourTargets]
 internal static class SprintAndInventoryReminders
 {
-    private static Vector2 _sprintClusterLocalPositionBoosted = new(SprintClusterDefaultX, SprintClusterDefaultY);
-    public static Vector2 SprintClusterLocalPositionBoosted
-    {
-        get
-        {
-            return _sprintClusterLocalPositionBoosted;
-        }
-    }
-    private static Vector2 _sprintClusterLocalPosition = new(SprintClusterDefaultX, SprintClusterDefaultY);
-    public static Vector2 SprintClusterLocalPosition
-    {
-        get
-        {
-            return _sprintClusterLocalPosition;
-        }
-        set
-        {
-            Transform sprintCluster = SkillDisplayRoot.Find("SprintCluster");
-            sprintCluster.position = new Vector3(
-                HealthBarRoot.position.x,
-                sprintCluster.position.y,
-                sprintCluster.position.z
-            );
-            _sprintClusterLocalPosition = value;
-            _sprintClusterLocalPositionBoosted = _sprintClusterLocalPosition;
-            _sprintClusterLocalPositionBoosted.y -= ConfigOptions.ShowSkillKeybinds.Value ? 42 : 0;
-            sprintCluster.localPosition = _sprintClusterLocalPositionBoosted;
-        }
-    }
-    public static void ResetSprintClusterLocalPositionToDefault()
-    {
-        SprintClusterLocalPosition = new Vector2(SprintClusterDefaultX, SprintClusterDefaultY);
-    }
-    public const float SprintClusterDefaultX = -386.5721f;
-    public const float SprintClusterDefaultY = -64;
+    public const float SprintClusterDefaultX = -260;
+    internal static HudEditorComponents.TransformLocalPositionSetter SprintClusterMover;
 
 
-    private static Vector2 _inventoryClusterLocalPositionBoosted = new(InventoryClusterDefaultX, InventoryClusterDefaultY);
-    public static Vector2 InventoryClusterLocalPositionBoosted
+    public const float InventoryClusterSpaceFromSprintCluster = 50;
+    public const float InventoryClusterDefaultX = SprintClusterDefaultX - InventoryClusterSpaceFromSprintCluster;
+    internal static HudEditorComponents.TransformLocalPositionSetter InventoryClusterMover;
+
+
+
+
+    [MonoDetourHookInitialize]
+    private static void Setup()
     {
-        get
-        {
-            return _sprintClusterLocalPositionBoosted;
-        }
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        ConfigOptions.OnShowSprintAndInventoryKeybindsChanged += SetSprintAndInventoryKeybindsStatus;
+        Mdh.RoR2.UI.HUD.OnDestroy.Postfix(OnDestroy);
     }
-    private static Vector2 _inventoryClusterLocalPosition = new(InventoryClusterDefaultX, InventoryClusterDefaultY);
-    public static Vector2 InventoryClusterLocalPosition
+
+
+
+
+    private static void HudStructureEdits()
     {
-        get
-        {
-            return _inventoryClusterLocalPosition;
-        }
-        set
-        {
-            Transform inventoryCluster = SkillDisplayRoot.Find("InventoryCluster");
-            inventoryCluster.position = new Vector3(
-                HealthBarRoot.position.x,
-                inventoryCluster.position.y,
-                inventoryCluster.position.z
-            );
-            _inventoryClusterLocalPosition = value;
-            _inventoryClusterLocalPositionBoosted = _inventoryClusterLocalPosition;
-            _inventoryClusterLocalPositionBoosted.y -= ConfigOptions.ShowSkillKeybinds.Value ? 42 : 0;
-            inventoryCluster.localPosition = _inventoryClusterLocalPositionBoosted;
-        }
+        SprintCluster.SetParent(BarRoots);
+        InventoryCluster.SetParent(BarRoots);
+
+
+        SprintClusterMover = SprintCluster.EnsureComponent<HudEditorComponents.TransformLocalPositionSetter>();
+        InventoryClusterMover = InventoryCluster.EnsureComponent<HudEditorComponents.TransformLocalPositionSetter>();
+
+
+        // can't edit the info on the components right away because of reasons
+        MyHud?.StartCoroutine(SetStartingPosition());
     }
-    public static void ResetInventoryClusterLocalPositionToDefault()
+
+
+    private static IEnumerator SetStartingPosition()
     {
-        InventoryClusterLocalPosition = new Vector2(InventoryClusterDefaultX, InventoryClusterDefaultY);
+        yield return null;
+
+
+        RectTransform healthbarRootRect = HealthBarRoot.GetComponent<RectTransform>();
+        float yPos = healthbarRootRect.sizeDelta.y * 1.5f;
+
+
+        SprintClusterMover.NewLocalPosition = new Vector3(SprintClusterDefaultX, yPos);
+        InventoryClusterMover.NewLocalPosition = new Vector3(InventoryClusterDefaultX, yPos);
+
+
+        SprintCluster.localRotation = Quaternion.identity;
+        InventoryCluster.localRotation = Quaternion.identity;
+
+
+        yield break;
     }
-    public const float InventoryClusterDefaultX = -458.5721f;
-    public const float InventoryClusterDefaultY = -64;
+
+
+
+
+    private static void OnDestroy(HUD self)
+    {
+        SprintClusterMover = null;
+        InventoryClusterMover = null;
+    }
+
+
 
 
     internal static void HudDetailEdits()
     {
-        SetSprintAndInventoryKeybindsStatus();
         RemoveSprintAndInventoryReminderTextBackgrounds();
+        SetSprintAndInventoryKeybindsStatus();
     }
 
 
@@ -98,17 +100,12 @@ internal static class SprintAndInventoryReminders
         SprintCluster.gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
         InventoryCluster.gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
     }
+
+
     private static void RemoveSprintAndInventoryReminderTextBackgrounds()
     {
         SprintCluster.Find("KeyBackgroundPanel")?.DisableImageComponent();
         // why is the background panel name different from the SprintCluster? idfk
         InventoryCluster.Find("SkillBackgroundPanel")?.DisableImageComponent();
-    }
-
-
-    internal static void RepositionSprintAndInventoryReminders()
-    {
-        SprintClusterLocalPosition = SprintClusterLocalPosition;
-        InventoryClusterLocalPosition = InventoryClusterLocalPosition;
     }
 }

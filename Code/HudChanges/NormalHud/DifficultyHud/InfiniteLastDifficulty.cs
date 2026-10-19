@@ -8,6 +8,7 @@ using static CleanestHud.HudResources.ImportantHudTransforms;
 using UnityEngine.UI;
 using System.Collections;
 using MiscFixes.Modules;
+using HG;
 namespace CleanestHud.HudChanges.NormalHud.DifficultyHud;
 
 
@@ -18,7 +19,7 @@ internal static class InfiniteLastDifficulty
         Log.Debug("Attempting SetFakeInfiniteLastDifficultySegmentStatus");
         Transform difficultyBar = RunInfoHudPanel.Find("DifficultyBar");
         DifficultyBarController difficultyBarController = difficultyBar.GetComponent<DifficultyBarController>();
-        // can't see the changes below "IM COMING FOR YOU" so
+        // can't see the Edits below "IM COMING FOR YOU" so
         if (difficultyBarController.currentSegmentIndex < 7)
         {
             Log.Debug("Difficulty bar is not far enough to matter, not doing SetFakeInfiniteLastDifficultySegmentStatus");
@@ -57,7 +58,7 @@ internal static class InfiniteLastDifficulty
     private static IEnumerator TempComponentBackgroundImage(Image backdropImage, Color newColor)
     {
         // this is stupid
-        var transparencyRemover = backdropImage.GetOrAddComponent<HudEditorComponents.DifficultyBarBackgroundTransparencyRemover>();
+        var transparencyRemover = backdropImage.EnsureComponent<HudEditorComponents.DifficultyBarBackgroundTransparencyRemover>();
         transparencyRemover.survivorColorNoTransparency = newColor;
         transparencyRemover.enabled = true;
         yield return new WaitForSeconds(2f);

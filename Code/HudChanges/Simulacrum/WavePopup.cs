@@ -1,13 +1,23 @@
+using MonoDetour;
+using MonoDetour.HookGen;
+using RoR2;
 using System;
 using System.Collections;
-using RoR2;
 using UnityEngine;
 using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.Simulacrum;
 
 
+[MonoDetourTargets]
 internal static class WavePopup
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        InfiniteTowerRun.onWaveInitialized += InfiniteTowerRun_onWaveInitialized;
+    }
+
+
     internal static void InfiniteTowerRun_onWaveInitialized(InfiniteTowerWaveController obj)
     {
         if (IsHudUserBlacklisted)

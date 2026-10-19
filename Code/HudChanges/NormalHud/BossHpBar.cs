@@ -1,20 +1,31 @@
-using System;
+using Mdh.RoR2.BossGroup;
 using MiscFixes.Modules;
-using RoR2;
-using UnityEngine;
-using UnityEngine.UI;
-using static CleanestHud.Main;
-using static CleanestHud.HudResources.ImportantHudTransforms;
-using RoR2.UI;
-using MonoDetour.HookGen;
 using MonoDetour;
 using MonoDetour.Cil;
+using MonoDetour.HookGen;
 using MonoMod.Cil;
+using RoR2;
+using RoR2.UI;
+using System;
+using UnityEngine;
+using UnityEngine.UI;
+using static CleanestHud.HudResources.ImportantHudTransforms;
+using static CleanestHud.Main;
 namespace CleanestHud.HudChanges.NormalHud;
 
 
+[MonoDetourTargets(typeof(BossGroup))]
 internal static class BossHpBar
 {
+    [MonoDetourHookInitialize]
+    private static void Setup()
+    {
+        HudStructure.OnHudStructureEditsBegun += HudStructureEdits;
+        HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
+        Mdh.RoR2.BossGroup.UpdateObservations.ILHook(SubtitleCloudFix);
+    }
+
+
     internal static void HudStructureEdits()
     {
         Transform bossHealthBarRoot = TopCenterCluster.Find("BossHealthBarRoot");
@@ -79,30 +90,19 @@ internal static class BossHpBar
     }
 
 
-    [MonoDetourTargets(typeof(BossGroup))]
-    private static class SubtitleCloudFix
+    private static void SubtitleCloudFix(ILManipulationInfo info)
     {
-        [MonoDetourHookInitialize]
-        private static void Setup()
-        {
-            Mdh.RoR2.BossGroup.UpdateObservations.ILHook(UpdateObservations);
-        }
-
-
-        private static void UpdateObservations(ILManipulationInfo info)
-        {
-            ILWeaver w = new(info);
-            w.MatchRelaxed(
-                x => x.MatchLdstr("<sprite name=\"CloudRight\" tint=1>") && w.SetCurrentTo(x)
-            ).ThrowIfFailure()
-            .InsertAfterCurrent(
-                w.CreateDelegateCall((string cloudRightString) =>
-                {
-                    // hopoo forgot to put an extra space before the right cloud
-                    // then they never fixed it lol
-                    return cloudRightString.Insert(0, " ");
-                })
-            );
-        }
+        ILWeaver w = new(info);
+        w.MatchRelaxed(
+            x => x.MatchLdstr("<sprite name=\"CloudRight\" tint=1>") && w.SetCurrentTo(x)
+        ).ThrowIfFailure()
+        .InsertAfterCurrent(
+            w.CreateDelegateCall((string cloudRightString) =>
+            {
+                // hopoo forgot to put an extra space before the right cloud
+                // then they never fixed it lol
+                return cloudRightString.Insert(0, " ");
+            })
+        );
     }
 }

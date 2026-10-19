@@ -10,6 +10,7 @@ using RoR2;
 using RoR2.UI;
 using static CleanestHud.Main;
 using static CleanestHud.HudChanges.HudColor;
+using static CleanestHud.HudResources.ImportantHudTransforms;
 using MiscFixes.Modules;
 using MonoDetour.HookGen;
 using MonoDetour;
@@ -28,7 +29,7 @@ internal class Myst
             return (bool)_modexists;
         }
     }
-    private static bool IsHudCameraTargetMyst
+    internal static bool IsHudCameraTargetMyst
     {
         get
         {
@@ -57,10 +58,10 @@ internal class Myst
             Mdh.RoR2.UI.HUD.OnDestroy.Postfix(HUD_OnDestroy);
 
 
-            HudChanges.SurvivorSpecific.SurvivorSpecific.OnSurvivorSpecificHudEditsFinished += OnSurvivorSpecificHudEditsFinished;
+            HudChanges.SurvivorSpecific.SurvivorSpecific.OnSurvivorSpecificHudChangesFinished += OnSurvivorSpecificHudChangesFinished;
             HudChanges.HudColor.OnHudColorEditsFinished += OnHudColorEditsFinished;
             ConfigOptions.OnShowSprintAndInventoryKeybindsChanged += ConfigOptions_OnShowSprintAndInventoryKeybindsChanged;
-            ConfigOptions.OnShowSkillKeybindsChanged += ConfigOptions_OnShowSkillKeybindsChanged;
+            ConfigOptions.OnShowSkillAndEquipmentKeybindsChanged += ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged;
         }
 
 
@@ -76,7 +77,7 @@ internal class Myst
     }
 
 
-    internal static void OnSurvivorSpecificHudEditsFinished()
+    internal static void OnSurvivorSpecificHudChangesFinished()
     {
         if (HudCameraTargetBody == null || !ModIsRunning)
         {
@@ -117,7 +118,7 @@ internal class Myst
             }
         }
         // manually calling the event's method to call what it calls
-        ConfigOptions_OnShowSkillKeybindsChanged();
+        ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged();
         Transform mystCluster = mystScaler.parent;
         mystCluster.rotation = Quaternion.identity;
     }
@@ -269,27 +270,26 @@ internal class Myst
         DisableNormalSprintAndInventoryReminders();
         Transform tooltipCluster = mystScaler.GetChild(0);
 
-        tooltipCluster.Find("SprintCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
-        tooltipCluster.Find("InventoryCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
+        tooltipCluster.Find("ExtraButtonPanels/SprintCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
+        tooltipCluster.Find("ExtraButtonPanels/InventoryCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
     }
 
     private static void DisableNormalSprintAndInventoryReminders()
     {
         Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
         // keep the normal reminders hidden since we're always "replacing" them
-        scaler.Find("SprintCluster").gameObject.SetActive(false);
-        scaler.Find("InventoryCluster").gameObject.SetActive(false);
+        SprintCluster?.gameObject.SetActive(false);
+        InventoryCluster?.gameObject.SetActive(false);
     }
 
     private static void ResetNormalSprintAndInventoryRemindersStatus()
     {
-        Transform scaler = MyHudLocator.FindChild("SkillDisplayRoot");
         // keep the normal reminders hidden since we're always "replacing" them
-        scaler.Find("SprintCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
-        scaler.Find("InventoryCluster").gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
+        SprintCluster?.gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
+        InventoryCluster?.gameObject.SetActive(ConfigOptions.ShowSprintAndInventoryKeybinds.Value);
     }
 
-    internal static void ConfigOptions_OnShowSkillKeybindsChanged()
+    internal static void ConfigOptions_OnShowSkillAndEquipmentKeybindsChanged()
     {
         if (mystScaler == null)
         {
@@ -299,14 +299,14 @@ internal class Myst
         SetSkillAndEquipmentKeybindsStatus();
         MoveMystTooltipClusters();
     }
-    private static void MoveMystScaler()
+    internal static void MoveMystScaler()
     {
-        // lazy
         mystScaler.localPosition = new Vector3(
-            -817,
-            108 + (ConfigOptions.ShowSkillKeybinds.Value ? 20 : 0),
+            -817 + (MyHud.keyItemIcon.gameObject.activeSelf ? 30 : 0),
+            111 + (ConfigOptions.ShowSkillKeybinds.Value ? 20 : 0),
             -12.5f
         );
+        HudChanges.NormalHud.SkillsAndEquipsArea.KeyItem.KeyItemSlot.HudStructureEdits();
     }
 
     private static void SetSkillAndEquipmentKeybindsStatus()

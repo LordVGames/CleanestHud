@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# HookGen0004: Referenced type is in an assembly that is not publicized
+dotnet_diagnostic.HookGen0004.severity = none
