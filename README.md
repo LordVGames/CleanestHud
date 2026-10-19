@@ -47,7 +47,7 @@ Many elements of the hud are also configurable Most are for the hud in general, 
 </details>
 
 ## Bugs/Suggestions
-If you find a bug, or have a suggestion for the hud, either make a github issue or ping me (lordvgames) in the RoR2 modding discord server.
+If you find a bug, or have a suggestion for the hud, either make a github issue or ping me in the RoR2 modding discord server.
 
 ## Known Issues
 - Changing resolutions mid-stage doesn't re-scale the hud
