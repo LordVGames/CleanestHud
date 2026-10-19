@@ -1,3 +1,8 @@
+## 3.0.1
+
+Removed attempt at making the barrier bar smaller since it was randomly causing problems
+- Will come back in the future when it's done in a better way
+
 ## 3.0.0
 
 Another refactor (kinda)

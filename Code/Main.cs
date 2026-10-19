@@ -45,12 +45,12 @@ public static class Main
         {
             if (!MyHud)
             {
-                Log.Error("HUD did not exist when trying to get HudCameraTargetBody!");
+                Log.Warning("HUD did not exist when trying to get HudCameraTargetBody!");
                 return null;
             }
             if (!MyHud.targetBodyObject)
             {
-                Log.Error("HUD did not have a valid targetBodyObject!");
+                Log.Warning("HUD did not have a valid targetBodyObject!");
                 return null;
             }
             return MyHud.cameraRigController.targetBody;

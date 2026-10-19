@@ -37,13 +37,13 @@ internal static class HealthBar
 			badBar2.gameObject.SetActive(false);
 
 
-			Transform barrierBar = shrunkenRoot.GetChild(3);
+			/*Transform barrierBar = shrunkenRoot.GetChild(3);
 			barrierBar.localPosition = new Vector3(
 				barrierBar.localPosition.x,
 				-1,
 				barrierBar.localPosition.z
 			);
-			barrierBar.localScale = new Vector3(1, 0.7f, 1);
+			barrierBar.localScale = new Vector3(1, 0.7f, 1);*/
 		}
 	}
 
