@@ -1,3 +1,7 @@
+## 3.0.2
+
+Fixed item icons not in the tab menu getting colored
+
 ## 3.0.1
 
 Removed attempt at making the barrier bar smaller since it was randomly causing problems

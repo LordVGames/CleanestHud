@@ -78,11 +78,7 @@ internal static class ItemIcons
 
     private static void SetItemIndex3(ItemIcon itemIcon, ref ItemIcon.SetItemIndexArgs args)
     {
-        if (IsHudUserBlacklisted)
-        {
-            return;
-        }
-        if (itemIcon.image.name != "ItemImage")
+        if (IsHudUserBlacklisted || itemIcon == null || itemIcon.image == null || itemIcon.name != "ItemIconScoreboard_InGame(Clone)")
         {
             return;
         }

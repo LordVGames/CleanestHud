@@ -8,18 +8,15 @@ This is a revival & continuation of HIFU's CleanerHud mod, with permission. (pro
 - Uses your survivor's color throughout the hud.
 - - This doesn't just include the one you're playing as, but any survivor you're spectating.
 - Supports modded UI from many mods, including (but not limited to):
-- - [Starstorm 2](https://thunderstore.io/package/TeamMoonstorm/Starstorm2/)
-- - [LookingGlass](https://thunderstore.io/package/DropPod/LookingGlass/)
-- - [HUDdleUP](https://thunderstore.io/package/itsschwer/HUDdleUP/)
 - - [Driver](https://thunderstore.io/package/public_ParticleSystem/Driver/)
-- - [Myst](https://thunderstore.io/package/JavAngle/Myst/)
+- - [HUDdleUP](https://thunderstore.io/package/itsschwer/HUDdleUP/)
 - - [Lee Hyperreal](https://thunderstore.io/package/PopcornFactory/Lee_Hyperreal/)
+- - [LookingGlass](https://thunderstore.io/package/DropPod/LookingGlass/)
+- - [Myst](https://thunderstore.io/package/JavAngle/Myst/)
 - Many parts of the hud are configurable.
 - - You can use [Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options/) to configure these settings in-game.
-- If a survivor you want to play with doesn't work well with the hud, there's a blacklist you can add them to to prevent the hud from doing changes
+- If a survivor you want to play with doesn't work well with the hud, there's a blacklist you can add them to to prevent the hud from doing changes (may be buggy)
 - Lots of modded multiplayer sessions were played while this was being developed, so I've made sure it works in multiplayer
-
-Many elements of the hud are also configurable Most are for the hud in general, but some are for the survivor specific hud elements that seeker and void fiend have!
 
 ## Screenshots Showcase
 
@@ -50,14 +47,10 @@ Many elements of the hud are also configurable Most are for the hud in general, 
 If you find a bug, or have a suggestion for the hud, either make a github issue or ping me in the RoR2 modding discord server.
 
 ## Known Issues
-- Changing resolutions mid-stage doesn't re-scale the hud
-- - Kind of a vanilla issue, especially when going from a big resolution to a small one, but I feel it should still be mentioned
 - Having the [HealthbarImmune](https://thunderstore.io/c/riskofrain2/p/DestroyedClone/HealthbarImmune/) mod causes the hp bar text to disappear
 - - May or may not be an issue from HealthbarImmune itself. In any case, installing [NoMoreMath](https://thunderstore.io/package/Goorakh/NoMoreMath/) seems to fix it, even with the "effective health" setting off
-- Sometimes Myst's HUD doesn't appear
-- - It's a semi-rare error that randomly happens and it comes straight from Myst itself. Can't really fix it until Myst itself adds support for this HUD.
-- Some part of the HUD is broken when an editing phase is turned off
-- - The HUD was built assuming parts of it's editing process weren't turned off, especially structure edits. It'd be a ton of work to go back and make sure everything works with those options, so any bugs stemming from these options likely won't be fixed.
+- Myst's equipment icon is always white
+- - It's an issue on the non-cleanesthud hud for for myst too, so (AFAIK) it's not this mod's fault
 - Your survivor stops walking when hovering over some parts of the hud when they didn't before
 - - Not sure how to fix yet. In the mean time, if it really bugs you, get [Enable Movement On Focused UI](https://thunderstore.io/c/riskofrain2/p/Brynzananas/Enable_Movement_On_Focused_UI/).
 
