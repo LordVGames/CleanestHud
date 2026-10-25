@@ -9,7 +9,7 @@
 	<PropertyGroup>
 		<AssemblyName>Lordryn.CleanestHud</AssemblyName>
 		<AssemblyTitle>CleanestHud</AssemblyTitle>
-		<Version>3.0.2</Version>
+		<Version>3.0.3</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -45,7 +45,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 
-		<PackageReference Include="itsschwer-HUDdleUP" Version="1.3.2" />
+		<PackageReference Include="itsschwer-HUDdleUP" Version="1.3.2" Publicize="true"/>
 
 		<PackageReference Include="JavAngle-Myst" Version="1.2.18" Publicize="true" />
 

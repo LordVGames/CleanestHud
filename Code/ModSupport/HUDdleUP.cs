@@ -1,10 +1,19 @@
 ﻿using CleanestHud.HudChanges;
+using CleanestHud.HudChanges.SurvivorSpecific;
+using HUDdleUP.Bandit;
+using HUDdleUP.Loot;
+using HUDdleUP.Multiplayer;
+using HUDdleUP.Railgunner;
 using MonoDetour;
+using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
+using RoR2.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static CleanestHud.HudResources.ImportantHudTransforms;
 namespace CleanestHud.ModSupport;
 
 
@@ -21,7 +30,11 @@ internal class HUDdleUPMod
     }
 
 
-    [MonoDetourTargets]
+    [MonoDetourTargets(typeof(DronePanel))]
+    [MonoDetourTargets(typeof(LootPanel))]
+    [MonoDetourTargets(typeof(ConnectionPanel))]
+    [MonoDetourTargets(typeof(RailgunnerAccuracyPanel))]
+    [MonoDetourTargets(typeof(BanditComboPanel))]
     private static class Hooks
     {
         [MonoDetourHookInitialize]
@@ -33,24 +46,77 @@ internal class HUDdleUPMod
             }
 
 
-            HudDetails.OnHudDetailEditsFinished += RemoveNewHudPanelBackgrounds;
+            Mdh.HUDdleUP.Loot.LootPanel.Start.Postfix(LootPanel_Start);
+            Mdh.HUDdleUP.Loot.DronePanel.Start.Postfix(DronePanel_Start);
+            Mdh.HUDdleUP.Multiplayer.ConnectionPanel.Start.Postfix(ConnectionPanel_Start);
+            Mdh.HUDdleUP.Railgunner.RailgunnerAccuracyPanel.Start.Postfix(RailgunnerAccuracyPanel_Start);
+            Mdh.HUDdleUP.Bandit.BanditComboPanel.Start.Postfix(BanditComboPanel_Start);
         }
-    }
 
 
-    internal static void RemoveNewHudPanelBackgrounds()
-    {
-        if (HudResources.ImportantHudTransforms.RightInfoBar == null)
+        private static void BanditComboPanel_Start(BanditComboPanel self)
         {
-            return;
+            if (!ConfigOptions.AllowHudDetailsEdits.Value)
+            {
+                return;
+            }
+
+
+            self.panel.gameObject.DisableImageComponent();
+            self.panel.label.gameObject.SetActive(false);
         }
 
 
-        HudResources.ImportantHudTransforms.RightInfoBar.Find("LootPanel")?.DisableImageComponent();
-        HudResources.ImportantHudTransforms.RightInfoBar.Find("RailgunnerAccuracyPanel")?.DisableImageComponent();
-        HudResources.ImportantHudTransforms.RightInfoBar.Find("BanditComboPanel")?.DisableImageComponent();
-        HudResources.ImportantHudTransforms.RightInfoBar.Find("ConnectionPanel")?.DisableImageComponent();
-        HudResources.ImportantHudTransforms.RightInfoBar.Find("DronePanel")?.DisableImageComponent();
+        private static void RailgunnerAccuracyPanel_Start(RailgunnerAccuracyPanel self)
+        {
+            if (!ConfigOptions.AllowHudDetailsEdits.Value)
+            {
+                return;
+            }
+
+
+            self.panel.gameObject.DisableImageComponent();
+            self.panel.label.gameObject.SetActive(false);
+        }
+
+
+        private static void ConnectionPanel_Start(ConnectionPanel self)
+        {
+            if (!ConfigOptions.AllowHudDetailsEdits.Value)
+            {
+                return;
+            }
+
+
+            self.panel.gameObject.DisableImageComponent();
+            self.panel.label.gameObject.SetActive(false);
+        }
+
+
+        private static void DronePanel_Start(DronePanel self)
+        {
+            if (!ConfigOptions.AllowHudDetailsEdits.Value)
+            {
+                return;
+            }
+
+
+            self.panel.gameObject.DisableImageComponent();
+            self.panel.label.gameObject.SetActive(false);
+        }
+
+
+        private static void LootPanel_Start(LootPanel self)
+        {
+            if (!ConfigOptions.AllowHudDetailsEdits.Value)
+            {
+                return;
+            }
+
+
+            self.panel.gameObject.DisableImageComponent();
+            self.panel.label.gameObject.SetActive(false);
+        }
     }
 
 

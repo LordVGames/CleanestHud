@@ -25,6 +25,16 @@ internal static class DifficultyBar
     {
         HudDetails.OnHudDetailEditsBegun += HudDetailEdits;
         HudColor.OnHudColorEditsBegun += HudColorEdits;
+        if (ModSupport.HUDdleUPMod.ModIsRunning)
+        {
+            Mdh.RoR2.UI.HUD.UpdateHudVisibility.Postfix(HUD_UpdateHudVisibility);
+        }
+    }
+
+
+    private static void HUD_UpdateHudVisibility(HUD self)
+    {
+        DisableObjectiveLabel();
     }
 
 
@@ -41,9 +51,29 @@ internal static class DifficultyBar
 
         RunInfoHudPanel.Find("OutlineImage").gameObject.SetActive(false);
 
+        if (!ModSupport.HUDdleUPMod.ModIsRunning)
+        {
+            DisableObjectiveLabel();
+        }
+    }
+
+
+    private static void DisableObjectiveLabel()
+    {
+        if (MyHud == null || RightInfoBar == null)
+        {
+            return;
+        }
         Transform objectivePanel = RightInfoBar.Find("ObjectivePanel");
+        if (objectivePanel == null)
+        {
+            return;
+        }
+
+
         objectivePanel.DisableImageComponent();
-        objectivePanel.Find("Label").gameObject.SetActive(false);
+        Transform label = objectivePanel.Find("Label");
+        label?.gameObject.SetActive(false);
     }
 
 
@@ -103,6 +133,7 @@ internal static class DifficultyBar
             backdropImage.color = tempSurvivorColor;
             yield return null;
         }
+        yield break;
     }
 
 

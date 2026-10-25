@@ -1,3 +1,7 @@
+## 3.0.3
+
+Fixed HUDdleUp support
+
 ## 3.0.2
 
 Fixed item icons not in the tab menu getting colored
