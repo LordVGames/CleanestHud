@@ -50,7 +50,7 @@ internal static class Operator
 
 
             // local position ingame doesn't say it's different after this change but it is
-            _droneQueueUI.localPosition = new Vector3(-192, -64, 0);
+            _droneQueueUI.localPosition = new Vector3(192, -64, 0);
             for (int i = 1; i < 4; i++)
             {
                 Transform droneSlot = _droneQueueUIChildLocator.FindChild($"Drone {i}");

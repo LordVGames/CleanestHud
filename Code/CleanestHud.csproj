@@ -9,7 +9,7 @@
 	<PropertyGroup>
 		<AssemblyName>Lordryn.CleanestHud</AssemblyName>
 		<AssemblyTitle>CleanestHud</AssemblyTitle>
-		<Version>3.0.3</Version>
+		<Version>3.0.4</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>

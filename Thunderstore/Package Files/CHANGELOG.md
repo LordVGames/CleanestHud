@@ -1,3 +1,7 @@
+## 3.0.4
+
+Moved operator's drone UI out of the way of the ntormat
+
 ## 3.0.3
 
 Fixed HUDdleUp support
